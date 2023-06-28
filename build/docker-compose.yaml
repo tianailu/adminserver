@@ -1,0 +1,59 @@
+version: "2.1"
+
+services:
+  tal_1:
+    container_name: tal_1
+    #entrypoint:
+    #  - tail
+    #  - -f
+    #  - /dev/null
+    image: tal:1.0.0
+    ports:
+      - "8080:80"
+    privileged: True
+    restart: always
+    volumes:
+      - /data/tal/logs/:/var/log/
+      - /data/tal/dist:/srv/www
+      - /data/tal/backup:/tal/backup
+      - /data/tal/client-ca:/var/CA/client
+      - /data/tal:/app
+      - /etc/localtime:/etc/localtime:ro
+    command: /app/tal 
+  master:
+    container_name: master
+    image: nginx:latest
+    #entrypoint:
+    #  - tail
+    #  - -f
+    #  - /dev/null
+    ports:
+      - "8091:443"
+    privileged: True
+    restart: always
+    volumes:
+      - ./nginx/master/nginx:/etc/nginx
+      - ./nginx/master/www:/usr/share/nginx/html
+      - /data/nginx/ssl:/data/nginx/ssl
+  node1:
+    container_name: node1
+    image: nginx:latest
+    ports:
+      - "8092:443"
+    privileged: True
+    restart: always
+    volumes:
+      - ./nginx/master/nginx:/etc/nginx
+      - ./nginx/master/www:/usr/share/nginx/html
+      - /data/nginx/ssl:/data/nginx/ssl
+  node2:
+    container_name: node2
+    image: nginx:latest
+    ports:
+      - "8093:443"
+    privileged: True
+    restart: always
+    volumes:
+      - ./nginx/master/nginx:/etc/nginx
+      - ./nginx/master/www:/usr/share/nginx/html
+      - /data/nginx/ssl:/data/nginx/ssl
