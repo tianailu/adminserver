@@ -3,8 +3,8 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/tianailu/adminserver/api"
 	"github.com/tianailu/adminserver/api/server"
 	"github.com/tianailu/adminserver/config"

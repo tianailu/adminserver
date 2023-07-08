@@ -1,8 +1,8 @@
 package i18n
 
 import (
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	goi18n "github.com/nicksnyder/go-i18n/i18n"
 	"github.com/tianailu/adminserver/pkg/utility/path"
 )

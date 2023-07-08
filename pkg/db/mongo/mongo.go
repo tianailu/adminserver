@@ -52,23 +52,23 @@ const (
 
 var (
 	DBKeyFile string //mongodb keyfile
-	DBMode = ModeNormal
+	DBMode    = ModeNormal
 )
 
 func InitDB(username, password, ip, port, maxPoolLimitString, socketTime string) {
 	addr := fmt.Sprintf("mongodb://%s:%s@%s:%s/admin", url.QueryEscape(username), url.QueryEscape(password), ip, port)
 	maxPoolLimit, _ := strconv.Atoi(maxPoolLimitString)
-	gg, _  := strconv.Atoi(socketTime)
+	gg, _ := strconv.Atoi(socketTime)
 	st := time.Duration(gg)
-	timeout := st*time.Second
+	timeout := st * time.Second
 	defer CloseDB()
 
 	//初始化模块权限
-	err := InitPermissions()
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
+	//err := InitPermissions()
+	//if err != nil {
+	//	log.Println(err.Error())
+	//	return
+	//}
 	s, err := mgo.Dial(addr)
 	if err != nil {
 		panic(err)

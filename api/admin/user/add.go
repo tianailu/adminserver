@@ -2,7 +2,7 @@ package user
 
 import (
 	"fmt"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/tianailu/adminserver/pkg/common"
 	"github.com/tianailu/adminserver/pkg/db/mysql"
 	"gorm.io/gorm"

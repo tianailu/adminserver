@@ -2,7 +2,7 @@ package auth
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -33,7 +33,7 @@ func Skipper(c echo.Context) bool {
 		return true
 	}
 
-	if strings.HasPrefix(c.Path(), "verify") || strings.HasPrefix(c.Path(), "/login")  {
+	if strings.HasPrefix(c.Path(), "verify") || strings.HasPrefix(c.Path(), "/login") {
 		return true
 	}
 
