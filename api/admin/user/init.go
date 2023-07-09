@@ -1,6 +1,5 @@
 package user
 
-func init()  {
+func init() {
 	go dealUserData()
 }
-

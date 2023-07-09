@@ -16,7 +16,7 @@ var (
 	err  error
 )
 
-func GetDb() *gorm.DB {
+func GetDB() *gorm.DB {
 	return conn
 }
 

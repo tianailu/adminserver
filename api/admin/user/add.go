@@ -41,7 +41,7 @@ func GetUser(c echo.Context) error {
 	)
 	uId := c.QueryParam("uid")
 
-	err := mysql.GetDb().Table(table).Where("uid = ?", uId).First(&user).Error
+	err := mysql.GetDB().Table(table).Where("uid = ?", uId).First(&user).Error
 	if err != nil {
 		fmt.Println("查询出错了", err)
 		resp.Status = 1
@@ -110,7 +110,7 @@ func createDatabase() error {
 	)ENGINE=InnoDB DEFAULT CHARSET=utf8;`*/
 
 	//fmt.Println("sql语句", sql)
-	err := mysql.GetDb().Set("gorm:ti_home_user", "ENGINE=InnoDB").AutoMigrate(&user)
+	err := mysql.GetDB().Set("gorm:ti_home_user", "ENGINE=InnoDB").AutoMigrate(&user)
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func createDatabase() error {
 // insert user
 func insertUser(user User) error {
 	//开启事务
-	err := mysql.GetDb().Transaction(func(tx *gorm.DB) error {
+	err := mysql.GetDB().Transaction(func(tx *gorm.DB) error {
 		return tx.Table(table).Create(user).Error
 	})
 	if err != nil {
@@ -138,7 +138,7 @@ func GetVipUser(c echo.Context) error {
 		user User
 	)
 	mPhone := c.QueryParam("m_phone")
-	err := mysql.GetDb().Where("m_phone = ?", mPhone).Where("level = ?", 2).First(&user).Error
+	err := mysql.GetDB().Where("m_phone = ?", mPhone).Where("level = ?", 2).First(&user).Error
 	if err != nil {
 		fmt.Println("查询出错了")
 		resp.Status = 1
