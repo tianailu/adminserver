@@ -47,7 +47,8 @@ func InitMysqlDB(username, password, ip, port, dbName, connMaxLifetime, connMaxI
 	sqlDb.SetConnMaxLifetime(time.Second * time.Duration(connMaxLifetimeInt))
 	//验证连接
 	if err := sqlDb.Ping(); err != nil {
+		log.Errorf("Redis Ping err: %s", err.Error())
 		return
 	}
-	fmt.Println("connect success")
+	fmt.Println("MySQL successfully connected")
 }

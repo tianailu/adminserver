@@ -10,6 +10,7 @@ import (
 	"github.com/tianailu/adminserver/config"
 	"github.com/tianailu/adminserver/pkg/cors"
 	"github.com/tianailu/adminserver/pkg/db/mysql"
+	"github.com/tianailu/adminserver/pkg/db/redis"
 	"github.com/tianailu/adminserver/pkg/i18n"
 	"log"
 	"net"
@@ -78,6 +79,11 @@ func (ad *AdminServer) Initialize() {
 		mysqlConf["conn_max_lifetime"], mysqlConf["conn_max_idle"])
 	mysql.InitMysqlDB(mysqlConf["username"], mysqlConf["password"], mysqlConf["ip"], mysqlConf["port"], mysqlConf["db_name"],
 		mysqlConf["conn_max_lifetime"], mysqlConf["conn_max_idle"])
+
+	// init redis
+	redisConf := settings.GetConfig("redis")
+	fmt.Printf("1:%s-2:%s-3:%s-4:%s-5:%s \n", redisConf["username"], redisConf["password"], redisConf["ip"], redisConf["port"], redisConf["db"])
+	redis.InitRedis(redisConf["username"], redisConf["password"], redisConf["ip"], redisConf["port"], redisConf["db"])
 
 	ad.registerRouter()
 	ad.Mode = settings.ConfigEr.String("mode")
