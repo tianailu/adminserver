@@ -4,14 +4,15 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/tianailu/adminserver/api/admin/auth"
 	"github.com/tianailu/adminserver/api/admin/user"
+	"github.com/tianailu/adminserver/config"
 )
 
 // InitRouter 初始化基本路由
 func InitRouter(e *echo.Echo) {
 }
 
-func InitAdminRouter(e *echo.Echo) {
-	e.POST("/login", auth.AdminLogin)
+func InitAdminRouter(setting *config.SettingsConfig, g *echo.Group) {
+	auth.InitRouter(setting, g)
 }
 
 func InitGroupAdminRouter(ver *echo.Group) {

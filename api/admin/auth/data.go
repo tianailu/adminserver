@@ -15,7 +15,7 @@ type Account struct {
 	UnionId     string                `json:"union_id" gorm:"size:32;comment:微信用户在开放平台的唯一标识符"`
 	MobilePhone string                `json:"mobile_phone" gorm:"size:20;comment:绑定登录的手机号码"`
 	Account     string                `json:"account" gorm:"size:32;comment:用户名;index:idx_account"`
-	Password    string                `json:"password" gorm:"size:20;comment:密码"`
+	Password    string                `json:"password" gorm:"size:32;comment:密码"`
 	AccountType string                `json:"account_type" gorm:"size:12,not null;comment:账号类型，取值为[APP:小程序账号, ADMIN:管理后台]"`
 	Name        string                `json:"name" gorm:"size:12;comment:昵称"`
 	Role        string                `json:"role" gorm:"size:32;comment:用户角色"`
