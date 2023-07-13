@@ -86,7 +86,7 @@ func (ad *AdminServer) Initialize() {
 	fmt.Printf("1:%s-2:%s-3:%s-4:%s-5:%s \n", redisConf["username"], redisConf["password"], redisConf["ip"], redisConf["port"], redisConf["db"])
 	redis.InitRedis(redisConf["username"], redisConf["password"], redisConf["ip"], redisConf["port"], redisConf["db"])
 
-	ad.registerRouter(settings)
+	ad.registerRouter()
 	ad.Mode = settings.ConfigEr.String("mode")
 	ad.Scheme = settings.ConfigEr.String("scheme")
 	ad.Host = settings.ConfigEr.String("host")
@@ -98,12 +98,12 @@ func (ad *AdminServer) Initialize() {
 	ad.AdminPasswordSalt = settings.GetConfig("auth")["admin_password_salt"]
 }
 
-func (ad *AdminServer) registerRouter(settings *config.SettingsConfig) {
+func (ad *AdminServer) registerRouter() {
 	admin := App.Group("/adm")
 	admin1 := admin.Group("/v1")
 	admin1.Use(middleware.JWT([]byte(ad.AdminSecretKey)))
 	api.InitRouter(App)
-	api.InitAdminRouter(settings, admin)
+	api.InitAdminRouter(admin)
 	api.InitGroupAdminRouter(admin1)
 }
 
