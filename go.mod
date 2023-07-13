@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/astaxie/beego v1.12.3
+	github.com/beego/beego/v2 v2.1.0
 	github.com/beego/goyaml2 v0.0.0-20130207012346-5545475820dd
 	github.com/beego/x2j v0.0.0-20131220205130-a0352aadc542
 	github.com/casbin/casbin v1.9.1
@@ -32,8 +33,10 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
-	github.com/pelletier/go-toml v1.2.0 // indirect
+	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/pelletier/go-toml v1.9.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/shiena/ansicolor v0.0.0-20200904210342-c7312218db18 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/wendal/errors v0.0.0-20130201093226-f66c77a7882b // indirect

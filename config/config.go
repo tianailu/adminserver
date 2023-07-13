@@ -3,7 +3,7 @@ package config
 import (
 	"flag"
 	"fmt"
-	"github.com/tianailu/adminserver/pkg/astaxie/beego/config"
+	"github.com/beego/beego/v2/adapter/config"
 	"log"
 	"os"
 	"strings"

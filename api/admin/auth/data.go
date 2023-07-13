@@ -15,7 +15,7 @@ type Account struct {
 	UnionId     string                `json:"union_id" gorm:"size:32;comment:微信用户在开放平台的唯一标识符"`
 	MobilePhone string                `json:"mobile_phone" gorm:"size:20;comment:绑定登录的手机号码"`
 	Account     string                `json:"account" gorm:"size:32;comment:用户名;index:idx_account"`
-	Password    string                `json:"password" gorm:"size:32;comment:密码"`
+	Password    string                `json:"password" gorm:"size:64;comment:密码"`
 	AccountType string                `json:"account_type" gorm:"size:12,not null;comment:账号类型，取值为[APP:小程序账号, ADMIN:管理后台]"`
 	Name        string                `json:"name" gorm:"size:12;comment:昵称"`
 	Role        string                `json:"role" gorm:"size:32;comment:用户角色"`
@@ -59,7 +59,7 @@ func (m *Account) Create() error {
 func (m *Account) FindByAccount(account, accountType string) (*Account, error) {
 	var a *Account
 
-	err := mysql.GetDB().Where("account = ? AND account_type = ?", account, accountType).First(a).Error
+	err := mysql.GetDB().Where("account = ? AND account_type = ?", account, accountType).First(&a).Error
 
 	if err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func (m *Account) FindByAccount(account, accountType string) (*Account, error) {
 func (m *Account) FindByUserId(userId string) (*Account, error) {
 	var a *Account
 
-	err := mysql.GetDB().Where("user_id = ?", userId).First(a).Error
+	err := mysql.GetDB().Where("user_id = ?", userId).First(&a).Error
 
 	if err != nil {
 		return nil, err
@@ -81,7 +81,7 @@ func (m *Account) FindByUserId(userId string) (*Account, error) {
 }
 
 func (m *Account) UpdateStatus(userId, status string) error {
-	err := mysql.GetDB().Where("user_id = ?", userId).Update("status", status).Error
+	err := mysql.GetDB().Model(&Account{}).Where("user_id = ?", userId).Update("status", status).Error
 
 	if err != nil {
 		return err
@@ -91,7 +91,7 @@ func (m *Account) UpdateStatus(userId, status string) error {
 }
 
 func (m *Account) Login(userId string) error {
-	err := mysql.GetDB().Where("user_id = ?", userId).Update("last_login_at", sql.NullTime{
+	err := mysql.GetDB().Model(&Account{}).Where("user_id = ?", userId).Update("last_login_at", sql.NullTime{
 		Time:  time.Now(),
 		Valid: true,
 	}).Error

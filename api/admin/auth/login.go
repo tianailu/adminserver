@@ -39,14 +39,14 @@ func AdminLogin(c echo.Context) error {
 
 	c.Bind(&req)
 
-	if utf8.RuneCountInString(req.Username) <= 0 || utf8.FullRuneInString(req.Password) {
+	if utf8.RuneCountInString(req.Username) <= 0 || utf8.RuneCountInString(req.Password) <= 0 {
 		resp.Status = 1
 		resp.Msg = "用户名或者密码错误"
 		return c.JSON(http.StatusOK, resp)
 	}
 
 	var account *Account
-	result, err := account.FindByUserId(req.Username)
+	result, err := account.FindByAccount(req.Username, "ADMIN")
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		resp.Status = 1
 		resp.Msg = "用户名或者密码错误"
@@ -56,7 +56,7 @@ func AdminLogin(c echo.Context) error {
 	}
 
 	password := crypto.GetSha256String(req.Password, config.AuthConf["admin_password_salt"])
-	if password != req.Password {
+	if password != result.Password {
 		resp.Status = 1
 		resp.Msg = "用户名或者密码错误"
 		return c.JSON(http.StatusOK, resp)
