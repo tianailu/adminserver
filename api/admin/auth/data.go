@@ -25,7 +25,7 @@ type Account struct {
 	LastLoginAt sql.NullTime          `json:"last_login_at" gorm:"type:datetime;comment:最近一次登录时间"`
 	CreatedAt   time.Time             `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
 	UpdatedAt   time.Time             `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
-	DeletedAt   time.Time             `json:"deleted_at" gorm:"type:datetime;comment:删除时间"`
+	DeletedAt   sql.NullTime          `json:"deleted_at" gorm:"type:datetime;comment:删除时间"`
 	IsDel       soft_delete.DeletedAt `json:"is_del" gorm:"softDelete:flag;comment:删除标志，取值为[0:使用中, 1:已删除]"`
 	Remark      string                `json:"remark" gorm:"size:64;comment:备注"`
 }

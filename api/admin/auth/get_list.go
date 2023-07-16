@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func GetList(c echo.Context) error {
+func GetAdminList(c echo.Context) error {
 	var (
 		req = struct {
 			PageNum  int    `query:"page_num"`

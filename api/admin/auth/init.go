@@ -13,5 +13,6 @@ func InitRouter(g *echo.Group) {
 }
 
 func InitAdminRouter(g *echo.Group) {
-	g.GET("/accounts", GetList)
+	g.GET("/accounts", GetAdminList)
+	g.POST("/accounts", AddAdmin)
 }

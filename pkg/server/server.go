@@ -15,6 +15,7 @@ import (
 	"github.com/tianailu/adminserver/pkg/db/mysql"
 	"github.com/tianailu/adminserver/pkg/db/redis"
 	"github.com/tianailu/adminserver/pkg/i18n"
+	"github.com/tianailu/adminserver/pkg/utility/snowflake"
 	"log"
 	"net"
 	"net/http"
@@ -86,6 +87,9 @@ func (ad *AdminServer) Initialize() {
 	redisConf := settings.GetConfig("redis")
 	fmt.Printf("1:%s-2:%s-3:%s-4:%s-5:%s \n", redisConf["username"], redisConf["password"], redisConf["ip"], redisConf["port"], redisConf["db"])
 	redis.InitRedis(redisConf["username"], redisConf["password"], redisConf["ip"], redisConf["port"], redisConf["db"])
+
+	// init snowflake
+	snowflake.CreateSnowflakeClient()
 
 	ad.Mode = settings.ConfigEr.String("mode")
 	ad.Scheme = settings.ConfigEr.String("scheme")
