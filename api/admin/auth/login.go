@@ -9,13 +9,12 @@ import (
 	"github.com/tianailu/adminserver/pkg/utility/crypto"
 	"gorm.io/gorm"
 	"net/http"
+	"strconv"
 	"time"
 	"unicode/utf8"
 )
 
-var table = "tb_account"
-
-type JwtCustomClaims struct {
+type AdminJwtClaims struct {
 	UserId      string `json:"user_id"`
 	AccountType string `json:"account_type"`
 	Role        string `json:"role"`
@@ -62,15 +61,20 @@ func AdminLogin(c echo.Context) error {
 		return c.JSON(http.StatusOK, resp)
 	}
 
-	var claims = &JwtCustomClaims{
+	now := time.Now()
+	var claims = AdminJwtClaims{
 		UserId:      result.UserId,
 		AccountType: result.AccountType,
 		Role:        result.Role,
 		Source:      "ADMIN",
 		Status:      result.Status,
 		RegisteredClaims: jwt.RegisteredClaims{
+			ID:        strconv.FormatInt(int64(result.Id), 10),
+			Issuer:    "tianailu",
 			Subject:   result.Account,
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
+			NotBefore: jwt.NewNumericDate(now),
+			ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour * 72)),
+			IssuedAt:  jwt.NewNumericDate(now),
 		},
 	}
 

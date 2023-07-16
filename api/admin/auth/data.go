@@ -3,6 +3,7 @@ package auth
 import (
 	"database/sql"
 	"github.com/tianailu/adminserver/pkg/db/mysql"
+	"github.com/tianailu/adminserver/pkg/utility/page"
 	"gorm.io/gorm"
 	"gorm.io/plugin/soft_delete"
 	"time"
@@ -56,6 +57,25 @@ func (m *Account) Create() error {
 	return nil
 }
 
+func (m *Account) Find(name string, pageNum, pageSize int) ([]*Account, error) {
+	var list []*Account
+
+	offset, size := page.CalPageOffset(pageNum, pageSize)
+	db := mysql.GetDB()
+	db = db.Offset(offset).Limit(size).Where("account_type = ?", "ADMIN")
+
+	if len(name) > 0 {
+		db = db.Where("name = ?", name)
+	}
+
+	err := db.Find(&list).Error
+	if err != nil {
+		return list, err
+	}
+
+	return list, nil
+}
+
 func (m *Account) FindByAccount(account, accountType string) (*Account, error) {
 	var a *Account
 
@@ -101,4 +121,15 @@ func (m *Account) Login(userId string) error {
 	}
 
 	return nil
+}
+
+func (m *Account) TotalAdmin() (int64, error) {
+	var count int64
+	err := mysql.GetDB().Model(&Account{}).Where("account_type = ?", "ADMIN").Count(&count).Error
+
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }

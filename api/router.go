@@ -14,10 +14,12 @@ func InitAdminRouter(g *echo.Group) {
 	auth.InitRouter(g)
 }
 
-func InitGroupAdminRouter(ver *echo.Group) {
-	ver.POST("/user", user.AddUser)
-	ver.GET("/user", user.GetUser)
-	ver.GET("/user/vip", user.GetVipUser)
+func InitGroupAdminRouter(g *echo.Group) {
+	auth.InitAdminRouter(g)
+
+	g.POST("/user", user.AddUser)
+	g.GET("/user", user.GetUser)
+	g.GET("/user/vip", user.GetVipUser)
 }
 
 // 所有HTTP方法的接口，主要用于简化类型转换

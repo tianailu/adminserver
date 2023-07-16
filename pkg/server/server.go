@@ -3,9 +3,12 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/golang-jwt/jwt/v5"
+	echoJwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/tianailu/adminserver/api"
+	"github.com/tianailu/adminserver/api/admin/auth"
 	"github.com/tianailu/adminserver/api/server"
 	"github.com/tianailu/adminserver/config"
 	"github.com/tianailu/adminserver/pkg/cors"
@@ -23,15 +26,13 @@ var (
 )
 
 type AdminServer struct {
-	Host              string
-	Port              string
-	Scheme            string
-	Mode              string
-	PrintRoutes       string
-	CertFile          string
-	KeyFile           string
-	AdminSecretKey    string
-	AdminPasswordSalt string
+	Host        string
+	Port        string
+	Scheme      string
+	Mode        string
+	PrintRoutes string
+	CertFile    string
+	KeyFile     string
 }
 
 func NewAdminServer() server.Server {
@@ -86,7 +87,6 @@ func (ad *AdminServer) Initialize() {
 	fmt.Printf("1:%s-2:%s-3:%s-4:%s-5:%s \n", redisConf["username"], redisConf["password"], redisConf["ip"], redisConf["port"], redisConf["db"])
 	redis.InitRedis(redisConf["username"], redisConf["password"], redisConf["ip"], redisConf["port"], redisConf["db"])
 
-	ad.registerRouter()
 	ad.Mode = settings.ConfigEr.String("mode")
 	ad.Scheme = settings.ConfigEr.String("scheme")
 	ad.Host = settings.ConfigEr.String("host")
@@ -94,17 +94,23 @@ func (ad *AdminServer) Initialize() {
 	ad.PrintRoutes = settings.ConfigEr.String("print_routes")
 	ad.CertFile = settings.ConfigEr.String("cert_file")
 	ad.KeyFile = settings.ConfigEr.String("cert_file")
-	ad.AdminSecretKey = settings.GetConfig("auth")["admin_secret_key"]
-	ad.AdminPasswordSalt = settings.GetConfig("auth")["admin_password_salt"]
+
+	ad.registerRouter()
 }
 
 func (ad *AdminServer) registerRouter() {
 	admin := App.Group("/adm")
-	admin1 := admin.Group("/v1")
-	admin1.Use(middleware.JWT([]byte(ad.AdminSecretKey)))
+	adminV1 := admin.Group("/v1")
+	adminV1.Use(echoJwt.WithConfig(echoJwt.Config{
+		NewClaimsFunc: func(c echo.Context) jwt.Claims {
+			return &auth.AdminJwtClaims{}
+		},
+		SigningKey: []byte(config.AuthConf["admin_secret_key"]),
+	}))
+
 	api.InitRouter(App)
 	api.InitAdminRouter(admin)
-	api.InitGroupAdminRouter(admin1)
+	api.InitGroupAdminRouter(adminV1)
 }
 
 func (ad *AdminServer) Start() {
