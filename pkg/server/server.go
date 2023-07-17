@@ -109,6 +109,7 @@ func (ad *AdminServer) registerRouter() {
 	api.InitRouter(App)
 	api.InitAdminRouter(admin)
 	api.InitGroupAdminRouter(adminV1)
+	api.InitSystemSettingRouter(App)
 }
 
 func (ad *AdminServer) Start() {
