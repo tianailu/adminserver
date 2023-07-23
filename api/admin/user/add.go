@@ -58,11 +58,7 @@ func dealUserData() {
 	for {
 		fmt.Println("write user data")
 		user := <-userChan
-		err := createDatabase()
-		if err != nil {
-			log.Println("创建数据库失败, err:", err)
-		}
-		err = insertUser(user)
+		err := insertUser(user)
 		if err != nil {
 			log.Println("写入数据失败, err:", err)
 		}

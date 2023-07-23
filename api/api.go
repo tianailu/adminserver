@@ -1,4 +1,6 @@
 package api
 
-// API router group
-//var API *Group = App.Group("/admin")
+import (
+	_ "github.com/tianailu/adminserver/api/admin/auth"
+	_ "github.com/tianailu/adminserver/api/admin/user"
+)

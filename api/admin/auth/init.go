@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	go createDatabase()
+	go createTable()
 }
 
 func InitRouter(g *echo.Group) {

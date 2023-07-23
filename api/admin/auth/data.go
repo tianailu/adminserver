@@ -6,6 +6,7 @@ import (
 	"github.com/tianailu/adminserver/pkg/utility/page"
 	"gorm.io/gorm"
 	"gorm.io/plugin/soft_delete"
+	"log"
 	"time"
 )
 
@@ -30,11 +31,12 @@ type Account struct {
 	Remark      string                `json:"remark" gorm:"size:64;comment:备注"`
 }
 
-func createDatabase() error {
+func createTable() error {
 	time.Sleep(time.Second * 5)
 
 	err := mysql.GetDB().Set("gorm:tb_account", "ENGINE=InnoDB").AutoMigrate(&Account{})
 	if err != nil {
+		log.Printf("创建 tb_account 表失败, err: %s", err)
 		return err
 	}
 
