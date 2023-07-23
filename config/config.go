@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/beego/beego/v2/adapter/config"
-	"log"
+	"github.com/mitchellh/mapstructure"
 	"os"
 	"strings"
 )
@@ -32,33 +32,105 @@ func (a *Args) Parse() {
 }
 
 var (
-	AuthConf = make(map[string]string)
+	AuthConf    = make(map[string]string)
+	LoggerConf  = Logger{}
+	AuthConf2   = Auth{}
+	MysqlConf   = Mysql{}
+	MongoDBConf = Mongodb{}
+	RedisConf   = Redis{}
 )
 
-type SettingsConfig struct {
-	FilePath string
-	FileType string
-	ConfigEr config.Configer
-}
+type (
+	SettingsConfig struct {
+		FilePath string
+		FileType string
+		ConfigEr config.Configer
+	}
+
+	Logger struct {
+		Redirect     bool   `mapstructure:"redirect"`
+		FilePath     string `mapstructure:"filepath"`
+		MaxSaveDay   int64  `mapstructure:"max_save_day"`
+		MaxCleanSize string `mapstructure:"max_clean_size"`
+		MaxCheckTime string `mapstructure:"max_check_time"`
+	}
+
+	Auth struct {
+		AdminSecretKey    string `mapstructure:"admin_secret_key"`
+		AdminPasswordSalt string `mapstructure:"admin_password_salt"`
+		AppId             string `mapstructure:"app_id"`
+		AppSecret         string `mapstructure:"app_secret"`
+		MsgAppId          string `mapstructure:"msg_app_id"`
+		MsgAppSecret      string `mapstructure:"msg_app_secret"`
+		SecretId          string `mapstructure:"secret_id"`
+		SecretKey         string `mapstructure:"secret_key"`
+		MsgAppSign        string `mapstructure:"msg_app_sign"`
+		MsgAppTid         string `mapstructure:"msg_app_tid"`
+	}
+
+	Mysql struct {
+		Ip              string `mapstructure:"ip"`
+		Port            int64  `mapstructure:"port"`
+		Username        string `mapstructure:"username"`
+		Password        string `mapstructure:"password"`
+		DBName          string `mapstructure:"db_name"`
+		ConnMaxLifetime int64  `mapstructure:"conn_max_lifetime"`
+		ConnMaxIdle     int64  `mapstructure:"conn_max_idle"`
+	}
+
+	Mongodb struct {
+		Ip            string `mapstructure:"ip"`
+		Port          int64  `mapstructure:"port"`
+		Username      string `mapstructure:"username"`
+		Password      string `mapstructure:"password"`
+		MaxPoolLimit  int64  `mapstructure:"max_pool_limit"`
+		SocketTimeout int64  `mapstructure:"socket_timeout"`
+	}
+
+	Redis struct {
+		Ip       string `mapstructure:"ip"`
+		Port     int64  `mapstructure:"port"`
+		Username string `mapstructure:"username"`
+		Password string `mapstructure:"password"`
+		DB       int64  `mapstructure:"db"`
+	}
+)
 
 func Parse(fileType string, filepath string) (*SettingsConfig, error) {
-
+	if fileType == "" {
+		fileType = DefaultConfigType
+	}
 	if filepath == "" {
 		filepath = defaultFilePath
 	}
 
-	cnf, err := config.NewConfig(fileType, filepath)
+	conf, err := config.NewConfig(fileType, filepath)
 	if err != nil {
 		return nil, err
 	}
 
 	newConfig := new(SettingsConfig)
-	newConfig.ConfigEr = cnf
+	newConfig.ConfigEr = conf
 	newConfig.FileType = fileType
 	newConfig.FilePath = filepath
 	// 解析auth key
 	AuthConf = newConfig.GetConfig("auth")
-	log.Println("AuthConf:", AuthConf)
+	if err := mapstructure.WeakDecode(newConfig.GetConfig("stdout_logger"), &LoggerConf); err != nil {
+		return nil, err
+	}
+	if err := mapstructure.WeakDecode(newConfig.GetConfig("auth"), &AuthConf2); err != nil {
+		return nil, err
+	}
+	if err := mapstructure.WeakDecode(newConfig.GetConfig("mysql"), &MysqlConf); err != nil {
+		return nil, err
+	}
+	if err := mapstructure.WeakDecode(newConfig.GetConfig("mongodb"), &MongoDBConf); err != nil {
+		return nil, err
+	}
+	if err := mapstructure.WeakDecode(newConfig.GetConfig("redis"), &RedisConf); err != nil {
+		return nil, err
+	}
+
 	return newConfig, nil
 }
 
