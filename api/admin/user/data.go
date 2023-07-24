@@ -25,7 +25,7 @@ type (
 		Work             string  `json:"work" gorm:"size:20;comment:职业"`
 		Company          string  `json:"company" gorm:"size:20;comment:公司"`
 		Income           string  `json:"income" gorm:"size:20;comment:收入"`
-		MobilePhone      string  `json:"m_phone" gorm:"size:12;comment:手机号码"`
+		MobilePhone      string  `json:"mobile_phone" gorm:"size:12;comment:手机号码"`
 		WeChat           string  `json:"wechat" gorm:"size:20;comment:微信号"`
 		Marriage         string  `json:"marriage" gorm:"size:12;comment:婚姻状态"`
 		Habit            string  `json:"habit" gorm:"size:64;comment:生活习惯"`

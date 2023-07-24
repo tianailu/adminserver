@@ -2,12 +2,16 @@ package auth
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/labstack/echo/v4"
 	"github.com/tianailu/adminserver/config"
 	"github.com/tianailu/adminserver/pkg/common"
+	"github.com/tianailu/adminserver/pkg/db/mysql"
 	"github.com/tianailu/adminserver/pkg/utility/crypto"
 	"github.com/tianailu/adminserver/pkg/utility/snowflake"
+	"gorm.io/gorm"
 	"net/http"
+	"unicode/utf8"
 )
 
 func AddAdmin(c echo.Context) error {
@@ -16,8 +20,13 @@ func AddAdmin(c echo.Context) error {
 			Account  string `json:"account"`
 			Password string `json:"password"`
 			Name     string `json:"name"`
+			Avatar   string `json:"avatar"`
+			Remark   string `json:"remark"`
 		}{}
-		resp = common.Response{}
+		resp = common.Response{
+			Status: 0,
+			Msg:    "OK",
+		}
 	)
 
 	if err := c.Bind(&req); err != nil {
@@ -25,19 +34,41 @@ func AddAdmin(c echo.Context) error {
 		return err
 	}
 
-	account := &Account{
-		UserId:      snowflake.GetNode().Generate().String(),
-		Account:     req.Account,
-		Password:    crypto.GetSha256String(req.Password, config.AuthConf["admin_password_salt"]),
-		AccountType: "ADMIN",
-		Name:        req.Name,
-		Role:        "",
-		Status:      0,
-		DeletedAt:   sql.NullTime{Valid: false},
+	if len(req.Account) <= 0 || len(req.Password) <= 0 {
+		resp.Status, resp.Msg = 1, "账号or密码不能为空"
+		return c.JSON(http.StatusOK, resp)
 	}
 
-	err := account.Create()
-	if err != nil {
+	if utf8.RuneCountInString(req.Name) <= 0 {
+		resp.Status, resp.Msg = 1, "昵称不能为空"
+		return c.JSON(http.StatusOK, resp)
+	}
+
+	accountType := "ADMIN"
+
+	accountRepo := NewAccountRepo(mysql.GetDB(), c.Logger())
+	account, err := accountRepo.FindByAccount(req.Account, accountType)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		c.Logger().Errorf("Failed to query account info, account: %s, type: %s, error: %s", req.Account, accountType, err)
+		resp.Status, resp.Msg = 1, "内部异常"
+		return c.JSON(http.StatusOK, resp)
+	} else if account != nil {
+		resp.Status, resp.Msg = 1, "账号已存在"
+		return c.JSON(http.StatusOK, resp)
+	}
+
+	account = &Account{
+		AccountId:   snowflake.GetNode().Generate().String(),
+		Account:     req.Account,
+		Password:    crypto.GetSha256String(req.Password, config.AuthConf.AdminPasswordSalt),
+		AccountType: "ADMIN",
+		Name:        req.Name,
+		Avatar:      req.Avatar,
+		Status:      0,
+		DeletedAt:   sql.NullTime{Valid: false},
+		Remark:      req.Remark,
+	}
+	if err := accountRepo.Create(account); err != nil {
 		c.Logger().Errorf("Failed to create admin account, error: %s", err.Error())
 		return err
 	}

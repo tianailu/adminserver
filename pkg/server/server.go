@@ -109,7 +109,7 @@ func (ad *AdminServer) registerRouter() {
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {
 			return &auth.AdminJwtClaims{}
 		},
-		SigningKey: []byte(config.AuthConf["admin_secret_key"]),
+		SigningKey: []byte(config.AuthConf.AdminSecretKey),
 	}))
 
 	api.InitRouter(App)

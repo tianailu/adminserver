@@ -32,9 +32,8 @@ func (a *Args) Parse() {
 }
 
 var (
-	AuthConf    = make(map[string]string)
 	LoggerConf  = Logger{}
-	AuthConf2   = Auth{}
+	AuthConf    = Auth{}
 	MysqlConf   = Mysql{}
 	MongoDBConf = Mongodb{}
 	RedisConf   = Redis{}
@@ -113,12 +112,11 @@ func Parse(fileType string, filepath string) (*SettingsConfig, error) {
 	newConfig.ConfigEr = conf
 	newConfig.FileType = fileType
 	newConfig.FilePath = filepath
-	// 解析auth key
-	AuthConf = newConfig.GetConfig("auth")
+
 	if err := mapstructure.WeakDecode(newConfig.GetConfig("stdout_logger"), &LoggerConf); err != nil {
 		return nil, err
 	}
-	if err := mapstructure.WeakDecode(newConfig.GetConfig("auth"), &AuthConf2); err != nil {
+	if err := mapstructure.WeakDecode(newConfig.GetConfig("auth"), &AuthConf); err != nil {
 		return nil, err
 	}
 	if err := mapstructure.WeakDecode(newConfig.GetConfig("mysql"), &MysqlConf); err != nil {

@@ -3,6 +3,7 @@ package auth
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/tianailu/adminserver/pkg/common"
+	"github.com/tianailu/adminserver/pkg/db/mysql"
 	"net/http"
 )
 
@@ -39,14 +40,14 @@ func GetAdminList(c echo.Context) error {
 		pageSize = 10
 	}
 
-	var account *Account
-	accounts, err := account.Find(req.Name, pageNum, pageSize)
+	accountRepo := NewAccountRepo(mysql.GetDB(), c.Logger())
+	accounts, err := accountRepo.Find(req.Name, pageNum, pageSize)
 	if err != nil {
 		c.Logger().Errorf("Failed to find account list with, name: %s, pageNum: %d, pageSize: %d", req.Name, pageNum, pageSize)
 		return err
 	}
 
-	totalAdmin, err := account.TotalAdmin()
+	totalAdmin, err := accountRepo.TotalAdmin()
 	if err != nil {
 		return err
 	}
@@ -59,14 +60,15 @@ func GetAdminList(c echo.Context) error {
 		}
 		result = append(result, &AccountInfo{
 			Id:          a.Id,
-			UserId:      a.UserId,
+			AccountId:   a.AccountId,
 			MobilePhone: a.MobilePhone,
 			Account:     a.Account,
 			AccountType: a.AccountType,
 			Name:        a.Name,
-			Role:        a.Role,
 			Avatar:      a.Avatar,
 			Status:      a.Status,
+			LoginCount:  a.LoginCount,
+			LastLoginIp: a.LastLoginIp,
 			LastLoginAt: lastLoginAt,
 			CreatedAt:   a.CreatedAt.UnixNano() / 1e6,
 			UpdatedAt:   a.UpdatedAt.UnixNano() / 1e6,
