@@ -10,7 +10,7 @@ type Permission struct {
 	CreateUserId int    `json:"createUserId" gorm:"column:create_user_id"`
 }
 
-func (Permission) TableName() string {
+func (p *Permission) TableName() string {
 	return "tb_permission"
 }
 

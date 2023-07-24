@@ -15,7 +15,7 @@ type SoftwareSetting struct {
 	UpdateTime int64  `json:"updateTime"`
 }
 
-func (SoftwareSetting) TableName() string {
+func (ss *SoftwareSetting) TableName() string {
 	return "tb_software_setting"
 }
 

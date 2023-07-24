@@ -9,7 +9,7 @@ type Role struct {
 	UpdateUserId int64  `json:"updateUserId"`
 }
 
-func (Role) TableName() string {
+func (r *Role) TableName() string {
 	return "tb_role"
 }
 
