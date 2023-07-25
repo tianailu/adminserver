@@ -1,32 +1,17 @@
 package domain
 
+import "time"
+
 type RolePermission struct {
-	Id           int   `json:"id"`
-	RoleId       int   `json:"roleId"`
-	PermissionId int   `json:"permissionId"`
-	UserId       int   `json:"userId"`
-	CreateTime   int64 `json:"createTime"`
-	UpdateTime   int64 `json:"updateTime"`
-	CreateUserId int   `json:"createUserId"`
-	UpdateUserId int   `json:"updateUserId"`
+	Id              int       `json:"id" gorm:"column:id;primaryKey;autoIncrement;not null;comment:主键"`
+	RoleId          int       `json:"roleId" gorm:"column:role_id;not null;comment:角色id"`
+	PermissionId    int       `json:"permissionId" gorm:"column:permission_id;not null;comment:权限id"`
+	AuthAccountId   string    `json:"authAccountId" gorm:"column:auth_account_id;comment:授权账户id"`
+	CreateAccountId string    `json:"createAccountId" gorm:"column:create_account_id;comment:创建用户id"`
+	UpdateAccountId string    `json:"updateAccountId" gorm:"column:update_account_id;comment:内容更新用户id"`
+	CreateAt        time.Time `json:"createAt" gorm:"column:create_at;type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
+	UpdateAt        time.Time `json:"updateAt" gorm:"column:update_at;type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:更新时间"`
 }
-
-/*
--- tal.tb_role_permission definition
-
-CREATE TABLE `tb_role_permission` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `role_id` bigint(20) NOT NULL,
-  `permission_id` bigint(20) NOT NULL,
-  `create_time` bigint(20) DEFAULT NULL,
-  `create_user_id` bigint(20) DEFAULT NULL,
-  `update_time` bigint(20) DEFAULT NULL,
-  `update_user_id` bigint(20) DEFAULT NULL,
-  `user_id` bigint(20) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `tb_role_permission_un` (`role_Id`,`permission_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
-*/
 
 func (rp *RolePermission) TableName() string {
 	return "tb_role_permission"

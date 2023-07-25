@@ -3,7 +3,6 @@ package controller
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/labstack/echo"
 	"github.com/tianailu/adminserver/api/admin/systemsetting/domain"
@@ -43,8 +42,6 @@ func (sfc *SoftwareSettingController) AddOrUpdateSoftwareSetting(c echo.Context)
 
 	softwareSetting.Content = content.Content
 	softwareSetting.Type = settingType
-	softwareSetting.CreateTime = int64(time.Now().UnixMilli())
-	softwareSetting.UpdateTime = int64(time.Now().UnixMilli())
 
 	err := sfc.srv.AddOrUpdateSoftwareSetting(&softwareSetting)
 	if err != nil {

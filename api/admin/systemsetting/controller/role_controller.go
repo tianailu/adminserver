@@ -103,7 +103,7 @@ func (rc *RoleController) GetRolePermissions(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, common.ResponseBadRequest())
 	}
-	userId := 1
+	userId := "1"
 	r, err := rc.roleSvc.GetUserRolePermissions(rc.permSvc, userId, intRoleId)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg("获取角色权限详情失败"))

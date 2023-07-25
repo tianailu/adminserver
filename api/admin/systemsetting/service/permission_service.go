@@ -23,7 +23,7 @@ func (ps *PermissionService) GetAllPermissions() (permissions []*resp.Permission
 	var permAll []*resp.PermissionResponse
 	err = ps.db.
 		Model(&domain.Permission{}).
-		Order("`order` ASC").
+		Order("sequence ASC").
 		Find(&permAll).Error
 	if err != nil {
 		return nil, errors.New("获取权限列表失败")

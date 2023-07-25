@@ -1,13 +1,15 @@
 package domain
 
+import "time"
+
 type Permission struct {
-	Id           int    `json:"id" gorm:"column:id"`
-	Name         string `json:"name" gorm:"column:name"`
-	ParentId     int    `json:"parentId" gorm:"column:parent_id"`
-	Route        string `json:"route" gorm:"column:route"`
-	Order        int    `json:"order"`
-	CreateTime   int64  `json:"createTime" gorm:"column:create_time"`
-	CreateUserId int    `json:"createUserId" gorm:"column:create_user_id"`
+	Id              int       `json:"id" gorm:"column:id;primaryKey;autoIncrement;not null;comment:主键"`
+	Name            string    `json:"name" gorm:"column:name;unique;not null;uniqueIndex:uqIdx_name"`
+	ParentId        int       `json:"parentId" gorm:"column:parent_id;not null"`
+	Route           string    `json:"route" gorm:"column:route"`
+	Sequence        int       `json:"sequence" gorm:"column:sequence"`
+	CreateAt        time.Time `json:"createAt" gorm:"column:create_at;type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
+	CreateAccountId string    `json:"createAccountId" gorm:"column:create_account_id;size:32"`
 }
 
 func (p *Permission) TableName() string {
@@ -32,7 +34,7 @@ COLLATE=utf8mb4_general_ci;
 
 
 
-data
+Time
 
 
 INSERT INTO tal.tb_permission (name,create_time,route,create_user_id,parent_id) VALUES

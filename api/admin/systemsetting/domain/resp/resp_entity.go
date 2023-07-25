@@ -5,7 +5,7 @@ type PermissionResponse struct {
 	Name     string                `json:"name"`
 	Route    string                `json:"route"`
 	ParentId int                   `json:"parentId"`
-	Order    int                   `json:"order"`
+	Sequence int                   `json:"order"`
 	Child    []*PermissionResponse `json:"child" gorm:"-"`
 }
 
@@ -14,7 +14,7 @@ type RolePermissionDetail struct {
 	Name     string                  `json:"name"`
 	Route    string                  `json:"route"`
 	ParentId int                     `json:"parentId"`
-	Order    int                     `json:"order"`
+	Sequence int                     `json:"order"`
 	Enable   bool                    `json:"enable" gorm:"-"` // 当parentId == 0 时，默认为true
 	Child    []*RolePermissionDetail `json:"child" gorm:"-"`
 }

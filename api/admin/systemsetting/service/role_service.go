@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"log"
-	"time"
 
 	"github.com/tianailu/adminserver/api/admin/systemsetting/domain"
 	"github.com/tianailu/adminserver/api/admin/systemsetting/domain/req"
@@ -17,7 +16,6 @@ type RoleService struct {
 }
 
 func NewRoleService() RoleService {
-
 	return RoleService{
 		db: mysql.GetDb(),
 	}
@@ -33,9 +31,8 @@ func (rs *RoleService) SaveRole(role *domain.Role) error {
 	if err != nil || count > 0 {
 		return errors.New("角色名称已存在，请勿重复创建")
 	}
-	role.CreateTime = time.Now().UnixMilli()
-	role.CreateUserId = 1
-	err = mysql.GetDb().Save(role).Error
+	role.CreateAccountId = "1"
+	err = rs.db.Save(role).Error
 	return err
 }
 
@@ -44,7 +41,7 @@ func (rs *RoleService) GetAllRoles() ([]domain.Role, error) {
 	err := rs.db.
 		Model(&domain.Role{}).
 		Select("id", "name").
-		Order("create_time DESC").
+		Order("create_at DESC").
 		Find(&roles).Error
 	return roles, err
 }
@@ -60,7 +57,7 @@ func (rs *RoleService) GetRolesPage(reqParam *req.RolePageRequest) (cnt int64, r
 	err = rs.db.
 		Model(&domain.Role{}).
 		Select("id", "name").
-		Order("create_time DESC").
+		Order("create_at DESC").
 		Offset(offset).
 		Limit(reqParam.PageSize).
 		Find(&roles).Error
@@ -72,7 +69,7 @@ func (rs *RoleService) GetRolesPage(reqParam *req.RolePageRequest) (cnt int64, r
 	err = rs.db.
 		Model(&domain.Role{}).
 		Select("id").
-		Order("create_time DESC").
+		Order("create_at DESC").
 		Count(&count).Error
 	if err != nil {
 		log.Println("查询角色总数异常", err)
@@ -108,11 +105,10 @@ func (rs *RoleService) SaveRolePermissions(roleId int, pemIds []int) error {
 		var rolePermis []domain.RolePermission
 		for _, permissionId := range pemIds {
 			temp := domain.RolePermission{
-				RoleId:       roleId,
-				PermissionId: permissionId,
-				CreateTime:   time.Now().UnixMilli(),
-				CreateUserId: 1, // fixme 登录后修复
-				UserId:       1,
+				RoleId:          roleId,
+				PermissionId:    permissionId,
+				CreateAccountId: "1", // fixme 登录后修复
+				AuthAccountId:   "1",
 			}
 			rolePermis = append(rolePermis, temp)
 		}
@@ -126,7 +122,7 @@ func (rs *RoleService) SaveRolePermissions(roleId int, pemIds []int) error {
 	return e
 }
 
-func (rs *RoleService) GetUserRolePermissions(permSvc PermissionService, userId, roleId int) ([]*resp.RolePermissionDetail, error) {
+func (rs *RoleService) GetUserRolePermissions(permSvc PermissionService, userId string, roleId int) ([]*resp.RolePermissionDetail, error) {
 
 	// 查询所有权限信息
 	permAll, err := permSvc.GetAllPermissions()
@@ -136,9 +132,12 @@ func (rs *RoleService) GetUserRolePermissions(permSvc PermissionService, userId,
 	var rolePerms []domain.RolePermission
 	// 查询用户权限信息
 	err = rs.db.Model(&domain.RolePermission{}).
-		Where("user_id = ? and role_id = ?", userId, roleId).
+		Where("auth_account_id = ? and role_id = ?", userId, roleId).
 		Order("permission_id ASC").
 		Find(&rolePerms).Error
+	if err != nil {
+		return nil, err
+	}
 	// 返回权限信息
 	var result []resp.RolePermissionDetail
 	for _, v1 := range permAll {
@@ -151,7 +150,7 @@ func (rs *RoleService) GetUserRolePermissions(permSvc PermissionService, userId,
 					Route:    v1.Route,
 					ParentId: v1.ParentId,
 					Child:    []*resp.RolePermissionDetail{},
-					Order:    v1.Order,
+					Sequence: v1.Sequence,
 					Enable:   true,
 				}
 				result = append(result, *rolePermDeail)
@@ -167,7 +166,7 @@ func (rs *RoleService) GetUserRolePermissions(permSvc PermissionService, userId,
 				Route:    v1.Route,
 				ParentId: v1.ParentId,
 				Child:    []*resp.RolePermissionDetail{},
-				Order:    v1.Order,
+				Sequence: v1.Sequence,
 			}
 
 			if v1.ParentId == 0 {
