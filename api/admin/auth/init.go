@@ -5,6 +5,9 @@ import (
 )
 
 func init() {
+}
+
+func InitTable() {
 	go createTable()
 }
 

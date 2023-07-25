@@ -3,10 +3,10 @@ package mysql
 import (
 	"fmt"
 	"github.com/labstack/gommon/log"
+	"github.com/tianailu/adminserver/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -20,11 +20,12 @@ func GetDB() *gorm.DB {
 	return conn
 }
 
-// InitMysqlDB InitDB 注意方法名大写，就是public
-func InitMysqlDB(username, password, ip, port, dbName, connMaxLifetime, connMaxIdle string) {
-	dsn := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", username, password, ip, port, dbName)
+// InitMySQLDB 初始化 mysql 数据库
+func InitMySQLDB(conf config.Mysql) {
+	// 构建连接："用户名:密码@tcp(IP:端口)/数据库?charset=utf8"
+	dsn := fmt.Sprintf("%s:%s@(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local",
+		conf.Username, conf.Password, conf.Ip, conf.Port, conf.DBName)
 
-	//构建连接："用户名:密码@tcp(IP:端口)/数据库?charset=utf8"
 	conn, err = gorm.Open(mysql.New(mysql.Config{
 		DSN:               dsn,
 		DefaultStringSize: 256,
@@ -35,20 +36,18 @@ func InitMysqlDB(username, password, ip, port, dbName, connMaxLifetime, connMaxI
 		log.Errorf("日志文件打开失败：%v \n", err)
 		os.Exit(1)
 	}
-	//字符串转int
-	connMaxLifetimeInt, _ := strconv.Atoi(connMaxLifetime)
-	connMaxIdleInt, _ := strconv.Atoi(connMaxIdle)
+
 	sqlDb, _ := conn.DB()
 	//可重用连接的最大时间
-	sqlDb.SetMaxIdleConns(connMaxIdleInt)
+	sqlDb.SetMaxIdleConns(conf.ConnMaxIdle)
 	//设置数据库最大连接数
-	sqlDb.SetMaxOpenConns(connMaxIdleInt)
+	sqlDb.SetMaxOpenConns(conf.ConnMaxIdle)
 	//设置上数据库最大闲置连接数
-	sqlDb.SetConnMaxLifetime(time.Second * time.Duration(connMaxLifetimeInt))
+	sqlDb.SetConnMaxLifetime(time.Second * time.Duration(conf.ConnMaxLifetime))
 	//验证连接
 	if err := sqlDb.Ping(); err != nil {
-		log.Errorf("Redis Ping err: %s", err.Error())
+		log.Errorf("MySQL Ping err: %s", err.Error())
 		return
 	}
-	fmt.Println("MySQL successfully connected")
+	log.Infof("MySQL successfully connected")
 }

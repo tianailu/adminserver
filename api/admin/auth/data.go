@@ -4,8 +4,12 @@ import (
 	"database/sql"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
+	"github.com/tianailu/adminserver/config"
 	"github.com/tianailu/adminserver/pkg/db/mysql"
+	"github.com/tianailu/adminserver/pkg/utility/crypto"
+	"github.com/tianailu/adminserver/pkg/utility/json"
 	"github.com/tianailu/adminserver/pkg/utility/page"
+	"github.com/tianailu/adminserver/pkg/utility/snowflake"
 	"gorm.io/gorm"
 	"gorm.io/plugin/soft_delete"
 	"time"
@@ -33,6 +37,14 @@ type Account struct {
 	Remark      string                `json:"remark" gorm:"size:64;comment:备注"`
 }
 
+func (m *Account) TableName() string {
+	return "tb_account"
+}
+
+func (m *Account) String() string {
+	return json.ToJsonString(m)
+}
+
 func createTable() error {
 	time.Sleep(time.Second * 5)
 
@@ -42,11 +54,31 @@ func createTable() error {
 		return err
 	}
 
-	return nil
-}
+	var account *Account
+	err = mysql.GetDB().
+		Where("account = ?", config.AuthConf.DefaultAdminAccount).
+		Where("account_type = ?", DefaultAccountType).
+		First(&account).Error
+	if err == gorm.ErrRecordNotFound {
+		account = &Account{
+			AccountId:   snowflake.GetNode().Generate().String(),
+			Account:     config.AuthConf.DefaultAdminAccount,
+			Password:    crypto.GetSha256String(config.AuthConf.DefaultAdminPassword, config.AuthConf.AdminPasswordSalt),
+			AccountType: DefaultAccountType,
+			Name:        config.AuthConf.DefaultAdminName,
+			Status:      0,
+			DeletedAt:   sql.NullTime{Valid: false},
+		}
+		if err = mysql.GetDB().Create(account).Error; err != nil {
+			log.Errorf("创建系统默认管理员账号失败, err: %s", err)
+			return err
+		}
+	} else if err != nil {
+		log.Errorf("Failed to query system admin account, account: %s, err: %s", config.AuthConf.DefaultAdminAccount, err)
+		return err
+	}
 
-func (m *Account) TableName() string {
-	return "tb_account"
+	return nil
 }
 
 type AccountRepo struct {
@@ -114,6 +146,18 @@ func (r *AccountRepo) FindByAccountId(accountId string) (*Account, error) {
 	}
 
 	return a, nil
+}
+
+func (r *AccountRepo) Update(account *Account) error {
+	err := mysql.GetDB().Transaction(func(tx *gorm.DB) error {
+		return tx.Model(&Account{}).Where("id = ?", account.Id).Updates(account).Error
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *AccountRepo) UpdateStatus(userId, status string) error {

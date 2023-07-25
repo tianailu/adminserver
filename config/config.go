@@ -55,16 +55,19 @@ type (
 	}
 
 	Auth struct {
-		AdminSecretKey    string `mapstructure:"admin_secret_key"`
-		AdminPasswordSalt string `mapstructure:"admin_password_salt"`
-		AppId             string `mapstructure:"app_id"`
-		AppSecret         string `mapstructure:"app_secret"`
-		MsgAppId          string `mapstructure:"msg_app_id"`
-		MsgAppSecret      string `mapstructure:"msg_app_secret"`
-		SecretId          string `mapstructure:"secret_id"`
-		SecretKey         string `mapstructure:"secret_key"`
-		MsgAppSign        string `mapstructure:"msg_app_sign"`
-		MsgAppTid         string `mapstructure:"msg_app_tid"`
+		AdminSecretKey       string `mapstructure:"admin_secret_key"`
+		AdminPasswordSalt    string `mapstructure:"admin_password_salt"`
+		AppId                string `mapstructure:"app_id"`
+		AppSecret            string `mapstructure:"app_secret"`
+		MsgAppId             string `mapstructure:"msg_app_id"`
+		MsgAppSecret         string `mapstructure:"msg_app_secret"`
+		SecretId             string `mapstructure:"secret_id"`
+		SecretKey            string `mapstructure:"secret_key"`
+		MsgAppSign           string `mapstructure:"msg_app_sign"`
+		MsgAppTid            string `mapstructure:"msg_app_tid"`
+		DefaultAdminAccount  string `mapstructure:"default_admin_account"`
+		DefaultAdminPassword string `mapstructure:"default_admin_password"`
+		DefaultAdminName     string `mapstructure:"default_admin_name"`
 	}
 
 	Mysql struct {
@@ -74,7 +77,7 @@ type (
 		Password        string `mapstructure:"password"`
 		DBName          string `mapstructure:"db_name"`
 		ConnMaxLifetime int64  `mapstructure:"conn_max_lifetime"`
-		ConnMaxIdle     int64  `mapstructure:"conn_max_idle"`
+		ConnMaxIdle     int    `mapstructure:"conn_max_idle"`
 	}
 
 	Mongodb struct {

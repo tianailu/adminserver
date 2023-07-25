@@ -1,6 +1,9 @@
 package user
 
 func init() {
-	go createTable()
 	go dealUserData()
+}
+
+func InitTable() {
+	go createTable()
 }
