@@ -17,11 +17,12 @@ import (
 func AddAdmin(c echo.Context) error {
 	var (
 		req = struct {
-			Account  string `json:"account"`
-			Password string `json:"password"`
-			Name     string `json:"name"`
-			Avatar   string `json:"avatar"`
-			Remark   string `json:"remark"`
+			MobilePhone string `json:"mobile_phone,optional"`
+			Account     string `json:"account"`
+			Password    string `json:"password"`
+			Name        string `json:"name"`
+			Avatar      string `json:"avatar,optional"`
+			Remark      string `json:"remark,optional"`
 		}{}
 		resp = common.Response{
 			Status: 0,
@@ -44,12 +45,10 @@ func AddAdmin(c echo.Context) error {
 		return c.JSON(http.StatusOK, resp)
 	}
 
-	accountType := "ADMIN"
-
 	accountRepo := NewAccountRepo(mysql.GetDB(), c.Logger())
-	account, err := accountRepo.FindByAccount(req.Account, accountType)
+	account, err := accountRepo.FindByAccount(req.Account, DefaultAccountType)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		c.Logger().Errorf("Failed to query account info, account: %s, type: %s, error: %s", req.Account, accountType, err)
+		c.Logger().Errorf("Failed to query account info, account: %s, type: %s, error: %s", req.Account, DefaultAccountType, err)
 		resp.Status, resp.Msg = 1, "内部异常"
 		return c.JSON(http.StatusOK, resp)
 	} else if account != nil {
@@ -59,9 +58,10 @@ func AddAdmin(c echo.Context) error {
 
 	account = &Account{
 		AccountId:   snowflake.GetNode().Generate().String(),
+		MobilePhone: req.MobilePhone,
 		Account:     req.Account,
 		Password:    crypto.GetSha256String(req.Password, config.AuthConf.AdminPasswordSalt),
-		AccountType: "ADMIN",
+		AccountType: DefaultAccountType,
 		Name:        req.Name,
 		Avatar:      req.Avatar,
 		Status:      0,

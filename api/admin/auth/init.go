@@ -15,4 +15,5 @@ func InitRouter(g *echo.Group) {
 func InitAdminRouter(g *echo.Group) {
 	g.GET("/accounts", GetAdminList)
 	g.POST("/accounts", AddAdmin)
+	g.PUT("/accounts", UpdateAdmin)
 }

@@ -15,10 +15,10 @@ import (
 )
 
 type AdminJwtClaims struct {
-	AccountType string   `json:"account_type"`
-	Roles       []string `json:"roles"`
-	Source      string   `json:"source"`
-	Status      int8     `json:"status"`
+	AccountType string `json:"account_type"`
+	Roles       []int  `json:"roles"`
+	Source      string `json:"source"`
+	Status      int8   `json:"status"`
 	jwt.RegisteredClaims
 }
 
@@ -56,6 +56,9 @@ func AdminLogin(c echo.Context) error {
 		return c.JSON(http.StatusOK, resp)
 	} else if err != nil {
 		resp.Status, resp.Msg = 1, "内部异常"
+		return c.JSON(http.StatusOK, resp)
+	} else if account.Status != 0 {
+		resp.Status, resp.Msg = 1, "登录失败，当前账号已被禁用"
 		return c.JSON(http.StatusOK, resp)
 	}
 
