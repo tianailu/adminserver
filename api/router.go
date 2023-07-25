@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/tianailu/adminserver/api/admin/auth"
+	"github.com/tianailu/adminserver/api/admin/gold"
 	"github.com/tianailu/adminserver/api/admin/user"
 )
 
@@ -12,6 +13,7 @@ func InitRouter(e *echo.Echo) {
 
 func InitAdminRouter(g *echo.Group) {
 	auth.InitRouter(g)
+	gold.InitRouter(g)
 }
 
 func InitGroupAdminRouter(g *echo.Group) {
