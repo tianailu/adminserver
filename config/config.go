@@ -156,6 +156,7 @@ func getDefaultConf(section string) map[string]string {
 		return map[string]string{
 			"ip":   "127.0.0.1",
 			"port": "6379",
+			"db":   "0",
 		}
 	default:
 		return map[string]string{}

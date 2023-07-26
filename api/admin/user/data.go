@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/shopspring/decimal"
 	"github.com/tianailu/adminserver/pkg/db/mysql"
 	"gorm.io/gorm"
 	"log"
@@ -64,21 +65,50 @@ type (
 	}
 
 	VipLevel struct {
-		Id                int     `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
-		Level             string  `json:"level" gorm:"size:10;comment:等级"`
-		Name              string  `json:"name" gorm:"size:10;comment:等级名称"`
-		Desc              string  `json:"desc" gorm:"size:30;comment:描述"`
-		Price             float64 `json:"price" gorm:"comment:价格"`
-		Discount          float32 `json:"discount" gorm:"comment:折扣"`
-		DowngradeStrategy int8    `json:"downgrade_strategy" gorm:"comment:降级策略"`
-		Status            int8    `json:"status" gorm:"comment:状态，取值为[0:禁用, 1:启用]"`
-		CreatedAt         int64   `json:"created_at" gorm:"comment:创建时间"`
+		Id                  uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
+		Level               string    `json:"level" gorm:"size:10;not null;comment:等级"`
+		Name                string    `json:"name" gorm:"size:10;not null;comment:等级名称"`
+		Desc                string    `json:"desc" gorm:"size:30;comment:描述"`
+		Weights             int8      `json:"weights" gorm:"default=0;comment:等级权重，取值为[0:未选择, 1:完全公开, 2:私密, 3:仅好友]"`
+		ProductId           uint      `json:"product_id" gorm:"comment:商品id"`
+		DiscountStatus      int8      `json:"discount_status" gorm:"default=0;comment:等级权益（折扣）开关，取值为[0:关闭, 1:开启]"`
+		Discount            float32   `json:"discount" gorm:"default=1;comment:等级权益（折扣）"`
+		UpgradeStrategyId   uint      `json:"upgrade_strategy_id" gorm:"comment:升级策略Id"`
+		DowngradeStrategyId uint      `json:"downgrade_strategy_id" gorm:"comment:降级策略Id"`
+		Status              int8      `json:"status" gorm:"comment:状态，取值为[0:禁用, 1:启用]"`
+		CreatedAt           time.Time `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
+		UpdatedAt           time.Time `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 	}
 
 	VipTag struct {
-		Id        int    `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
-		Name      string `json:"name" gorm:"size:10;comment:标签名称"`
-		CreatedAt int64  `json:"created_at" gorm:"comment:创建时间"`
+		Id                    uint            `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
+		Name                  string          `json:"name" gorm:"size:10;comment:标签名称"`
+		AutoTagStatus         int8            `json:"auto_tag_status" gorm:"default=0;comment:自动打标签状态，取值为[0:关闭, 1:启用]"`
+		StrategyType          int8            `json:"strategy_type" gorm:"default=0;comment:打标签策略类型，取值为[0:满足任意一个条件, 1:满足全部条件]"`
+		GrossTransactionValue decimal.Decimal `json:"gross_transaction_value" gorm:"type:decimal(10,2);comment:累计交易金额 GTV"`
+		GrossTransactionOrder int             `json:"gross_transaction_order" gorm:"comment:累计交易订单数 GTO"`
+		CurrentPointsGT       int             `json:"current_points_gt" gorm:"当前积分大于"`
+		CurrentBalanceGT      decimal.Decimal `json:"current_balance_gt" gorm:"type:decimal(10,2);comment:当前余额大于"`
+		CreatedAt             time.Time       `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
+		UpdatedAt             time.Time       `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
+	}
+
+	UserTag struct {
+		Id     uint `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
+		UserId uint `json:"user_id"`
+		TagId  uint `json:"tag_id" gorm:""`
+	}
+
+	Product struct {
+		Id             uint            `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
+		Name           string          `json:"name" gorm:"size:20;not null;comment:商品名称"`
+		Img            string          `json:"img" gorm:"size:128;comment:商品图片"`
+		Price          decimal.Decimal `json:"price" gorm:"type:decimal(10,2);comment:商品价格"`
+		VipPrice       decimal.Decimal `json:"vip_price" gorm:"type:decimal(10,2);comment:会员价格"`
+		Status         int8            `json:"status" gorm:"default=0;comment:商品状态，取值为[0:待上架, 1:已上架, 2:已下架]"`
+		VipPriceStatus int8            `json:"vip_price_status" gorm:"default=0;comment:会员价状态，取值为[1:不参与, 2:参与]"`
+		CreatedAt      time.Time       `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
+		UpdatedAt      time.Time       `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 	}
 )
 
@@ -104,6 +134,10 @@ func (m *VipLevel) TableName() string {
 
 func (m *VipTag) TableName() string {
 	return "tb_vip_tag"
+}
+
+func (m *Product) TableName() string {
+	return "tb_product"
 }
 
 func (m *User) Create() error {

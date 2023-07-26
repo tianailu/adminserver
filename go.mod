@@ -39,6 +39,7 @@ require (
 	github.com/pelletier/go-toml v1.9.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/shiena/ansicolor v0.0.0-20200904210342-c7312218db18 // indirect
+	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/wendal/errors v0.0.0-20130201093226-f66c77a7882b // indirect
