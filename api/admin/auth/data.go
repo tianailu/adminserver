@@ -46,8 +46,6 @@ func (m *Account) String() string {
 }
 
 func createTable() error {
-	time.Sleep(time.Second * 5)
-
 	err := mysql.GetDB().Set("gorm:tb_account", "ENGINE=InnoDB").AutoMigrate(&Account{})
 	if err != nil {
 		log.Errorf("创建 tb_account 表失败, err: %s", err)

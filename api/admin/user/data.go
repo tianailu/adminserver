@@ -1,9 +1,9 @@
 package user
 
 import (
+	"database/sql"
 	"github.com/shopspring/decimal"
 	"github.com/tianailu/adminserver/pkg/db/mysql"
-	"gorm.io/gorm"
 	"log"
 	"time"
 )
@@ -68,7 +68,7 @@ type (
 		Id                  uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
 		Level               string    `json:"level" gorm:"size:10;not null;comment:等级"`
 		Name                string    `json:"name" gorm:"size:10;not null;comment:等级名称"`
-		Desc                string    `json:"desc" gorm:"size:30;comment:描述"`
+		Desc                string    `json:"desc" gorm:"size:90;comment:描述"`
 		Weights             int8      `json:"weights" gorm:"default=0;comment:等级权重，取值为[0:未选择, 1:完全公开, 2:私密, 3:仅好友]"`
 		ProductId           uint      `json:"product_id" gorm:"comment:商品id"`
 		DiscountStatus      int8      `json:"discount_status" gorm:"default=0;comment:等级权益（折扣）开关，取值为[0:关闭, 1:开启]"`
@@ -80,23 +80,40 @@ type (
 		UpdatedAt           time.Time `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 	}
 
+	VipStrategy struct {
+		Id               uint              `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
+		Type             int8              `json:"type" gorm:"not null;comment:策略类型，取值为[1:升级, 2:降级]"`
+		ProtectionPeriod int               `json:"protection_period" gorm:"default=0;not null;comment:等级保护期，单位为天，值为0时无视"`
+		ConditionType    int8              `json:"condition_type" gorm:"not null;comment:策略达成条件类型，取值为[1: 满足任意一个条件, 2:满足全部条件]"`
+		AssessmentPeriod int               `json:"assessment_period" gorm:"not null;comment:考核周期，考核最近一个周期内的数据，单为位天，值为0时考核过去所有的累计数据"`
+		Condition        StrategyCondition `json:"condition" gorm:"type:json;default={};comment:考核条件，json字符串"`
+		Status           int8              `json:"status" gorm:"comment:策略开关，取值为[0:关闭, 1:开启]"`
+		StartTime        sql.NullTime      `json:"start_time" gorm:"type:datetime;comment:策略开始启用时间，为空时即时生效"`
+		CreatedAt        time.Time         `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
+		UpdatedAt        time.Time         `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
+	}
+
+	StrategyCondition map[string]interface{}
+
 	VipTag struct {
 		Id                    uint            `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
 		Name                  string          `json:"name" gorm:"size:10;comment:标签名称"`
 		AutoTagStatus         int8            `json:"auto_tag_status" gorm:"default=0;comment:自动打标签状态，取值为[0:关闭, 1:启用]"`
-		StrategyType          int8            `json:"strategy_type" gorm:"default=0;comment:打标签策略类型，取值为[0:满足任意一个条件, 1:满足全部条件]"`
+		StrategyCondition     int8            `json:"strategy_condition" gorm:"default=0;comment:打标签策略类型，取值为[0:满足任意一个条件, 1:满足全部条件]"`
 		GrossTransactionValue decimal.Decimal `json:"gross_transaction_value" gorm:"type:decimal(10,2);comment:累计交易金额 GTV"`
 		GrossTransactionOrder int             `json:"gross_transaction_order" gorm:"comment:累计交易订单数 GTO"`
 		CurrentPointsGT       int             `json:"current_points_gt" gorm:"当前积分大于"`
 		CurrentBalanceGT      decimal.Decimal `json:"current_balance_gt" gorm:"type:decimal(10,2);comment:当前余额大于"`
+		ProductId             uint            `json:"product_id" gorm:"comment:商品id"`
 		CreatedAt             time.Time       `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
 		UpdatedAt             time.Time       `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 	}
 
 	UserTag struct {
-		Id     uint `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
-		UserId uint `json:"user_id"`
-		TagId  uint `json:"tag_id" gorm:""`
+		Id        uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
+		UserId    uint      `json:"user_id"`
+		TagId     uint      `json:"tag_id" gorm:"not null;comment:会员标签id"`
+		CreatedAt time.Time `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
 	}
 
 	Product struct {
@@ -105,24 +122,12 @@ type (
 		Img            string          `json:"img" gorm:"size:128;comment:商品图片"`
 		Price          decimal.Decimal `json:"price" gorm:"type:decimal(10,2);comment:商品价格"`
 		VipPrice       decimal.Decimal `json:"vip_price" gorm:"type:decimal(10,2);comment:会员价格"`
-		Status         int8            `json:"status" gorm:"default=0;comment:商品状态，取值为[0:待上架, 1:已上架, 2:已下架]"`
+		Status         int8            `json:"status" gorm:"default=0;comment:商品状态，取值为[0:待上架, 1:出售中, 2:已下架]"`
 		VipPriceStatus int8            `json:"vip_price_status" gorm:"default=0;comment:会员价状态，取值为[1:不参与, 2:参与]"`
 		CreatedAt      time.Time       `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
 		UpdatedAt      time.Time       `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 	}
 )
-
-func createTable() error {
-	time.Sleep(time.Second * 5)
-
-	err := mysql.GetDB().AutoMigrate(&User{}, &VipLevel{}, &VipTag{})
-	if err != nil {
-		log.Printf("创建 tb_user/tb_vip_level/tb_vip_tag 表失败, err: %s", err)
-		return err
-	}
-
-	return nil
-}
 
 func (m *User) TableName() string {
 	return "tb_user"
@@ -132,45 +137,28 @@ func (m *VipLevel) TableName() string {
 	return "tb_vip_level"
 }
 
+func (m *VipStrategy) TableName() string {
+	return "tb_vip_strategy"
+}
+
 func (m *VipTag) TableName() string {
 	return "tb_vip_tag"
+}
+
+func (m *UserTag) TableName() string {
+	return "tb_user_tag"
 }
 
 func (m *Product) TableName() string {
 	return "tb_product"
 }
 
-func (m *User) Create() error {
-	err := mysql.GetDB().Transaction(func(tx *gorm.DB) error {
-		return tx.Create(m).Error
-	})
-
+func createTable() error {
+	err := mysql.GetDB().AutoMigrate(&User{}, &VipLevel{}, &VipStrategy{}, &VipTag{}, &UserTag{}, &Product{})
 	if err != nil {
+		log.Printf("创建 tb_user/tb_vip_level/tb_vip_strategy/tb_vip_tag/tb_user_tag/tb_product 表失败, err: %s", err)
 		return err
 	}
 
 	return nil
-}
-
-func (m *User) FindByUid(uid string) (*User, error) {
-	var u *User
-
-	err := mysql.GetDB().Where("uid = ?", uid).First(&u).Error
-
-	if err != nil {
-		return nil, err
-	}
-
-	return u, nil
-}
-
-func (m *User) TotalUser() (int64, error) {
-	var count int64
-	err := mysql.GetDB().Model(&User{}).Count(&count).Error
-
-	if err != nil {
-		return 0, err
-	}
-
-	return count, nil
 }
