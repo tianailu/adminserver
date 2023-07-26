@@ -93,29 +93,42 @@ func (rs *RoleService) SaveRolePermissions(roleId int, pemIds []int) error {
 		if err != nil {
 			return errors.New("角色不存在")
 		}
-		var permissionCount int64
-		err = rs.db.
-			Model(&domain.Permission{}).
-			Where("id in (?) and parent_id != 0", pemIds).
-			Count(&permissionCount).Error
-		if err != nil || int(permissionCount) != len(pemIds) {
-			return errors.New("权限列表异常，包含不存在的权限")
-		}
-
-		var rolePermis []domain.RolePermission
-		for _, permissionId := range pemIds {
-			temp := domain.RolePermission{
-				RoleId:          roleId,
-				PermissionId:    permissionId,
-				CreateAccountId: "1", // fixme 登录后修复
-				AuthAccountId:   "1",
+		err = rs.db.Transaction(func(tx *gorm.DB) error {
+			var permissionCount int64
+			err = rs.db.
+				Model(&domain.Permission{}).
+				Where("id in (?) and parent_id != 0", pemIds).
+				Count(&permissionCount).Error
+			if err != nil || int(permissionCount) != len(pemIds) {
+				return errors.New("权限列表异常，包含不存在的权限")
 			}
-			rolePermis = append(rolePermis, temp)
-		}
+			rolePerms := []domain.RolePermission{}
+			err = rs.db.Model(&domain.RolePermission{}).Where("role_Id = ?", roleId).Find(&rolePerms).Error
+			if err != nil {
+				log.Printf("获取角色%d权限异常", roleId)
+				return err
+			}
+			err = rs.db.Model(&domain.RolePermission{}).Delete(&rolePerms).Error
+			if err != nil {
+				log.Printf("删除角色%d权限异常", roleId)
+				return err
+			}
+			var rolePermis []domain.RolePermission
+			for _, permissionId := range pemIds {
+				temp := domain.RolePermission{
+					RoleId:          roleId,
+					PermissionId:    permissionId,
+					CreateAccountId: "1", // fixme 登录后修复
+					UpdateAccountId: "1",
+				}
+				rolePermis = append(rolePermis, temp)
+			}
 
-		err = rs.db.
-			Model(&domain.RolePermission{}).
-			Save(rolePermis).Error
+			err = rs.db.
+				Model(&domain.RolePermission{}).
+				Save(rolePermis).Error
+			return err
+		})
 		return err
 	})
 

@@ -71,7 +71,7 @@ func InitGroupAdminRouter(e *echo.Group) {
 	e.GET("/system-setting/roles", roleCtl.GetAllRoles)
 	e.GET("/system-setting/role/:roleId/permissions", roleCtl.GetRolePermissions)
 	e.POST("/system-setting/roles/page", roleCtl.GetRolesPage)
-	e.POST("/system-setting/role-permissions", roleCtl.SaveRolePermissions)
+	e.POST("/system-setting/role/:roleId/permissions", roleCtl.SaveRolePermissions)
 
 	// perCtl := controller.NewPermissionController()
 	// e.GET("/system-setting/permissions", perCtl.GetUserPermisions)

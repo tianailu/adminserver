@@ -114,21 +114,26 @@ func (rc *RoleController) GetRolePermissions(c echo.Context) error {
 	return c.JSON(http.StatusOK, retVal)
 }
 
-// 保存角色权限 POST /system-setting/role-permissions
+// 保存角色权限 POST /system-setting/role/:roleId/permissions
 func (rc *RoleController) SaveRolePermissions(c echo.Context) error {
-	reqBody := req.SaveRolePermissionRequest{}
-	err := c.Bind(&reqBody)
-	if len(reqBody.PermissionIds) == 0 {
+	var permissionIds []int
+	err := c.Bind(&permissionIds)
+	roleId := c.Param("roleId")
+	if len(permissionIds) == 0 {
 		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg("权限为空，请检查权限列表"))
 	}
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, common.ResponseBadRequest())
 	}
-	err = rc.roleSvc.SaveRolePermissions(reqBody.RoleId, reqBody.PermissionIds)
+	rId, err := strconv.Atoi(roleId)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, common.ResponseBadRequest())
+	}
+	err = rc.roleSvc.SaveRolePermissions(rId, permissionIds)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, common.ResponseBadRequestWithMsg(err.Error()))
+		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg(err.Error()))
 	}
 
-	return c.JSON(http.StatusOK, common.ResponseSuccess)
+	return c.JSON(http.StatusOK, common.ResponseSuccess())
 }
