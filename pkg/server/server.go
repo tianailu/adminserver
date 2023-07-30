@@ -73,22 +73,16 @@ func (ad *AdminServer) Initialize() {
 		AllowCredentials: true,
 		AllowMethods:     []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE, echo.OPTIONS},
 	}
-
 	App.Use(cors.CORSWithConfig(corsConfig))
 
-	// 初始化mysql
-	mysqlConf := settings.GetConfig("mysql")
-	fmt.Printf("1:%s-2:%s-3:%s-4:%s-5:%s-6:%s-7:%s \n", mysqlConf["username"], mysqlConf["password"], mysqlConf["ip"], mysqlConf["port"], mysqlConf["db_name"],
-		mysqlConf["conn_max_lifetime"], mysqlConf["conn_max_idle"])
-	mysql.InitMysqlDB(mysqlConf["username"], mysqlConf["password"], mysqlConf["ip"], mysqlConf["port"], mysqlConf["db_name"],
-		mysqlConf["conn_max_lifetime"], mysqlConf["conn_max_idle"])
+	// 初始化 mysql
+	mysql.InitMySQLDB(config.MysqlConf)
+	api.InitTable()
 
-	// init redis
-	redisConf := settings.GetConfig("redis")
-	fmt.Printf("1:%s-2:%s-3:%s-4:%s-5:%s \n", redisConf["username"], redisConf["password"], redisConf["ip"], redisConf["port"], redisConf["db"])
-	redis.InitRedis(redisConf["username"], redisConf["password"], redisConf["ip"], redisConf["port"], redisConf["db"])
+	// 初始化 redis
+	redis.InitRedis(config.RedisConf)
 
-	// init snowflake
+	// 初始化 snowflake 服务
 	snowflake.CreateSnowflakeClient()
 
 	ad.Mode = settings.ConfigEr.String("mode")

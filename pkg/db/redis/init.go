@@ -1,37 +1,39 @@
 package redis
 
 import (
-    "context"
-    "fmt"
-    "github.com/labstack/gommon/log"
-    "github.com/redis/go-redis/v9"
+	"context"
+	"fmt"
+	"github.com/labstack/gommon/log"
+	"github.com/redis/go-redis/v9"
+	"github.com/tianailu/adminserver/config"
 )
 
 // redis全局实例
 var (
-    rdb *redis.Client
+	rdb *redis.Client
 )
 
 func GetRDB() *redis.Client {
-    return rdb
+	return rdb
 }
 
 // InitRedis 初始化redis
-func InitRedis(username, password, host, port, db string) {
-    redisUrl := fmt.Sprintf("redis://%s:%s@%s:%s/%s", username, password, host, port, db)
-    opt, err := redis.ParseURL(redisUrl)
-    if err != nil {
-        log.Errorf("生成 Redis 访问URL异常: %s", err.Error())
-        return
-    }
+func InitRedis(conf config.Redis) {
+	redisUrl := fmt.Sprintf("redis://%s:%s@%s:%d/%d", conf.Username, conf.Password, conf.Ip, conf.Port, conf.DB)
 
-    rdb = redis.NewClient(opt)
+	opt, err := redis.ParseURL(redisUrl)
+	if err != nil {
+		log.Errorf("生成 Redis 访问URL异常: %s", err.Error())
+		return
+	}
 
-    ping := rdb.Ping(context.TODO())
-    if _, err = ping.Result(); err != nil {
-        log.Errorf("Redis Ping err: %s", err.Error())
-        return
-    }
+	rdb = redis.NewClient(opt)
 
-    fmt.Println("Redis successfully connected")
+	ping := rdb.Ping(context.TODO())
+	if _, err = ping.Result(); err != nil {
+		log.Errorf("Redis Ping err: %s", err.Error())
+		return
+	}
+
+	log.Infof("Redis successfully connected")
 }

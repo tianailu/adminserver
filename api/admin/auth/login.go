@@ -85,7 +85,7 @@ func AdminLogin(c echo.Context) error {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	accessToken, err := token.SignedString([]byte(config.AuthConf.AdminPasswordSalt))
+	accessToken, err := token.SignedString([]byte(config.AuthConf.AdminSecretKey))
 	if err != nil {
 		return err
 	}
