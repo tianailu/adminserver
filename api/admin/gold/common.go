@@ -11,6 +11,9 @@ const (
 	TradeType_SignIn                // 签到
 	TradeType_RealCert              // 真人认证
 	TradeType_AcademicCert          // 学历认证
+	TradeType_JobCert               // 工作认证
+	TradeType_SoulMate              // 灵魂问答
+	TradeType_Avatar                // 头像
 	TradeType_Authentication        // 身份认证
 	TradeType_FirstDate             // 用户首次发布周末约会
 	TradeType_WeeklyDate            // 用户每周发布周末约会
@@ -30,6 +33,20 @@ const (
 	InviteSettingDBName = "tb_invite_setting"
 )
 
+type GetGoldInfoReq struct {
+	UserID int64 `json:"user_id"`
+	Type   int32 `json:"type"`
+	Status int32 `json:"status"` // 0：不限制，1：未领取，2：已领取
+}
+type GetGoldInfoResp struct {
+	UserID    int64 `json:"user_id"`
+	UserName  int32 `json:"user_name"`
+	Avatar    int32 `json:"avatar"` // 0：未认证，1：认证未领取，2：认证已领取
+	RealName  int32 `json:"real_name"`
+	Job       int32 `json:"job"`
+	Soulmate  int32 `json:"soulmate"`
+	Education int32 `json:"education"`
+}
 type SetInviteReq struct {
 	InviteCode   string `json:"invite_code"`
 	InviteUserID int64  `json:"invite_user_id"`

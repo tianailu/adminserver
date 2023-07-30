@@ -19,8 +19,5 @@ func InitRouter(g *echo.Group) {
 	g.GET("/gold/setting/get", GetGoldSetting)
 	g.POST("/gold/setting/set", SetGoldSetting)
 	g.POST("/gold/invite/set", SetInvite)
-	g.GET("/gold/excel/invite", GetInviteExcel)
-	g.GET("/gold/excel/invite_code", GetInviteCodeExcel)
-	g.GET("/gold/excel/share", GetShareExcel)
-	g.GET("/gold/excel/sign_in", GetSignInExcel)
+	g.GET("/gold/info/get", GetGoldInfo)
 }
