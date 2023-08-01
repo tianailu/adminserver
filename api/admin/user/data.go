@@ -18,8 +18,8 @@ type (
 		Gender         int8         `json:"gender" gorm:"not null;default:0;comment:性别，取值为[0:男, 1:女]"`
 		Birthday       sql.NullTime `json:"birthday" gorm:"type:datetime;comment:出生日期"`
 		Constellation  string       `json:"constellation" gorm:"size:12;comment:星座"`
-		Height         float32      `json:"height" gorm:"comment:身高，单位cm"`
-		Weight         float32      `json:"weight" gorm:"comment:体重，单位kg"`
+		Height         float32      `json:"height" gorm:"default:0.0;comment:身高，单位cm"`
+		Weight         float32      `json:"weight" gorm:"default:0.0;comment:体重，单位kg"`
 		Education      string       `json:"education" gorm:"size:12;comment:最高学历"`
 		School         string       `json:"school" gorm:"size:32;comment:毕业院校"`
 		Work           string       `json:"work" gorm:"size:12;comment:职业"`
@@ -31,7 +31,7 @@ type (
 		IdentityTag    int8         `json:"identity_tag" gorm:"not null;default=0;comment:身份标签，取值为[0:未选择, 1:母胎单身, 2:未婚单身, 3:离异无孩, 4:离异带孩, 5:离异不带孩, 6:丧偶]"`
 		VipTag         int8         `json:"vip_tag" gorm:"not null;default:0;comment:vip标签"`
 		Status         int8         `json:"status" gorm:"not null;default:0;comment:用户状态，取值为[0:待审（首次申请审核）, 1: 再审核（非首次申请审核）, 2:通过, 3:不通过]"`
-		RegisterPlace  string       `json:"register_place" gorm:"size:12;comment:注册地"`
+		RegisterPlace  string       `json:"register_place" gorm:"size:12;comment:注册地（国家地理编码）"`
 		RegisterSource int8         `json:"register_source" gorm:"comment:注册来源，取值为[0:未知, 1:APP, 2:小程序, 3:群组, 4:二维码, 5:管理后台]"`
 		DurationOfUse  int64        `json:"duration_of_use" gorm:"comment:使用时长，单位秒"`
 		CreatedAt      time.Time    `json:"created_at" gorm:"comment:注册时间"`
@@ -66,12 +66,12 @@ type (
 	MatchSetting struct {
 		Id              uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
 		UserId          uint      `json:"user_id" gorm:"comment:用户唯一id"`
-		TargetAge       string    `json:"ta_age" gorm:"size:12;comment:希望另一半身高范围"`
-		TargetHeight    string    `json:"ta_height" gorm:"size:12;comment:希望另一半身高范围"`
-		TargetCity      string    `json:"ta_city" gorm:"size:12;comment:希望另一半所在城市"`
-		TargetHometown  string    `json:"ta_hometown" gorm:"size:12;comment:希望另一半的家乡"`
-		TargetEducation string    `json:"ta_education" gorm:"size:12;comment:希望另一半最低学历"`
-		TargetMarriage  string    `json:"ta_marriage" gorm:"size:12;comment:希望另一半婚姻状态"`
+		TargetAge       string    `json:"ta_age" gorm:"size:12;comment:希望另一半身高范围，中间使用英文横杠隔开，示例：18-38"`
+		TargetHeight    string    `json:"ta_height" gorm:"size:12;comment:希望另一半身高范围，中间使用英文横杠隔开，示例170-190"`
+		TargetCity      int8      `json:"ta_city" gorm:"default:0;comment:希望另一半所在城市，取值为[0:同城优先, 1:只要同城]"`
+		TargetHometown  int8      `json:"ta_hometown" gorm:"default:0;comment:希望另一半的家乡，取值为[0:都可以, 1:同城优先]"`
+		TargetEducation int8      `json:"ta_education" gorm:"default:0;comment:希望另一半最低学历，取值为[0:都可以, 1:本科, 2:硕士]"`
+		TargetMarriage  int8      `json:"ta_marriage" gorm:"default:0;comment:希望另一半婚姻状态，取值为[0:未婚, 1:可以离异]"`
 		CreatedAt       time.Time `json:"created_at" gorm:"comment:创建时间"`
 		UpdateAt        time.Time `json:"update_at" gorm:"comment:修改时间"`
 	}
@@ -145,10 +145,6 @@ func (m *User) TableName() string {
 	return "tb_user"
 }
 
-func (m *VipLevel) TableName() string {
-	return "tb_vip_level"
-}
-
 func (m *VipStrategy) TableName() string {
 	return "tb_vip_strategy"
 }
@@ -166,7 +162,7 @@ func (m *Product) TableName() string {
 }
 
 func createTable() error {
-	err := mysql.GetDB().AutoMigrate(&User{}, &VipLevel{}, &VipStrategy{}, &VipTag{}, &UserTag{}, &Product{})
+	err := mysql.GetDB().AutoMigrate(&User{})
 	if err != nil {
 		log.Printf("创建 tb_user/tb_vip_level/tb_vip_strategy/tb_vip_tag/tb_user_tag/tb_product 表失败, err: %s", err)
 		return err
