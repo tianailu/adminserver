@@ -2,6 +2,7 @@ package user
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/shopspring/decimal"
 	"github.com/tianailu/adminserver/pkg/db/mysql"
 	"gorm.io/plugin/soft_delete"
@@ -14,7 +15,7 @@ type (
 		Id             uint                  `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
 		AccountId      string                `json:"account_id" gorm:"size:32;comment:账号ID;index:idx_account_id"`
 		Uid            int64                 `json:"uid" gorm:"not null;comment:用户ID;index:idx_uid"`
-		Name           string                `json:"name" gorm:"size:12;comment:用户名"`
+		Name           string                `json:"name" gorm:"size:12;comment:用户名;index:idx_name"`
 		Avatar         string                `json:"avatar" gorm:"size:128;comment:个人头像"`
 		Gender         int8                  `json:"gender" gorm:"not null;default:0;comment:性别，取值为[0:男, 1:女]"`
 		Birthday       sql.NullTime          `json:"birthday" gorm:"type:datetime;comment:出生日期"`
@@ -48,7 +49,7 @@ type (
 
 	AboutMe struct {
 		Id               uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
-		UserId           int64     `json:"user_id" gorm:"comment:用户唯一id;index:idx_user_id"`
+		UserId           int64     `json:"user_id" gorm:"not null;comment:用户唯一id;index:idx_user_id"`
 		Habit            string    `json:"habit" gorm:"size:64;comment:生活习惯"`
 		ConsumptionView  string    `json:"consumption_view" gorm:"size:64;comment:消费观"`
 		Family           string    `json:"family" gorm:"size:64;comment:家庭背景"`
@@ -62,7 +63,7 @@ type (
 
 	MatchSetting struct {
 		Id              uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
-		UserId          int64     `json:"user_id" gorm:"comment:用户唯一id;index:idx_user_id"`
+		UserId          int64     `json:"user_id" gorm:"not null;comment:用户唯一id;index:idx_user_id"`
 		TargetAge       string    `json:"ta_age" gorm:"size:12;comment:希望另一半身高范围，中间使用英文横杠隔开，示例：18-38"`
 		TargetHeight    string    `json:"ta_height" gorm:"size:12;comment:希望另一半身高范围，中间使用英文横杠隔开，示例170-190"`
 		TargetCity      int8      `json:"ta_city" gorm:"default:0;comment:希望另一半所在城市，取值为[0:同城优先, 1:只要同城]"`
@@ -75,7 +76,7 @@ type (
 
 	RealNameAuth struct {
 		Id        uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
-		UserId    int64     `json:"user_id" gorm:"comment:用户唯一id;index:idx_user_id"`
+		UserId    int64     `json:"user_id" gorm:"not null;comment:用户唯一id;index:idx_user_id"`
 		IdCard    string    `json:"id_card" gorm:"size:18;not null;comment:身份证"`
 		RealName  string    `json:"real_name" gorm:"size:20;not null;comment:真实姓名"`
 		Status    int8      `json:"status" gorm:"not null;default:0;comment:认证状态，取值为[0:未认证, 1:已通过认证, 2:认证未通过, 3:更新认证]"`
@@ -83,9 +84,9 @@ type (
 		UpdatedAt time.Time `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 	}
 
-	WordAuth struct {
+	WorkAuth struct {
 		Id                uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
-		UserId            int64     `json:"user_id" gorm:"comment:用户唯一id;index:idx_user_id"`
+		UserId            int64     `json:"user_id" gorm:"not null;comment:用户唯一id;index:idx_user_id"`
 		AuthMethod        int8      `json:"auth_method" gorm:"comment:认证方式，取值为[0:未选择, 1:支付宝社保截图／社保证明, 2:钉钉或企业微名片（需带二维码）, 3:在职证明／劳动合同／营业执照, 4:工牌／名片／工作证等, 5:录取Offer／工资单]"`
 		Company           string    `json:"company" gorm:"size:20;not null;comment:公司名称"`
 		Img               string    `json:"img" gorm:"size:128;not null;comment:提供的认证图片"`
@@ -97,7 +98,7 @@ type (
 
 	EduAuth struct {
 		Id               uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
-		UserId           int64     `json:"user_id" gorm:"comment:用户唯一id;index:idx_user_id"`
+		UserId           int64     `json:"user_id" gorm:"not null;comment:用户唯一id;index:idx_user_id"`
 		SchoolType       int8      `json:"school_type" gorm:"default:0;comment:学校类型，取值为[0:内地学校, 1:海外/港澳台]"`
 		AuthMethod       int8      `json:"auth_method" gorm:"comment:认证方式，取值为[0:未选择, 1:内地在线自助认证, 2:内地毕业证书/学位证书编码, 3:内地毕业证书/学位证书照片, 4:学信网在线验证码, 5:教留服认证证书编号, 6:海外/港澳台学历证书照片, 7:在校学生证明]"`
 		Education        int8      `json:"education" gorm:"default:0;comment:最高学历，取值为[0:未选择, 1:高中及以下, 2:大专, 3:本科, 4:硕士, 5:博士及以上]"`
@@ -112,7 +113,7 @@ type (
 
 	UserManagement struct {
 		Id        uint         `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
-		UserId    int64        `json:"user_id" gorm:"comment:用户唯一id;index:idx_user_id"`
+		UserId    int64        `json:"user_id" gorm:"not null;comment:用户唯一id;index:idx_user_id"`
 		Action    int8         `json:"action" gorm:"not null;comment:操作类型，取值为[1:封号, 2:禁言]"`
 		Reason    int8         `json:"reason" gorm:"default:0;comment:操作理由，取值为[0:未选择, 1:垃圾营销广告, 2:色情低俗, 3:政治敏感, 4:虚假信息, 5:资料透露联系方式, 6:聊天内容不适]"`
 		Penalties int8         `json:"penalties" gorm:"default:0;comment:处罚措施，取值为[0:无限期, 1:1天, 2:2天, 3:3天, 4:7天, 5:10天]"`
@@ -124,8 +125,8 @@ type (
 
 	Reports struct {
 		Id             uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
-		ReporterUserId int64     `json:"reporter_user_id" gorm:"not null;comment:举报人用户ID"`
-		ReportedUserId int64     `json:"reported_user_id" gorm:"not null;comment:被举报人用户ID"`
+		ReporterUserId int64     `json:"reporter_user_id" gorm:"not null;comment:举报人用户ID;index:idx_reporter_user_id"`
+		ReportedUserId int64     `json:"reported_user_id" gorm:"not null;comment:被举报人用户ID;index:idx_reported_user_id"`
 		ReportSource   int8      `json:"report_source" gorm:"comment:举报来源，取值为[]"`
 		ReportType     int8      `json:"report_type" gorm:"default:0;comment:举报事项类型，取值为[0:其他, 1:头像非本人, 2:资料透露练习方式, 3:内容乱填/虚假资料, 4:婚托/酒托/饭托等, 5:虚假中奖消息、诈骗等, 6:垃圾营销广告, 7:聊天内容不适/骚扰]"`
 		Desc           string    `json:"desc" gorm:"type:text;comment:具体描述"`
@@ -135,69 +136,33 @@ type (
 		UpdatedAt      time.Time `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 	}
 
-	//VipLevel struct {
-	//	Id                  uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
-	//	Level               string    `json:"level" gorm:"size:10;not null;comment:等级"`
-	//	Name                string    `json:"name" gorm:"size:10;not null;comment:等级名称"`
-	//	Desc                string    `json:"desc" gorm:"size:90;comment:描述"`
-	//	Weights             int8      `json:"weights" gorm:"default=0;comment:等级权重，取值为[0:未选择, 1:完全公开, 2:私密, 3:仅好友]"`
-	//	ProductId           uint      `json:"product_id" gorm:"comment:商品id"`
-	//	DiscountStatus      int8      `json:"discount_status" gorm:"default=0;comment:等级权益（折扣）开关，取值为[0:关闭, 1:开启]"`
-	//	Discount            float32   `json:"discount" gorm:"default=1;comment:等级权益（折扣）"`
-	//	UpgradeStrategyId   uint      `json:"upgrade_strategy_id" gorm:"comment:升级策略Id"`
-	//	DowngradeStrategyId uint      `json:"downgrade_strategy_id" gorm:"comment:降级策略Id"`
-	//	Status              int8      `json:"status" gorm:"comment:状态，取值为[0:禁用, 1:启用]"`
-	//	CreatedAt           time.Time `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
-	//	UpdatedAt           time.Time `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
-	//}
-
-	//VipStrategy struct {
-	//	Id               uint              `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
-	//	Type             int8              `json:"type" gorm:"not null;comment:策略类型，取值为[1:升级, 2:降级]"`
-	//	ProtectionPeriod int               `json:"protection_period" gorm:"default=0;not null;comment:等级保护期，单位为天，值为0时无视"`
-	//	ConditionType    int8              `json:"condition_type" gorm:"not null;comment:策略达成条件类型，取值为[1: 满足任意一个条件, 2:满足全部条件]"`
-	//	AssessmentPeriod int               `json:"assessment_period" gorm:"not null;comment:考核周期，考核最近一个周期内的数据，单为位天，值为0时考核过去所有的累计数据"`
-	//	Condition        StrategyCondition `json:"condition" gorm:"type:json;default={};comment:考核条件，json字符串"`
-	//	Status           int8              `json:"status" gorm:"comment:策略开关，取值为[0:关闭, 1:开启]"`
-	//	StartTime        sql.NullTime      `json:"start_time" gorm:"type:datetime;comment:策略开始启用时间，为空时即时生效"`
-	//	CreatedAt        time.Time         `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
-	//	UpdatedAt        time.Time         `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
-	//}
-
-	//StrategyCondition map[string]interface{}
-
 	VipTag struct {
 		Id                    uint            `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
-		Name                  string          `json:"name" gorm:"size:10;comment:标签名称"`
-		AutoTagStatus         int8            `json:"auto_tag_status" gorm:"default=0;comment:自动打标签状态，取值为[0:关闭, 1:启用]"`
-		StrategyCondition     int8            `json:"strategy_condition" gorm:"default=0;comment:打标签策略类型，取值为[0:满足任意一个条件, 1:满足全部条件]"`
+		Name                  string          `json:"name" gorm:"size:10;not null;comment:标签名称"`
 		GrossTransactionValue decimal.Decimal `json:"gross_transaction_value" gorm:"type:decimal(10,2);comment:累计交易金额 GTV"`
-		GrossTransactionOrder int             `json:"gross_transaction_order" gorm:"comment:累计交易订单数 GTO"`
-		CurrentPointsGT       int             `json:"current_points_gt" gorm:"当前积分大于"`
-		CurrentBalanceGT      decimal.Decimal `json:"current_balance_gt" gorm:"type:decimal(10,2);comment:当前余额大于"`
-		ProductId             uint            `json:"product_id" gorm:"comment:商品id"`
 		CreatedAt             time.Time       `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
 		UpdatedAt             time.Time       `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 	}
 
-	UserTag struct {
+	UserVipTag struct {
 		Id        uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
-		UserId    uint      `json:"user_id"`
-		TagId     uint      `json:"tag_id" gorm:"not null;comment:会员标签id"`
+		UserId    int64     `json:"user_id" gorm:"not null;comment:用户唯一id;index:idx_user_id"`
+		VipTagId  uint      `json:"vip_tag_id" gorm:"not null;comment:会员标签id"`
 		CreatedAt time.Time `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
+		UpdatedAt time.Time `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 	}
 
-	Product struct {
-		Id             uint            `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
-		Name           string          `json:"name" gorm:"size:20;not null;comment:商品名称"`
-		Img            string          `json:"img" gorm:"size:128;comment:商品图片"`
-		Price          decimal.Decimal `json:"price" gorm:"type:decimal(10,2);comment:商品价格"`
-		VipPrice       decimal.Decimal `json:"vip_price" gorm:"type:decimal(10,2);comment:会员价格"`
-		Status         int8            `json:"status" gorm:"default=0;comment:商品状态，取值为[0:待上架, 1:出售中, 2:已下架]"`
-		VipPriceStatus int8            `json:"vip_price_status" gorm:"default=0;comment:会员价状态，取值为[1:不参与, 2:参与]"`
-		CreatedAt      time.Time       `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
-		UpdatedAt      time.Time       `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
-	}
+	//Product struct {
+	//    Id             uint            `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
+	//    Name           string          `json:"name" gorm:"size:20;not null;comment:商品名称"`
+	//    Img            string          `json:"img" gorm:"size:128;comment:商品图片"`
+	//    Price          decimal.Decimal `json:"price" gorm:"type:decimal(10,2);comment:商品价格"`
+	//    VipPrice       decimal.Decimal `json:"vip_price" gorm:"type:decimal(10,2);comment:会员价格"`
+	//    Status         int8            `json:"status" gorm:"default=0;comment:商品状态，取值为[0:待上架, 1:出售中, 2:已下架]"`
+	//    VipPriceStatus int8            `json:"vip_price_status" gorm:"default=0;comment:会员价状态，取值为[1:不参与, 2:参与]"`
+	//    CreatedAt      time.Time       `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
+	//    UpdatedAt      time.Time       `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
+	//}
 )
 
 func (m *User) TableName() string {
@@ -216,8 +181,8 @@ func (m *RealNameAuth) TableName() string {
 	return "tb_real_name_auth"
 }
 
-func (m *WordAuth) TableName() string {
-	return "tb_word_auth"
+func (m *WorkAuth) TableName() string {
+	return "tb_work_auth"
 }
 
 func (m *EduAuth) TableName() string {
@@ -236,25 +201,73 @@ func (m *VipTag) TableName() string {
 	return "tb_vip_tag"
 }
 
-func (m *UserTag) TableName() string {
-	return "tb_user_tag"
-}
-
-func (m *Product) TableName() string {
-	return "tb_product"
+func (m *UserVipTag) TableName() string {
+	return "tb_user_vip_tag"
 }
 
 func createTable() error {
-	err := mysql.GetDB().AutoMigrate(&User{})
+	err := mysql.GetDB().Set("gorm:table_options", "ENGINE=InnoDB").
+		AutoMigrate(&User{}, &AboutMe{}, &MatchSetting{}, &RealNameAuth{}, &WorkAuth{}, &EduAuth{}, &UserManagement{}, &Reports{}, &VipTag{}, &UserVipTag{})
 	if err != nil {
-		log.Printf("创建 tb_user/tb_vip_level/tb_vip_strategy/tb_vip_tag/tb_user_tag/tb_product 表失败, err: %s", err)
+		log.Printf("创建 tb_user/tb_about_me/tb_match_setting/tb_real_name_auth/tb_work_auth/tb_edu_auth/tb_user_management/tb_reports/tb_vip_tag/tb_user_vip_tag 表失败, err: %s", err)
 		return err
 	}
 
 	// 设置表备注
-	err = mysql.GetDB().Exec("ALTER TABLE ? COMMENT ?", (&User{}).TableName(), "用户详情表").Error
+	err = mysql.GetDB().Exec(fmt.Sprintf("ALTER TABLE %s COMMENT = '%s'", new(User).TableName(), "用户详情表")).Error
 	if err != nil {
-		log.Printf("添加表备注失败, table: %s, err: %s", (&User{}).TableName(), err)
+		log.Printf("添加表备注失败, table: %s, err: %s", new(User).TableName(), err)
+		return err
+	}
+
+	err = mysql.GetDB().Exec(fmt.Sprintf("ALTER TABLE %s COMMENT = '%s'", new(AboutMe).TableName(), "用户个人信息介绍表")).Error
+	if err != nil {
+		log.Printf("添加表备注失败, table: %s, err: %s", new(AboutMe).TableName(), err)
+		return err
+	}
+
+	err = mysql.GetDB().Exec(fmt.Sprintf("ALTER TABLE %s COMMENT = '%s'", new(MatchSetting).TableName(), "匹配设置表")).Error
+	if err != nil {
+		log.Printf("添加表备注失败, table: %s, err: %s", new(MatchSetting).TableName(), err)
+		return err
+	}
+
+	err = mysql.GetDB().Exec(fmt.Sprintf("ALTER TABLE %s COMMENT = '%s'", new(RealNameAuth).TableName(), "实名认证表")).Error
+	if err != nil {
+		log.Printf("添加表备注失败, table: %s, err: %s", new(RealNameAuth).TableName(), err)
+		return err
+	}
+
+	err = mysql.GetDB().Exec(fmt.Sprintf("ALTER TABLE %s COMMENT = '%s'", new(WorkAuth).TableName(), "工作认证表")).Error
+	if err != nil {
+		log.Printf("添加表备注失败, table: %s, err: %s", new(WorkAuth).TableName(), err)
+		return err
+	}
+
+	err = mysql.GetDB().Exec(fmt.Sprintf("ALTER TABLE %s COMMENT = '%s'", new(EduAuth).TableName(), "学历认证表")).Error
+	if err != nil {
+		log.Printf("添加表备注失败, table: %s, err: %s", new(EduAuth).TableName(), err)
+		return err
+	}
+
+	err = mysql.GetDB().Exec(fmt.Sprintf("ALTER TABLE %s COMMENT = '%s'", new(UserManagement).TableName(), "用户管理表")).Error
+	if err != nil {
+		log.Printf("添加表备注失败, table: %s, err: %s", new(UserManagement).TableName(), err)
+		return err
+	}
+	err = mysql.GetDB().Exec(fmt.Sprintf("ALTER TABLE %s COMMENT = '%s'", new(Reports).TableName(), "举报管理表")).Error
+	if err != nil {
+		log.Printf("添加表备注失败, table: %s, err: %s", new(Reports).TableName(), err)
+		return err
+	}
+	err = mysql.GetDB().Exec(fmt.Sprintf("ALTER TABLE %s COMMENT = '%s'", new(VipTag).TableName(), "会员标签表")).Error
+	if err != nil {
+		log.Printf("添加表备注失败, table: %s, err: %s", new(VipTag).TableName(), err)
+		return err
+	}
+	err = mysql.GetDB().Exec(fmt.Sprintf("ALTER TABLE %s COMMENT = '%s'", new(UserVipTag).TableName(), "用户会员信息表")).Error
+	if err != nil {
+		log.Printf("添加表备注失败, table: %s, err: %s", new(UserVipTag).TableName(), err)
 		return err
 	}
 

@@ -83,7 +83,7 @@ func (ad *AdminServer) Initialize() {
 	redis.InitRedis(config.RedisConf)
 
 	// 初始化 snowflake 服务
-	snowflake.CreateSnowflakeClient()
+	snowflake.InitSnowflake()
 
 	ad.Mode = settings.ConfigEr.String("mode")
 	ad.Scheme = settings.ConfigEr.String("scheme")
