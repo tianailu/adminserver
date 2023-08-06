@@ -21,6 +21,7 @@ require (
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/shopspring/decimal v1.3.1
 	github.com/stretchr/testify v1.8.4
+	golang.org/x/net v0.12.0
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/gorm v1.25.2
@@ -44,7 +45,6 @@ require (
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/wendal/errors v0.0.0-20130201093226-f66c77a7882b // indirect
 	golang.org/x/crypto v0.11.0 // indirect
-	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
