@@ -8,7 +8,9 @@ import (
 	"github.com/tianailu/adminserver/config"
 )
 
-// redis全局实例
+const Nil = redis.Nil
+
+// redis 全局实例
 var (
 	rdb *redis.Client
 )

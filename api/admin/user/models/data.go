@@ -1,4 +1,4 @@
-package user
+package models
 
 import (
 	"database/sql"
@@ -52,7 +52,7 @@ type (
 		UserId           int64     `json:"user_id" gorm:"not null;comment:用户唯一id;index:idx_user_id"`
 		Habit            string    `json:"habit" gorm:"size:64;comment:生活习惯"`
 		ConsumptionView  string    `json:"consumption_view" gorm:"size:64;comment:消费观"`
-		Family           string    `json:"family" gorm:"size:64;comment:家庭背景"`
+		FamilyBackground string    `json:"family_background" gorm:"size:64;comment:家庭背景"`
 		Interest         string    `json:"interest" gorm:"size:64;comment:兴趣爱好"`
 		LoveView         string    `json:"love_view" gorm:"size:64;comment:爱情观"`
 		TargetAppearance string    `json:"ta_appearance" gorm:"size:64;comment:希望另一半的样子"`
@@ -160,8 +160,8 @@ type (
 	//    VipPrice       decimal.Decimal `json:"vip_price" gorm:"type:decimal(10,2);comment:会员价格"`
 	//    Status         int8            `json:"status" gorm:"default=0;comment:商品状态，取值为[0:待上架, 1:出售中, 2:已下架]"`
 	//    VipPriceStatus int8            `json:"vip_price_status" gorm:"default=0;comment:会员价状态，取值为[1:不参与, 2:参与]"`
-	//    CreatedAt      time.Time       `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
-	//    UpdatedAt      time.Time       `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
+	//    CreatedAt      times.Time       `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
+	//    UpdatedAt      times.Time       `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 	//}
 )
 
@@ -205,7 +205,7 @@ func (m *UserVipTag) TableName() string {
 	return "tb_user_vip_tag"
 }
 
-func createTable() error {
+func CreateTable() error {
 	err := mysql.GetDB().Set("gorm:table_options", "ENGINE=InnoDB").
 		AutoMigrate(&User{}, &AboutMe{}, &MatchSetting{}, &RealNameAuth{}, &WorkAuth{}, &EduAuth{}, &UserManagement{}, &Reports{}, &VipTag{}, &UserVipTag{})
 	if err != nil {

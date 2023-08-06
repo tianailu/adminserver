@@ -6,6 +6,7 @@ import (
 	"github.com/tianailu/adminserver/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"os"
 	"time"
 )
@@ -29,7 +30,17 @@ func InitMySQLDB(conf config.Mysql) {
 	conn, err = gorm.Open(mysql.New(mysql.Config{
 		DSN:               dsn,
 		DefaultStringSize: 256,
-	}))
+	}), &gorm.Config{
+		Logger: logger.New(
+			log.New("gorm"), // 使用 Echo 的 Logger 实例
+			logger.Config{
+				SlowThreshold:             0,
+				Colorful:                  false,
+				IgnoreRecordNotFoundError: true,
+				LogLevel:                  logger.Info,
+			},
+		),
+	})
 
 	//打开数据库,前者是驱动名，所以要导入： _ "github.com/go-sql-driver/mysql"
 	if err != nil {

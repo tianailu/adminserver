@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/tianailu/adminserver/api/admin/user"
+	"github.com/tianailu/adminserver/api/admin/user/models"
 	"github.com/tianailu/adminserver/pkg/common"
 	"github.com/tianailu/adminserver/pkg/db/mysql"
 	"log"
@@ -267,7 +267,7 @@ func GetGoldInfo(c echo.Context) error {
 	var results []GetGoldInfoResp
 
 	// 使用GORM的Preload方法关联交易记录表，并使用Select方法指定要查询的字段
-	u := user.User{}
+	u := models.User{}
 	sqlSelect := fmt.Sprintf("%v.ID AS UserID, %v.Name AS UserName, CASE WHEN t1.UserID IS NOT NULL THEN 2  WHEN %v.RealAuth = true THEN 1  ELSE 0  END AS RealAuthExists, CASE WHEN t2.UserID IS NOT NULL THEN 2  WHEN %v.EducationAuth = true THEN 1 ELSE 0 END AS EducationAuthExists, CASE WHEN t3.UserID IS NOT NULL THEN 2 WHEN %v.WorkAuth = true THEN 1  ELSE 0 END AS WorkAuthExists, CASE WHEN %v.Avatar = true THEN '存在' ELSE '不存在' END AS AvatarExists", u.TableName(), u.TableName(), u.TableName(), u.TableName(), u.TableName(), u.TableName())
 	sql := mysql.GetDB().
 		Table(u.TableName()).

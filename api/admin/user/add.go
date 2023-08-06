@@ -3,6 +3,7 @@ package user
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"github.com/tianailu/adminserver/api/admin/user/models"
 	"github.com/tianailu/adminserver/pkg/common"
 	"github.com/tianailu/adminserver/pkg/db/mysql"
 	"gorm.io/gorm"
@@ -11,7 +12,7 @@ import (
 )
 
 var (
-	userChan = make(chan User, 1000)
+	userChan = make(chan models.User, 1000)
 	table    = "ti_home_user"
 )
 
@@ -19,7 +20,7 @@ var (
 func AddUser(c echo.Context) error {
 	var (
 		resp common.ResponseNoData
-		user User
+		user models.User
 	)
 	err := c.Bind(&user)
 	if err != nil {
@@ -37,7 +38,7 @@ func AddUser(c echo.Context) error {
 func GetUser(c echo.Context) error {
 	var (
 		resp common.Response
-		user User
+		user models.User
 	)
 	uId := c.QueryParam("uid")
 
@@ -68,7 +69,7 @@ func dealUserData() {
 // create database
 func createDatabase() error {
 	var (
-		user User
+		user models.User
 	)
 	/*sql := `CREATE TABLE ` + table + ` IF NOT EXISTS (
 	    id INT(10) NOT NULL AUTO_INCREMENT,
@@ -115,7 +116,7 @@ func createDatabase() error {
 }
 
 // insert user
-func insertUser(user User) error {
+func insertUser(user models.User) error {
 	//开启事务
 	err := mysql.GetDB().Transaction(func(tx *gorm.DB) error {
 		return tx.Table(table).Create(user).Error
@@ -131,7 +132,7 @@ func insertUser(user User) error {
 func GetVipUser(c echo.Context) error {
 	var (
 		resp common.Response
-		user User
+		user models.User
 	)
 	mPhone := c.QueryParam("m_phone")
 	err := mysql.GetDB().Where("m_phone = ?", mPhone).Where("level = ?", 2).First(&user).Error

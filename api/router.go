@@ -18,10 +18,7 @@ func InitAdminRouter(g *echo.Group) {
 
 func InitGroupAdminRouter(g *echo.Group) {
 	auth.InitAdminRouter(g)
-
-	g.POST("/user", user.AddUser)
-	g.GET("/user", user.GetUser)
-	g.GET("/user/vip", user.GetVipUser)
+	user.InitAdminRouter(g)
 }
 
 // 所有HTTP方法的接口，主要用于简化类型转换
