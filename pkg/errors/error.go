@@ -14,7 +14,8 @@ var (
 
 // Redis
 var (
-	RedisInternalError     = errors.New("redis internal error")
-	RedisKeyNoExist        = errors.New("redis key does not exist")
-	RedisLockAcquireFailed = errors.New("redis lock acquire failed")
+	RedisInternalError  = errors.New("redis internal error")
+	RedisKeyNoExist     = errors.New("redis key does not exist")
+	RedisTryLockFailed  = errors.New("redis try lock failed")
+	RedisTryLockTimeout = errors.New("redis try lock timeout")
 )

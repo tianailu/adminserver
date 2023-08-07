@@ -11,7 +11,6 @@ import (
 	"github.com/tianailu/adminserver/pkg/db/mysql"
 	"github.com/tianailu/adminserver/pkg/db/redis"
 	pkgError "github.com/tianailu/adminserver/pkg/errors"
-	"github.com/tianailu/adminserver/pkg/utility/lock"
 	"github.com/tianailu/adminserver/pkg/utility/times"
 	"math/rand"
 	"strconv"
@@ -147,12 +146,18 @@ func (l *UserService) AddUser(ctx context.Context, userDetail *models.UserDetail
 
 func (l *UserService) CreateUid(ctx context.Context) (int64, error) {
 	lockKey := redis.UserIdPollLockKey
-	val := lock.RetryLock(ctx, lockKey, common.DefaultExpirationSeconds, common.DefaultRetryTimes, common.DefaultRetryInternal)
-	defer lock.ReleaseLock(ctx, lockKey)
-	if !val {
-		l.Errorf("Failed to acquire redis lock on create uid, key: %s", lockKey)
-		return 0, pkgError.RedisLockAcquireFailed
+	lock := redis.NewLock(redis.GetRDB(), lockKey, common.DefaultLockTTL, common.DefaultLockRetryInternal)
+	err := lock.Lock(ctx)
+	if err != nil {
+		l.Errorf("Failed acquire redis lock, lockKey: %s, err: %s", lockKey, err)
+		return 0, err
 	}
+	defer func(lock *redis.Lock, ctx context.Context) {
+		err := lock.Unlock(ctx)
+		if err != nil {
+			l.Errorf("Failed release redis lock, lockKey: %s, err: %s", lockKey, err)
+		}
+	}(lock, ctx)
 
 	newUid := int64(-1)
 	cacheKey := redis.UserIdPoolCacheKey
@@ -163,6 +168,9 @@ func (l *UserService) CreateUid(ctx context.Context) (int64, error) {
 			if err != nil {
 				l.Errorf("Failed to get max uid in db, err: %s", err)
 				return -1, pkgError.DatabaseInternalError
+			}
+			if curMaxUid < 1000 {
+				curMaxUid = 1000
 			}
 
 			var newUidPool []string
