@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"github.com/tianailu/adminserver/api/admin/user/models"
+	"github.com/tianailu/adminserver/pkg/utility/page"
 	"gorm.io/gorm"
+	"unicode/utf8"
 )
 
 type UserRepo struct {
@@ -28,6 +30,50 @@ func (r *UserRepo) Create(ctx context.Context, user *models.User) error {
 	}
 
 	return nil
+}
+
+func (r *UserRepo) Find(ctx context.Context, param *models.UserSearchParam) ([]*models.User, bool, error) {
+	var list []*models.User
+
+	offset, size := page.CalPageOffset(param.PageNum, param.PageSize)
+
+	db := r.db.WithContext(ctx).Offset(offset).Limit(size)
+
+	if utf8.RuneCountInString(param.Keywords) > 0 {
+		db = db.Where("uid LIKE ?", "%"+param.Keywords+"%").
+			Or("name LIKE ?", "%"+param.Keywords+"%")
+	}
+	if param.Gender > 0 {
+		db = db.Where("gender = ?", param.Gender)
+	}
+	if param.IdentityTag > 0 {
+		db = db.Where("identity_tag = ?", param.IdentityTag)
+	}
+	if param.IsVip > 0 {
+		db = db.Where("is_vip = ?", param.IsVip)
+	}
+	if param.VipTag > 0 {
+		db = db.Where("vip_tag = ?", param.VipTag)
+	}
+	if param.AuditStatus > 0 {
+		db = db.Where("vip_tag = ?", param.AuditStatus)
+	}
+	if param.Recommend > 0 {
+		db = db.Where("recommend = ?", param.Recommend)
+	}
+	if utf8.RuneCountInString(param.RegisterPlace) > 0 {
+		db = db.Where("register_place = ?", param.RegisterPlace)
+	}
+	if param.RegisterSource > 0 {
+		db = db.Where("register_source = ?", param.RegisterSource)
+	}
+
+	err := db.Find(&list).Error
+	if err != nil {
+		return list, false, err
+	}
+
+	return list, true, nil
 }
 
 func (r *UserRepo) FindByUid(ctx context.Context, uid int64) (*models.User, bool, error) {

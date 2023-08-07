@@ -17,7 +17,7 @@ type (
 		Uid            int64                 `json:"uid" gorm:"not null;comment:用户ID;index:idx_uid"`
 		Name           string                `json:"name" gorm:"size:12;comment:用户名;index:idx_name"`
 		Avatar         string                `json:"avatar" gorm:"size:128;comment:个人头像"`
-		Gender         int8                  `json:"gender" gorm:"not null;default:0;comment:性别，取值为[0:男, 1:女]"`
+		Gender         int8                  `json:"gender" gorm:"not null;default:0;comment:性别，取值为[0:未选择, 1:男, 2:女]"`
 		Birthday       sql.NullTime          `json:"birthday" gorm:"type:datetime;comment:出生日期"`
 		Constellation  string                `json:"constellation" gorm:"size:12;comment:星座"`
 		Height         float32               `json:"height" gorm:"default:0.0;comment:身高，单位cm"`
@@ -32,14 +32,16 @@ type (
 		Hometown       string                `json:"hometown" gorm:"size:12;comment:家乡（国家地理编码）"`
 		MobilePhone    string                `json:"mobile_phone" gorm:"size:12;comment:手机号码"`
 		IdentityTag    int8                  `json:"identity_tag" gorm:"not null;default=0;comment:身份标签，取值为[0:未选择, 1:母胎单身, 2:未婚单身, 3:离异无孩, 4:离异带孩, 5:离异不带孩, 6:丧偶]"`
+		IsVip          int8                  `json:"is_vip" gorm:"not null;default:0;comment:是否vip，取值为[0:未知, 1:是, 2:否]"`
 		VipTag         int8                  `json:"vip_tag" gorm:"not null;default:0;comment:vip标签"`
+		Recommend      int8                  `json:"recommend" gorm:"not null;default:0;comment:推荐设置，取值为[0:未选择, 1:是, 2:否]"`
 		RegisterPlace  string                `json:"register_place" gorm:"size:12;comment:注册地（国家地理编码）"`
 		RegisterSource int8                  `json:"register_source" gorm:"comment:注册来源，取值为[0:未知, 1:APP, 2:小程序, 3:群组, 4:二维码, 5:管理后台]"`
 		DurationOfUse  int64                 `json:"duration_of_use" gorm:"comment:使用时长，单位秒"`
 		IsRealNameAuth int8                  `json:"is_rn_auth" gorm:"default:0;comment:是否完成实名认证，0:未认证，1:已通过认证"`
 		IsWorkAuth     int8                  `json:"is_work_auth" gorm:"default:0;comment:是否完成工作认证，0:未认证，1:已通过认证"`
 		IsEduAuth      int8                  `json:"is_edu_auth" gorm:"default:0;comment:是否完成学历认证，0:未认证，1:已通过认证"`
-		AuditStatus    int8                  `json:"audit_status" gorm:"not null;default:0;comment:基础信息审核状态，取值为[0:待审（首次申请审核）, 1: 再审核（非首次申请审核）, 2:通过, 3:不通过]"`
+		AuditStatus    int8                  `json:"audit_status" gorm:"not null;default:1;comment:基础信息审核状态，取值为[0:未知, 1:待审（首次申请审核）, 2: 再审核（非首次申请审核）, 3:通过, 4:不通过]"`
 		UserStatus     int8                  `json:"user_status" gorm:"not null;default:0;comment:用户状态，取值为[0:正常状态, 1:封号状态, 2:禁言状态, 3:注销状态]"`
 		CreatedAt      time.Time             `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:注册时间"`
 		UpdatedAt      time.Time             `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`

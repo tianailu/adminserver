@@ -19,6 +19,24 @@ func NewUserController() *UserController {
 	}
 }
 
+func (h *UserController) FindUserList(c echo.Context) error {
+	var (
+		req  = &models.UserSearchParam{}
+		resp = common.Response{
+			Status: 0,
+			Msg:    "OK",
+		}
+		ctx = c.Request().Context()
+	)
+
+	_, err := h.userService.Find(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, resp)
+}
+
 func (h *UserController) FindUserDetail(c echo.Context) error {
 	var (
 		resp = common.Response{

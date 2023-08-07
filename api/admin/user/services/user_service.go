@@ -34,6 +34,13 @@ func (l *UserService) SetLogger(logger echo.Logger) {
 	l.Logger = logger
 }
 
+func (l *UserService) Find(ctx context.Context, param *models.UserSearchParam) ([]*models.UserListItem, error) {
+	l.userRepo.Find(ctx, param)
+
+	// TODO 组装列表数据
+	return nil, nil
+}
+
 func (l *UserService) FindUserDetail(ctx context.Context, uid int64) (*models.UserDetail, error) {
 	user, ok, err := l.userRepo.FindByUid(ctx, uid)
 	if err != nil {

@@ -13,6 +13,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/plugin/soft_delete"
 	"time"
+	"unicode/utf8"
 )
 
 type Account struct {
@@ -110,7 +111,7 @@ func (r *AccountRepo) Find(name string, pageNum, pageSize int) ([]*Account, erro
 	offset, size := page.CalPageOffset(pageNum, pageSize)
 	db := r.db.Offset(offset).Limit(size).Where("account_type = ?", "ADMIN")
 
-	if len(name) > 0 {
+	if utf8.RuneCountInString(name) > 0 {
 		db = db.Where("name = ?", name)
 	}
 
