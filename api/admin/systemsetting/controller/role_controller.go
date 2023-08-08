@@ -12,16 +12,18 @@ import (
 	"github.com/tianailu/adminserver/pkg/common"
 )
 
+
+type RoleController struct {
+	roleSvc service.RoleService
+	permSvc service.PermissionService
+}
+
+
 func NewRoleController() *RoleController {
 	return &RoleController{
 		roleSvc: service.NewRoleService(),
 		permSvc: service.NewPermissionService(),
 	}
-}
-
-type RoleController struct {
-	roleSvc service.RoleService
-	permSvc service.PermissionService
 }
 
 // 添加角色  POST /system-setting/roles
