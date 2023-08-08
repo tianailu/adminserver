@@ -15,14 +15,14 @@ type (
 		Id             uint                  `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
 		AccountId      string                `json:"account_id" gorm:"size:32;comment:账号ID;index:idx_account_id"`
 		UserId         int64                 `json:"user_id" gorm:"not null;comment:用户ID;index:idx_uid"`
-		Name           string                `json:"name" gorm:"size:12;comment:用户名;index:idx_name"`
+		Name           string                `json:"name" gorm:"size:8;comment:用户名;index:idx_name"`
 		Avatar         string                `json:"avatar" gorm:"size:128;comment:个人头像"`
-		Gender         int8                  `json:"gender" gorm:"not null;default:0;comment:性别，取值为[0:未选择, 1:男, 2:女]"`
+		Gender         int8                  `json:"gender" gorm:"not null;default:1;comment:性别，取值为[0:未选择, 1:男, 2:女]"`
 		Birthday       sql.NullTime          `json:"birthday" gorm:"type:datetime;comment:出生日期"`
 		Constellation  string                `json:"constellation" gorm:"size:12;comment:星座"`
 		Height         float32               `json:"height" gorm:"default:0.0;comment:身高，单位cm"`
 		Weight         float32               `json:"weight" gorm:"default:0.0;comment:体重，单位kg"`
-		Education      int8                  `json:"education" gorm:"default:0;comment:最高学历，取值为[0:未选择, 1:高中及以下, 2:大专, 3:本科, 4:硕士, 5:博士及以上]"`
+		Education      int8                  `json:"education" gorm:"default:0;comment:最高学历，取值为[0:未选择, 1:高中及以下, 2:专科, 3:本科, 4:硕士, 5:博士及以上]"`
 		EduStatus      int8                  `json:"edu_status" gorm:"default:0;comment:学历状态，取值为[0:未选择, 1:在校学生, 2:已毕业]"`
 		School         string                `json:"school" gorm:"size:32;comment:毕业院校"`
 		Work           string                `json:"work" gorm:"size:12;comment:职业"`
@@ -31,7 +31,7 @@ type (
 		Residence      string                `json:"residence" gorm:"size:12;comment:现居住地（国家地理编码）"`
 		Hometown       string                `json:"hometown" gorm:"size:12;comment:家乡（国家地理编码）"`
 		MobilePhone    string                `json:"mobile_phone" gorm:"size:12;comment:手机号码"`
-		IdentityTag    int8                  `json:"identity_tag" gorm:"not null;default=0;comment:身份标签，取值为[0:未选择, 1:母胎单身, 2:未婚单身, 3:离异无孩, 4:离异带孩, 5:离异不带孩, 6:丧偶]"`
+		IdentityTag    int8                  `json:"identity_tag" gorm:"not null;default=0;comment:身份标签，取值为[0:未选择, 1:母胎单身, 2:未婚单身, 3:离异无孩, 4:离异带孩, 5:离异不带孩, 6:恋爱中, 7:即将分手中]"`
 		IsVip          int8                  `json:"is_vip" gorm:"not null;default:0;comment:是否vip，取值为[0:未知, 1:是, 2:否]"`
 		VipTag         int8                  `json:"vip_tag" gorm:"not null;default:0;comment:vip标签"`
 		Recommend      int8                  `json:"recommend" gorm:"not null;default:0;comment:推荐设置，取值为[0:未选择, 1:是, 2:否]"`
