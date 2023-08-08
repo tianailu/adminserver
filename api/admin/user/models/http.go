@@ -3,7 +3,7 @@ package models
 type UserDetail struct {
 	Id               uint    `json:"id,optional"`
 	AccountId        string  `json:"account_id,optional"`
-	Uid              int64   `json:"uid,optional"`
+	UserId           int64   `json:"user_id,optional"`
 	Name             string  `json:"name,optional"`
 	Avatar           string  `json:"avatar,optional"`
 	Gender           int8    `json:"gender,optional"`
@@ -21,8 +21,9 @@ type UserDetail struct {
 	Hometown         string  `json:"hometown,optional"`
 	MobilePhone      string  `json:"mobile_phone,optional"`
 	IdentityTag      int8    `json:"identity_tag,optional"`
-	VipTag           int8    `json:"vipTag,optional"`
-	Recommend        int8    `json:"recommend"`
+	IsVip            int8    `json:"is_vip,optional"`
+	VipTag           int8    `json:"vip_tag,optional"`
+	Recommend        int8    `json:"recommend,optional"`
 	RegisterPlace    string  `json:"register_place,optional"`
 	RegisterSource   int8    `json:"register_source,optional"`
 	RegisterTime     int64   `json:"register_time,optional"`
@@ -54,14 +55,17 @@ type UserSearchParam struct {
 	PageSize        int    `query:"page_size,optional"`         // 每页条数
 }
 
+type UserList struct {
+}
+
 type UserListItem struct {
-	Uid            int64   `json:"uid,optional"`
+	UserId         int64   `json:"user_id,optional"`
 	Name           string  `json:"name,optional"`
 	Gender         int8    `json:"gender,optional"`
 	AuditStatus    int8    `json:"audit_status,optional"`
 	IdentityTag    int8    `json:"identity_tag,optional"`
 	IsVip          int8    `json:"is_vip,optional"`
-	VipTag         int8    `json:"vipTag,optional"`
+	VipTag         int8    `json:"vip_tag,optional"`
 	RechargeAmount float32 `json:"recharge_amount,optional"`
 	RemainingCoins int64   `json:"remaining_coins,optional"`
 	ConsumeCoins   int64   `json:"consume_coins,optional"`
@@ -69,6 +73,6 @@ type UserListItem struct {
 	RegisterPlace  string  `json:"register_place,optional"`
 	RegisterSource int8    `json:"register_source,optional"`
 	RegisterTime   int64   `json:"register_time,optional"`
-	DurationOfUse  int64   `json:"duration_of_use"`
+	DurationOfUse  int64   `json:"duration_of_use,optional"`
 	// TODO 交友相关数据
 }

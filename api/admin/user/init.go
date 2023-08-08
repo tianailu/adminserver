@@ -23,7 +23,8 @@ func InitTable() {
 func InitAdminRouter(g *echo.Group) {
 	userController := controllers.NewUserController()
 
-	g.GET("/users/:uid", userController.FindUserDetail)
+	g.GET("/users/:user_id", userController.FindUserDetail)
+	g.GET("/users", userController.FindUserList)
 	g.POST("/users", userController.AddUser)
 
 	g.GET("/users/uid", userController.CreateUid)

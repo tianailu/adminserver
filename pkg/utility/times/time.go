@@ -22,3 +22,11 @@ func ToMillisecond(t any) int64 {
 
 	return target.UnixNano() / 1e6
 }
+
+func ToSqlNullTime(millisecond int64) sql.NullTime {
+	if millisecond <= 0 {
+		return sql.NullTime{Valid: false}
+	}
+
+	return sql.NullTime{Valid: true, Time: time.UnixMilli(millisecond)}
+}

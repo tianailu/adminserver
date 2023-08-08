@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"github.com/labstack/echo/v4"
 	"github.com/tianailu/adminserver/api/admin/user/models"
@@ -11,6 +10,7 @@ import (
 	"github.com/tianailu/adminserver/pkg/db/mysql"
 	"github.com/tianailu/adminserver/pkg/db/redis"
 	pkgError "github.com/tianailu/adminserver/pkg/errors"
+	"github.com/tianailu/adminserver/pkg/utility/json"
 	"github.com/tianailu/adminserver/pkg/utility/times"
 	"math/rand"
 	"strconv"
@@ -34,32 +34,61 @@ func (l *UserService) SetLogger(logger echo.Logger) {
 	l.Logger = logger
 }
 
-func (l *UserService) Find(ctx context.Context, param *models.UserSearchParam) ([]*models.UserListItem, error) {
-	l.userRepo.Find(ctx, param)
+func (l *UserService) Find(ctx context.Context, param *models.UserSearchParam) ([]*models.UserListItem, int, int, int64, error) {
+	var result []*models.UserListItem
 
-	// TODO 组装列表数据
-	return nil, nil
+	users, found, err := l.userRepo.Find(ctx, param)
+	if err != nil {
+		l.Errorf("Failed to find user list with param, param: %s, err: %s", json.ToJsonString(param), err)
+		return nil, 0, 0, 0, err
+	} else if !found {
+		return result, param.PageNum, param.PageSize, 0, nil
+	}
+
+	totalUser, err := l.userRepo.TotalUser(ctx, param)
+	if err != nil {
+		return result, 0, 0, 0, err
+	}
+
+	for _, user := range users {
+		result = append(result, &models.UserListItem{
+			UserId:         user.UserId,
+			Name:           user.Name,
+			Gender:         user.Gender,
+			AuditStatus:    user.AuditStatus,
+			IdentityTag:    user.IdentityTag,
+			IsVip:          user.IsVip,
+			VipTag:         user.VipTag,
+			Recommend:      user.Recommend,
+			RegisterPlace:  user.RegisterPlace,
+			RegisterSource: user.RegisterSource,
+			RegisterTime:   user.CreatedAt.UnixMilli(),
+			DurationOfUse:  user.DurationOfUse,
+		})
+	}
+
+	return result, param.PageNum, param.PageSize, totalUser, nil
 }
 
-func (l *UserService) FindUserDetail(ctx context.Context, uid int64) (*models.UserDetail, error) {
-	user, ok, err := l.userRepo.FindByUid(ctx, uid)
+func (l *UserService) FindUserDetail(ctx context.Context, userId int64) (*models.UserDetail, error) {
+	user, ok, err := l.userRepo.FindByUserId(ctx, userId)
 	if err != nil {
 		return nil, err
 	} else if !ok {
 		return nil, pkgError.DatabaseRecordNotFound
 	}
 
-	aboutMe, ok, err := l.aboutMeRepo.FindByUid(ctx, uid)
+	aboutMe, ok, err := l.aboutMeRepo.FindByUserId(ctx, userId)
 	if err != nil {
 		return nil, err
 	} else if !ok {
-		aboutMe = &models.AboutMe{UserId: uid}
+		aboutMe = &models.AboutMe{UserId: userId}
 	}
 
 	userDetail := &models.UserDetail{
 		Id:               user.Id,
 		AccountId:        user.AccountId,
-		Uid:              user.Uid,
+		UserId:           user.UserId,
 		Name:             user.Name,
 		Avatar:           user.Avatar,
 		Gender:           user.Gender,
@@ -73,6 +102,7 @@ func (l *UserService) FindUserDetail(ctx context.Context, uid int64) (*models.Us
 		Work:             user.Work,
 		Company:          user.Company,
 		IdentityTag:      user.IdentityTag,
+		IsVip:            user.IsVip,
 		VipTag:           user.VipTag,
 		RegisterPlace:    user.RegisterPlace,
 		RegisterSource:   user.RegisterSource,
@@ -97,19 +127,19 @@ func (l *UserService) AddUser(ctx context.Context, userDetail *models.UserDetail
 		return errors.New("user detail can not be empty")
 	}
 
-	newUid, err := l.CreateUid(ctx)
+	newUserId, err := l.CreateUserId(ctx)
 	if err != nil {
-		l.Errorf("Failed to create new uid, err: %s", err)
+		l.Errorf("Failed to create new userId, err: %s", err)
 		return err
 	}
 
 	user := &models.User{
 		AccountId:      userDetail.AccountId,
-		Uid:            newUid,
+		UserId:         newUserId,
 		Name:           userDetail.Name,
 		Avatar:         userDetail.Avatar,
 		Gender:         userDetail.Gender,
-		Birthday:       sql.NullTime{Valid: false, Time: time.UnixMilli(userDetail.Birthday)},
+		Birthday:       times.ToSqlNullTime(userDetail.Birthday),
 		Constellation:  userDetail.Constellation,
 		Height:         userDetail.Height,
 		Weight:         userDetail.Weight,
@@ -134,7 +164,7 @@ func (l *UserService) AddUser(ctx context.Context, userDetail *models.UserDetail
 	}
 
 	aboutMe := &models.AboutMe{
-		UserId:           user.Uid,
+		UserId:           user.UserId,
 		Habit:            userDetail.Habit,
 		ConsumptionView:  userDetail.ConsumptionView,
 		FamilyBackground: userDetail.FamilyBackground,
@@ -151,7 +181,7 @@ func (l *UserService) AddUser(ctx context.Context, userDetail *models.UserDetail
 	return nil
 }
 
-func (l *UserService) CreateUid(ctx context.Context) (int64, error) {
+func (l *UserService) CreateUserId(ctx context.Context) (int64, error) {
 	lockKey := redis.UserIdPollLockKey
 	lock := redis.NewLock(redis.GetRDB(), lockKey, common.DefaultLockTTL, common.DefaultLockRetryInternal)
 	err := lock.Lock(ctx)
@@ -166,49 +196,49 @@ func (l *UserService) CreateUid(ctx context.Context) (int64, error) {
 		}
 	}(lock, ctx)
 
-	newUid := int64(-1)
+	newUserId := int64(-1)
 	cacheKey := redis.UserIdPoolCacheKey
-	uidVal, err := redis.GetRDB().LPop(ctx, cacheKey).Result()
+	userIdVal, err := redis.GetRDB().LPop(ctx, cacheKey).Result()
 	if err != nil {
 		if err == redis.Nil {
-			curMaxUid, err := l.userRepo.MaxUid(ctx)
+			curMaxUserId, err := l.userRepo.MaxUserId(ctx)
 			if err != nil {
-				l.Errorf("Failed to get max uid in db, err: %s", err)
+				l.Errorf("Failed to get max userId in db, err: %s", err)
 				return -1, pkgError.DatabaseInternalError
 			}
-			if curMaxUid < 1000 {
-				curMaxUid = 1000
+			if curMaxUserId < 1000 {
+				curMaxUserId = 1000
 			}
 
-			var newUidPool []string
+			var newUserIdPool []string
 			for i := int64(2); i <= 10; i++ {
-				newUidPool = append(newUidPool, strconv.FormatInt(curMaxUid+i, 10))
+				newUserIdPool = append(newUserIdPool, strconv.FormatInt(curMaxUserId+i, 10))
 			}
 			// 随机种子
 			rand.Seed(time.Now().UnixNano())
 			// Fisher-Yates 算法随机打乱数组
-			for i := len(newUidPool) - 1; i > 0; i-- {
+			for i := len(newUserIdPool) - 1; i > 0; i-- {
 				j := rand.Intn(i + 1)
-				newUidPool[i], newUidPool[j] = newUidPool[j], newUidPool[i]
+				newUserIdPool[i], newUserIdPool[j] = newUserIdPool[j], newUserIdPool[i]
 			}
 
-			if _, err := redis.GetRDB().RPush(ctx, cacheKey, newUidPool).Result(); err != nil {
-				l.Errorf("Failed to push uid pool item to cache, cacheKey: %s, item: %+v, err: %s", cacheKey, newUidPool, err)
+			if _, err := redis.GetRDB().RPush(ctx, cacheKey, newUserIdPool).Result(); err != nil {
+				l.Errorf("Failed to push userId pool item to cache, cacheKey: %s, item: %+v, err: %s", cacheKey, newUserIdPool, err)
 				return -1, pkgError.RedisInternalError
 			}
 
-			newUid = curMaxUid + 1
+			newUserId = curMaxUserId + 1
 		} else {
-			l.Errorf("Failed to LPop new uid in cache, cacheKey: %s, err: %s", cacheKey, err)
+			l.Errorf("Failed to LPop new userId in cache, cacheKey: %s, err: %s", cacheKey, err)
 			return -1, pkgError.RedisInternalError
 		}
 	} else {
-		newUid, err = strconv.ParseInt(uidVal, 10, 64)
+		newUserId, err = strconv.ParseInt(userIdVal, 10, 64)
 		if err != nil {
-			l.Errorf("Incorrect uid fetched from cache, uidVal: %s, err: %s", uidVal, err)
+			l.Errorf("Incorrect userId fetched from cache, userIdVal: %s, err: %s", userIdVal, err)
 			return -1, pkgError.InternalError
 		}
 	}
 
-	return newUid, nil
+	return newUserId, nil
 }

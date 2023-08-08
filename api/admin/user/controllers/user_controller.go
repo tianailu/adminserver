@@ -29,9 +29,28 @@ func (h *UserController) FindUserList(c echo.Context) error {
 		ctx = c.Request().Context()
 	)
 
-	_, err := h.userService.Find(ctx, req)
+	if err := c.Bind(req); err != nil {
+		c.Logger().Errorf("Bind req param error: %s", err.Error())
+		return err
+	}
+
+	if req.PageNum <= 0 {
+		req.PageNum = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 20
+	}
+
+	users, pageNum, pageSize, total, err := h.userService.Find(ctx, req)
 	if err != nil {
 		return err
+	}
+
+	resp.Data = common.PageData{
+		PageNum:  pageNum,
+		PageSize: pageSize,
+		Total:    total,
+		List:     common.ToAnySlice(users),
 	}
 
 	return c.JSON(http.StatusOK, resp)
@@ -46,14 +65,14 @@ func (h *UserController) FindUserDetail(c echo.Context) error {
 		ctx = c.Request().Context()
 	)
 
-	uidParam := c.Param("uid")
+	userIdParam := c.Param("user_id")
 
-	uid, err := strconv.ParseInt(uidParam, 10, 64)
+	userId, err := strconv.ParseInt(userIdParam, 10, 64)
 	if err != nil {
 		return err
 	}
 
-	user, err := h.userService.FindUserDetail(ctx, uid)
+	user, err := h.userService.FindUserDetail(ctx, userId)
 	if err != nil {
 		return err
 	}
@@ -65,7 +84,7 @@ func (h *UserController) FindUserDetail(c echo.Context) error {
 
 func (h *UserController) AddUser(c echo.Context) error {
 	var (
-		req  = models.UserDetail{}
+		req  = &models.UserDetail{}
 		resp = common.Response{
 			Status: 0,
 			Msg:    "OK",
@@ -73,7 +92,12 @@ func (h *UserController) AddUser(c echo.Context) error {
 		ctx = c.Request().Context()
 	)
 
-	if err := h.userService.AddUser(ctx, &req); err != nil {
+	if err := c.Bind(req); err != nil {
+		c.Logger().Errorf("Bind req param error: %s", err.Error())
+		return err
+	}
+
+	if err := h.userService.AddUser(ctx, req); err != nil {
 		return err
 	}
 
@@ -89,7 +113,7 @@ func (h *UserController) CreateUid(c echo.Context) error {
 		ctx = c.Request().Context()
 	)
 
-	uid, err := h.userService.CreateUid(ctx)
+	uid, err := h.userService.CreateUserId(ctx)
 	if err != nil {
 		return err
 	}

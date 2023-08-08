@@ -14,7 +14,7 @@ type (
 	User struct {
 		Id             uint                  `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
 		AccountId      string                `json:"account_id" gorm:"size:32;comment:账号ID;index:idx_account_id"`
-		Uid            int64                 `json:"uid" gorm:"not null;comment:用户ID;index:idx_uid"`
+		UserId         int64                 `json:"user_id" gorm:"not null;comment:用户ID;index:idx_uid"`
 		Name           string                `json:"name" gorm:"size:12;comment:用户名;index:idx_name"`
 		Avatar         string                `json:"avatar" gorm:"size:128;comment:个人头像"`
 		Gender         int8                  `json:"gender" gorm:"not null;default:0;comment:性别，取值为[0:未选择, 1:男, 2:女]"`

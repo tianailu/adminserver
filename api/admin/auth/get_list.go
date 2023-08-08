@@ -18,10 +18,10 @@ func GetAdminList(c echo.Context) error {
 	)
 
 	type respData struct {
-		PageNum  int            `json:"page_num,omitempty"`
-		PageSize int            `json:"page_size,omitempty"`
-		Total    int            `json:"total,omitempty"`
-		List     []*AccountInfo `json:"list,omitempty" json:"list,omitempty"`
+		PageNum  int            `json:"page_num"`
+		PageSize int            `json:"page_size"`
+		Total    int            `json:"total"`
+		List     []*AccountInfo `json:"list"`
 	}
 
 	if err := c.Bind(req); err != nil {
