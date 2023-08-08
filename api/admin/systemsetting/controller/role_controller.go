@@ -96,6 +96,20 @@ func (rc *RoleController) DeleteRole(c echo.Context) error {
 	return c.JSON(http.StatusOK, common.ResponseSuccess())
 }
 
+// 批量删除角色 POST /system-setting/roles/delete
+func (rc *RoleController) DeleteRoles(c echo.Context) error {
+	var roleIds []int
+	err := c.Bind(&roleIds)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, common.ResponseBadRequest())
+	}
+	err = rc.roleSvc.DeleteRoles(roleIds)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, common.ResponseBadRequest())
+	}
+	return c.JSON(http.StatusOK, common.ResponseSuccess())
+}
+
 // 获取角色权限详情 /system-setting/roles/:roleId/permissions
 func (rc *RoleController) GetRolePermissions(c echo.Context) error {
 	roleId := c.Param("roleId")
@@ -103,8 +117,7 @@ func (rc *RoleController) GetRolePermissions(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, common.ResponseBadRequest())
 	}
-	userId := "1"
-	r, err := rc.roleSvc.GetUserRolePermissions(rc.permSvc, userId, intRoleId)
+	r, err := rc.roleSvc.GetUserRolePermissions(rc.permSvc, intRoleId)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg("获取角色权限详情失败"))
 	}

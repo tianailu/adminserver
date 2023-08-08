@@ -68,6 +68,7 @@ func InitGroupAdminRouter(e *echo.Group) {
 	roleCtl := controller.NewRoleController()
 	e.POST("/system-setting/roles", roleCtl.SaveRole)
 	e.DELETE("/system-setting/roles/:id", roleCtl.DeleteRole)
+	e.POST("/system-setting/roles/delete", roleCtl.DeleteRoles)
 	e.GET("/system-setting/roles", roleCtl.GetAllRoles)
 	e.GET("/system-setting/role/:roleId/permissions", roleCtl.GetRolePermissions)
 	e.POST("/system-setting/roles/page", roleCtl.GetRolesPage)

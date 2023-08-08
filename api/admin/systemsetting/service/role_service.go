@@ -82,6 +82,22 @@ func (rs *RoleService) DeleteRole(role domain.Role) error {
 	return rs.db.Delete(&role).Error
 }
 
+func (rs *RoleService) DeleteRoles(roleIds []int) error {
+	e := rs.db.Transaction(func(tx *gorm.DB) error {
+		err := rs.db.Where("id in (?)", roleIds).Delete(&domain.Role{}).Error
+		if err != nil {
+			return err
+		}
+		err = rs.db.Where("role_id in (?)", roleIds).Delete(&domain.RolePermission{}).Error
+		if err != nil {
+			return err
+		}
+		err = rs.db.Where("role_id in (?)", roleIds).Delete(&domain.UserRole{}).Error
+		return err
+	})
+	return e
+}
+
 func (rs *RoleService) SaveRolePermissions(roleId int, pemIds []int) error {
 
 	e := rs.db.Transaction(func(tx *gorm.DB) error {
@@ -135,7 +151,7 @@ func (rs *RoleService) SaveRolePermissions(roleId int, pemIds []int) error {
 	return e
 }
 
-func (rs *RoleService) GetUserRolePermissions(permSvc PermissionService, userId string, roleId int) ([]*resp.RolePermissionDetail, error) {
+func (rs *RoleService) GetUserRolePermissions(permSvc PermissionService, roleId int) ([]*resp.RolePermissionDetail, error) {
 
 	// 查询所有权限信息
 	permAll, err := permSvc.GetAllPermissions()
@@ -145,7 +161,7 @@ func (rs *RoleService) GetUserRolePermissions(permSvc PermissionService, userId 
 	var rolePerms []domain.RolePermission
 	// 查询用户权限信息
 	err = rs.db.Model(&domain.RolePermission{}).
-		Where("auth_account_id = ? and role_id = ?", userId, roleId).
+		Where("role_id = ?", roleId).
 		Order("permission_id ASC").
 		Find(&rolePerms).Error
 	if err != nil {
