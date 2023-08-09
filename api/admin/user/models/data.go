@@ -22,12 +22,12 @@ type (
 		Constellation  string                `json:"constellation" gorm:"size:12;comment:星座"`
 		Height         float32               `json:"height" gorm:"default:0.0;comment:身高，单位cm"`
 		Weight         float32               `json:"weight" gorm:"default:0.0;comment:体重，单位kg"`
-		Education      int8                  `json:"education" gorm:"default:0;comment:最高学历，取值为[0:未选择, 1:高中及以下, 2:专科, 3:本科, 4:硕士, 5:博士及以上]"`
+		Education      int8                  `json:"education" gorm:"default:0;comment:最高学历，取值为[0:未选择, 1:博士及以上, 2:硕士, 3:本科, 4:专科, 5:高中及以下]"`
 		EduStatus      int8                  `json:"edu_status" gorm:"default:0;comment:学历状态，取值为[0:未选择, 1:在校学生, 2:已毕业]"`
 		School         string                `json:"school" gorm:"size:32;comment:毕业院校"`
-		Work           string                `json:"work" gorm:"size:12;comment:职业"`
+		Work           int                   `json:"work" gorm:"default=0;comment:职业"`
 		Company        string                `json:"company" gorm:"size:20;comment:公司"`
-		Income         string                `json:"income" gorm:"size:20;comment:年收入"`
+		Income         int8                  `json:"income" gorm:"default=0;comment:年收入，取值为[0:未选择, 1:5-10万, 2:11-20万, 3:21-30万, 4:31-50万, 5:51-100万, 6:101-200万, 7:201-500, 8:501-1000万, 9:1000万+]"`
 		Residence      string                `json:"residence" gorm:"size:12;comment:现居住地（国家地理编码）"`
 		Hometown       string                `json:"hometown" gorm:"size:12;comment:家乡（国家地理编码）"`
 		MobilePhone    string                `json:"mobile_phone" gorm:"size:12;comment:手机号码"`
@@ -165,6 +165,20 @@ type (
 	//    CreatedAt      times.Time       `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
 	//    UpdatedAt      times.Time       `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 	//}
+
+	Follow struct {
+		Id             uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
+		UserId         int64     `json:"user_id" gorm:"not null;comment:用户id;index:idx_user_id"`
+		FollowedUserId int64     `json:"follow_user_id" gorm:"not null;comment:被关注人的用户id"`
+		CreatedAt      time.Time `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
+	}
+
+	Fans struct {
+		Id         uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
+		UserId     int64     `json:"user_id" gorm:"not null;comment:用户id;index:idx_user_id"`
+		FansUserId int64     `json:"fans_user_id" gorm:"not null;comment:粉丝的用户id"`
+		CreatedAt  time.Time `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
+	}
 )
 
 func (m *User) TableName() string {

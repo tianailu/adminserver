@@ -16,7 +16,7 @@ type UserDetail struct {
 	School           string  `json:"school,optional"`
 	Work             string  `json:"work,optional"`
 	Company          string  `json:"company,optional"`
-	Income           string  `json:"income,optional"`
+	Income           int8    `json:"income,optional"`
 	Residence        string  `json:"residence,optional"`
 	Hometown         string  `json:"hometown,optional"`
 	MobilePhone      string  `json:"mobile_phone,optional"`
