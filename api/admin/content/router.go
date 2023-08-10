@@ -42,4 +42,5 @@ func InitGroupAdminRouter(e *echo.Group) {
 
 	ctl := controller.NewTagController()
 	e.POST("/content-mgr/tags", ctl.SaveTag)
+	e.POST("/content-mgr/tags", ctl.SaveTag)
 }
