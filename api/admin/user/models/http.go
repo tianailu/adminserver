@@ -14,7 +14,7 @@ type UserDetail struct {
 	Education        int8    `json:"education,optional"`
 	EduStatus        int8    `json:"edu_status,optional"`
 	School           string  `json:"school,optional"`
-	Work             string  `json:"work,optional"`
+	Work             int     `json:"work,optional"`
 	Company          string  `json:"company,optional"`
 	Income           int8    `json:"income,optional"`
 	Residence        string  `json:"residence,optional"`
