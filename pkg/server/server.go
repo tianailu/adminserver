@@ -75,15 +75,15 @@ func (ad *AdminServer) Initialize() {
 	}
 	App.Use(cors.CORSWithConfig(corsConfig))
 
-	// 初始化 mysql
-	mysql.InitMySQLDB(config.MysqlConf)
-	api.InitTable()
-
 	// 初始化 redis
 	redis.InitRedis(config.RedisConf)
 
 	// 初始化 snowflake 服务
 	snowflake.InitSnowflake()
+
+	// 初始化 mysql
+	mysql.InitMySQLDB(config.MysqlConf)
+	api.InitTable()
 
 	ad.Mode = settings.ConfigEr.String("mode")
 	ad.Scheme = settings.ConfigEr.String("scheme")

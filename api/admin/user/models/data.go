@@ -154,18 +154,6 @@ type (
 		UpdatedAt time.Time `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 	}
 
-	//Product struct {
-	//    Id             uint            `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
-	//    Name           string          `json:"name" gorm:"size:20;not null;comment:商品名称"`
-	//    Img            string          `json:"img" gorm:"size:128;comment:商品图片"`
-	//    Price          decimal.Decimal `json:"price" gorm:"type:decimal(10,2);comment:商品价格"`
-	//    VipPrice       decimal.Decimal `json:"vip_price" gorm:"type:decimal(10,2);comment:会员价格"`
-	//    Status         int8            `json:"status" gorm:"default=0;comment:商品状态，取值为[0:待上架, 1:出售中, 2:已下架]"`
-	//    VipPriceStatus int8            `json:"vip_price_status" gorm:"default=0;comment:会员价状态，取值为[1:不参与, 2:参与]"`
-	//    CreatedAt      times.Time       `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
-	//    UpdatedAt      times.Time       `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
-	//}
-
 	Follow struct {
 		Id             uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
 		UserId         int64     `json:"user_id" gorm:"not null;comment:用户id;index:idx_user_id"`
