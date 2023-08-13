@@ -55,9 +55,6 @@ type UserSearchParam struct {
 	PageSize        int    `query:"page_size,optional"`         // 每页条数
 }
 
-type UserList struct {
-}
-
 type UserListItem struct {
 	UserId         int64   `json:"user_id,optional"`
 	Name           string  `json:"name,optional"`
@@ -75,4 +72,31 @@ type UserListItem struct {
 	RegisterTime   int64   `json:"register_time,optional"`
 	DurationOfUse  int64   `json:"duration_of_use,optional"`
 	// TODO 交友相关数据
+}
+
+type FriendSearchParam struct {
+	Keywords           string `query:"keywords,optional"`             // 关键字，用户ID/昵称/用户名
+	MatchType          int8   `query:"match_type,optional"`           // 匹配类型，取值为[0:全部, 1:发出的申请, 2:接收到的申请]
+	MatchingStatus     int8   `query:"status,optional"`               // 匹配状态，取值为[0:全部, 1:待确认, 2:已接受, 3:被拒绝, 4:主动中止申请]
+	ApplicationStartAt int64  `query:"application_start_at,optional"` // 开始申请时间
+	ApplicationEndAt   int64  `query:"application_end_at,optional"`   // 结束申请时间
+	PageNum            int    `query:"page_num,optional"`             // 第几页
+	PageSize           int    `query:"page_size,optional"`            // 每页条数
+}
+
+type FriendListItem struct {
+	FriendRequestId     uint   `json:"friend_request_id"`
+	SenderUserId        int64  `json:"sender_user_id"`
+	SenderName          string `json:"sender_name"`
+	SenderAvatar        string `json:"sender_avatar"`
+	SenderGender        int8   `json:"sender_gender"`
+	SenderIdentityTag   int8   `json:"sender_identity_tag"`
+	RequestTime         int64  `json:"request_time"`
+	ReceiverUserId      int64  `json:"receiver_user_id"`
+	ReceiverName        string `json:"receiver_name"`
+	ReceiverAvatar      string `json:"receiver_avatar"`
+	ReceiverGender      int8   `json:"receiver_gender"`
+	ReceiverIdentityTag int8   `json:"receiver_identity_tag"`
+	ReceiverConfirmTime int64  `json:"receiver_confirm_time"`
+	MatchingStatus      int8   `json:"matching_status"`
 }

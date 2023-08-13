@@ -28,4 +28,7 @@ func InitAdminRouter(g *echo.Group) {
 	g.POST("/users", userController.AddUser)
 
 	g.GET("/users/uid", userController.CreateUid)
+
+	friendController := controllers.NewFriendController()
+	g.GET("/friends", friendController.FindFriendshipList)
 }
