@@ -19,14 +19,20 @@ import (
 
 type UserService struct {
 	echo.Logger
-	userRepo    *repo.UserRepo
-	aboutMeRepo *repo.AboutMeRepo
+	userRepo      *repo.UserRepo
+	aboutMeRepo   *repo.AboutMeRepo
+	friendRepo    *repo.FriendRepo
+	heartbeatRepo *repo.HeartbeatRepo
+	followRepo    *repo.FollowRepo
 }
 
 func NewUserService() *UserService {
 	return &UserService{
-		userRepo:    repo.NewUserRepo(mysql.GetDB()),
-		aboutMeRepo: repo.NewAboutMeRepo(mysql.GetDB()),
+		userRepo:      repo.NewUserRepo(mysql.GetDB()),
+		aboutMeRepo:   repo.NewAboutMeRepo(mysql.GetDB()),
+		friendRepo:    repo.NewFriendRepo(mysql.GetDB()),
+		heartbeatRepo: repo.NewHeartbeatRepo(mysql.GetDB()),
+		followRepo:    repo.NewFollowRepo(mysql.GetDB()),
 	}
 }
 
@@ -45,13 +51,45 @@ func (l *UserService) Find(ctx context.Context, param *models.UserSearchParam) (
 		return result, param.PageNum, param.PageSize, 0, nil
 	}
 
+	userIds := make([]int64, 0)
+	for _, user := range users {
+		userIds = append(userIds, user.UserId)
+	}
+
 	totalUser, err := l.userRepo.TotalUser(ctx, param)
 	if err != nil {
 		return result, 0, 0, 0, err
 	}
 
+	friendRequestStats, err := l.friendRepo.CountRequestByUserIds(ctx, userIds)
+	if err != nil {
+		return nil, 0, 0, 0, err
+	}
+	userIdToFriendStat := make(map[int64]*models.FriendRequestStat)
+	for _, frs := range friendRequestStats {
+		userIdToFriendStat[frs.UserId] = frs
+	}
+
+	heartbeatRequestStats, err := l.heartbeatRepo.CountRequestByUserIds(ctx, userIds)
+	if err != nil {
+		return nil, 0, 0, 0, err
+	}
+	userIdToHeartbeatStat := make(map[int64]*models.HeartbeatRequestStat)
+	for _, hrs := range heartbeatRequestStats {
+		userIdToHeartbeatStat[hrs.UserId] = hrs
+	}
+
+	followFansStats, err := l.followRepo.CountFollowFans(ctx, userIds)
+	if err != nil {
+		return nil, 0, 0, 0, err
+	}
+	userIdToFollowFansStat := make(map[int64]*models.UserFollowFansStat)
+	for _, ffs := range followFansStats {
+		userIdToFollowFansStat[ffs.UserId] = ffs
+	}
+
 	for _, user := range users {
-		result = append(result, &models.UserListItem{
+		item := &models.UserListItem{
 			UserId:         user.UserId,
 			Name:           user.Name,
 			Gender:         user.Gender,
@@ -60,11 +98,32 @@ func (l *UserService) Find(ctx context.Context, param *models.UserSearchParam) (
 			IsVip:          user.IsVip,
 			VipTag:         user.VipTag,
 			Recommend:      user.Recommend,
+			Income:         user.Income,
 			RegisterPlace:  user.RegisterPlace,
 			RegisterSource: user.RegisterSource,
 			RegisterTime:   user.CreatedAt.UnixMilli(),
 			DurationOfUse:  user.DurationOfUse,
-		})
+		}
+
+		friendStat := userIdToFriendStat[user.UserId]
+		if friendStat != nil {
+			item.FriendRequestCount = friendStat.RequestCount
+			item.FriendRequestSuccessCount = friendStat.RequestSuccessCount
+		}
+
+		heartbeatStat := userIdToHeartbeatStat[user.UserId]
+		if heartbeatStat != nil {
+			item.HeartbeatRequestCount = heartbeatStat.RequestCount
+			item.HeartbeatRequestSuccessCount = heartbeatStat.RequestSuccessCount
+		}
+
+		followFansStat := userIdToFollowFansStat[user.UserId]
+		if followFansStat != nil {
+			item.FollowCount = followFansStat.FollowCount
+			item.FansCount = followFansStat.FansCount
+		}
+
+		result = append(result, item)
 	}
 
 	return result, param.PageNum, param.PageSize, totalUser, nil

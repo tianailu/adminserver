@@ -8,19 +8,19 @@ import (
 	"net/http"
 )
 
-type FriendController struct {
-	friendService *services.FriendService
+type HeartbeatController struct {
+	heartbeatService *services.HeartbeatService
 }
 
-func NewFriendController() *FriendController {
-	return &FriendController{
-		friendService: services.NewFriendService(),
+func NewHeartbeatController() *HeartbeatController {
+	return &HeartbeatController{
+		heartbeatService: services.NewHeartbeatService(),
 	}
 }
 
-func (h *FriendController) FindFriendshipList(c echo.Context) error {
+func (h *HeartbeatController) FindHeartbeatList(c echo.Context) error {
 	var (
-		req  = &models.FriendSearchParam{}
+		req  = &models.HeartbeatSearchParam{}
 		resp = common.Response{
 			Status: 0,
 			Msg:    "OK",
@@ -40,7 +40,7 @@ func (h *FriendController) FindFriendshipList(c echo.Context) error {
 		req.PageSize = 20
 	}
 
-	friendships, pageNum, pageSize, total, err := h.friendService.Find(ctx, req)
+	heartbeats, pageNum, pageSize, total, err := h.heartbeatService.Find(ctx, req)
 	if err != nil {
 		return err
 	}
@@ -49,7 +49,7 @@ func (h *FriendController) FindFriendshipList(c echo.Context) error {
 		PageNum:  pageNum,
 		PageSize: pageSize,
 		Total:    total,
-		List:     common.ToAnySlice(friendships),
+		List:     common.ToAnySlice(heartbeats),
 	}
 
 	return c.JSON(http.StatusOK, resp)

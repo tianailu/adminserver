@@ -170,8 +170,8 @@ type (
 
 	Friendship struct {
 		Id        uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
-		User1Id   int64     `json:"user_1_id" gorm:"not null;comment:用户1的id，保证 user_1_id < user_2_id;index:idx_user_1_id"`
-		User2Id   int64     `json:"user_2_id" gorm:"not null;comment:用户2的id，保证 user_1_id < user_2_id;index:idx_user_2_id"`
+		User1Id   int64     `json:"user_1_id" gorm:"column:user_1_id;not null;comment:用户1的id，保证 user_1_id < user_2_id;index:idx_user_1_id"`
+		User2Id   int64     `json:"user_2_id" gorm:"column:user_2_id;not null;comment:用户2的id，保证 user_1_id < user_2_id;index:idx_user_2_id"`
 		Status    int8      `json:"status" gorm:"not null;comment:好友关系状态，取值为[1:user1发出的申请, 2:user2发出的申请, 3:user1拉黑对方, 4:user2拉黑对方, 5:互相拉黑]"`
 		CreatedAt time.Time `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
 		UpdatedAt time.Time `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
@@ -184,6 +184,26 @@ type (
 		Question            string       `json:"question" gorm:"size:64;comment:灵魂交友问题"`
 		Answer              string       `json:"answer" gorm:"size:64;comment:回答"`
 		MatchingStatus      int8         `json:"matching_status" gorm:"not null;default=1;comment:好友申请状态，取值为[1:待确认处理, 2:已接受, 3:被拒绝, 4:主动中止申请, 5:再次申请]"`
+		ReceiverReadTime    sql.NullTime `json:"receiver_read_time" gorm:"type:datetime;comment:被申请人首次查看到申请的时间"`
+		ReceiverConfirmTime sql.NullTime `json:"receiver_confirm_time" gorm:"type:datetime;comment:被申请人回复申请时间"`
+		CreatedAt           time.Time    `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
+		UpdatedAt           time.Time    `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
+	}
+
+	HeartbeatMatching struct {
+		Id        uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
+		User1Id   int64     `json:"user_1_id" gorm:"column:user_1_id;not null;comment:用户1的id，保证 user_1_id < user_2_id;index:idx_user_1_id"`
+		User2Id   int64     `json:"user_2_id" gorm:"column:user_2_id;not null;comment:用户2的id，保证 user_1_id < user_2_id;index:idx_user_2_id"`
+		Status    int8      `json:"status" gorm:"not null;comment:好友关系状态，取值为[1:user1发出的申请, 2:user2发出的申请]"`
+		CreatedAt time.Time `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
+		UpdatedAt time.Time `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
+	}
+
+	HeartbeatRequest struct {
+		Id                  uint         `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
+		SenderUserId        int64        `json:"sender_user_id" gorm:"not null;comment:发起心动匹配申请的用户id;index:idx_sender_id"`
+		ReceiverUserId      int64        `json:"receiver_user_id" gorm:"not null;comment:接收到心动匹配申请的用户id;index:idx_receiver_id"`
+		MatchingStatus      int8         `json:"matching_status" gorm:"not null;default=1;comment:心动匹配申请状态，取值为[1:待确认处理, 2:已接受]"`
 		ReceiverReadTime    sql.NullTime `json:"receiver_read_time" gorm:"type:datetime;comment:被申请人首次查看到申请的时间"`
 		ReceiverConfirmTime sql.NullTime `json:"receiver_confirm_time" gorm:"type:datetime;comment:被申请人回复申请时间"`
 		CreatedAt           time.Time    `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
@@ -247,10 +267,19 @@ func (m *FriendRequest) TableName() string {
 	return "tb_friend_request"
 }
 
+func (m *HeartbeatMatching) TableName() string {
+	return "tb_heartbeat_matching"
+}
+
+func (m *HeartbeatRequest) TableName() string {
+	return "tb_heartbeat_request"
+}
+
 func CreateTable() error {
 	err := mysql.GetDB().Set("gorm:table_options", "ENGINE=InnoDB").
 		AutoMigrate(&User{}, &AboutMe{}, &MatchSetting{}, &RealNameAuth{}, &WorkAuth{}, &EduAuth{}, &UserManagement{},
-			&Reports{}, &VipTag{}, &UserVipTag{}, &Follow{}, &Fans{}, &Friendship{}, &FriendRequest{})
+			&Reports{}, &VipTag{}, &UserVipTag{}, &Follow{}, &Fans{}, &Friendship{}, &FriendRequest{},
+			&HeartbeatMatching{}, &HeartbeatRequest{})
 	if err != nil {
 		log.Printf("创建 tb_user/tb_about_me/tb_match_setting/tb_real_name_auth/tb_work_auth/tb_edu_auth/tb_user_management/tb_reports/tb_vip_tag/tb_user_vip_tag 表失败, err: %s", err)
 		return err
@@ -331,6 +360,16 @@ func CreateTable() error {
 	err = mysql.GetDB().Exec(fmt.Sprintf("ALTER TABLE %s COMMENT = '%s'", new(FriendRequest).TableName(), "用户好友申请记录表")).Error
 	if err != nil {
 		log.Printf("添加表备注失败, table: %s, err: %s", new(FriendRequest).TableName(), err)
+		return err
+	}
+	err = mysql.GetDB().Exec(fmt.Sprintf("ALTER TABLE %s COMMENT = '%s'", new(HeartbeatMatching).TableName(), "心动匹配关系表")).Error
+	if err != nil {
+		log.Printf("添加表备注失败, table: %s, err: %s", new(HeartbeatMatching).TableName(), err)
+		return err
+	}
+	err = mysql.GetDB().Exec(fmt.Sprintf("ALTER TABLE %s COMMENT = '%s'", new(HeartbeatRequest).TableName(), "心动匹配请求记录表")).Error
+	if err != nil {
+		log.Printf("添加表备注失败, table: %s, err: %s", new(HeartbeatRequest).TableName(), err)
 		return err
 	}
 

@@ -31,4 +31,7 @@ func InitAdminRouter(g *echo.Group) {
 
 	friendController := controllers.NewFriendController()
 	g.GET("/friends", friendController.FindFriendshipList)
+
+	heartbeatController := controllers.NewHeartbeatController()
+	g.GET("/heartbeats", heartbeatController.FindHeartbeatList)
 }

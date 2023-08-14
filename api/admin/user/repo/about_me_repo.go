@@ -32,7 +32,10 @@ func (r *AboutMeRepo) Create(ctx context.Context, aboutMe *models.AboutMe) error
 func (r *AboutMeRepo) FindByUserId(ctx context.Context, userId int64) (*models.AboutMe, bool, error) {
 	var am *models.AboutMe
 
-	err := r.db.WithContext(ctx).Where("user_id = ?", userId).First(am).Error
+	err := r.db.WithContext(ctx).
+		Model(&models.AboutMe{}).
+		Where("user_id = ?", userId).
+		First(am).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, false, nil
 	} else if err != nil {

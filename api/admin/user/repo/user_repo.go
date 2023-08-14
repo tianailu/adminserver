@@ -83,7 +83,10 @@ func (r *UserRepo) Find(ctx context.Context, param *models.UserSearchParam) ([]*
 func (r *UserRepo) FindByUserId(ctx context.Context, userId int64) (*models.User, bool, error) {
 	var u *models.User
 
-	err := r.db.WithContext(ctx).Where("user_id = ?", userId).First(&u).Error
+	err := r.db.WithContext(ctx).
+		Model(&models.User{}).
+		Where("user_id = ?", userId).
+		First(&u).Error
 
 	if err == gorm.ErrRecordNotFound {
 		return nil, false, nil
@@ -138,7 +141,10 @@ func (r *UserRepo) TotalUser(ctx context.Context, param *models.UserSearchParam)
 
 func (r *UserRepo) MaxUserId(ctx context.Context) (int64, error) {
 	var maxUserId sql.NullInt64
-	err := r.db.WithContext(ctx).Model(&models.User{}).Select("MAX(user_id)").Find(&maxUserId).Error
+	err := r.db.WithContext(ctx).
+		Model(&models.User{}).
+		Select("MAX(user_id)").
+		Find(&maxUserId).Error
 	if err != nil {
 		return 0, err
 	}

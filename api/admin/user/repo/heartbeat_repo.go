@@ -10,43 +10,43 @@ import (
 	"unicode/utf8"
 )
 
-const friendDetailResult = `
-fr.id AS friend_request_id, 
-fr.sender_user_id AS sender_user_id, 
+const heartbeatDetailResult = `
+hr.id AS heartbeat_request_id, 
+hr.sender_user_id AS sender_user_id, 
 u1.name AS sender_name, 
 u1.avatar AS sender_avatar, 
 u1.gender AS sender_gender, 
 u1.identity_tag AS sender_identity_tag, 
-fr.receiver_user_id AS receiver_user_id, 
+hr.receiver_user_id AS receiver_user_id, 
 u2.name AS receiver_name, 
 u2.avatar AS receiver_avatar, 
 u2.gender AS receiver_gender, 
 u2.identity_tag AS receiver_identity_tag, 
-fr.matching_status AS matching_status, 
-fr.receiver_confirm_time AS receiver_confirm_time, 
-fr.created_at AS request_time 
+hr.matching_status AS matching_status, 
+hr.receiver_confirm_time AS receiver_confirm_time, 
+hr.created_at AS request_time 
 `
 
-type FriendRepo struct {
+type HeartbeatRepo struct {
 	db *gorm.DB
 }
 
-func NewFriendRepo(db *gorm.DB) *FriendRepo {
-	return &FriendRepo{
+func NewHeartbeatRepo(db *gorm.DB) *HeartbeatRepo {
+	return &HeartbeatRepo{
 		db: db,
 	}
 }
 
-func (r *FriendRepo) Find(ctx context.Context, param *models.FriendSearchParam) ([]*models.FriendDetail, bool, error) {
-	var list []*models.FriendDetail
+func (r *HeartbeatRepo) Find(ctx context.Context, param *models.HeartbeatSearchParam) ([]*models.HeartbeatDetail, bool, error) {
+	var list []*models.HeartbeatDetail
 
 	offset, size := page.CalPageOffset(param.PageNum, param.PageSize)
 
 	db := r.db.WithContext(ctx).
-		Select(friendDetailResult).
-		Table(new(models.FriendRequest).TableName() + " AS fr").
-		Joins("JOIN " + new(models.User).TableName() + " AS u1 ON fr.sender_user_id = u1.user_id").
-		Joins("JOIN " + new(models.User).TableName() + " AS u2 ON fr.receiver_user_id = u2.user_id").
+		Select(heartbeatDetailResult).
+		Table(new(models.HeartbeatRequest).TableName() + " AS hr").
+		Joins("JOIN " + new(models.User).TableName() + " AS u1 ON hr.sender_user_id = u1.user_id").
+		Joins("JOIN " + new(models.User).TableName() + " AS u2 ON hr.receiver_user_id = u2.user_id").
 		Offset(offset).Limit(size)
 
 	if utf8.RuneCountInString(param.Keywords) > 0 {
@@ -70,25 +70,25 @@ func (r *FriendRepo) Find(ctx context.Context, param *models.FriendSearchParam) 
 				db = db.Where("u2.name LIKE ?", "%"+param.Keywords+"%")
 			}
 		}
+
+		var startAt time.Time
+		var endAt time.Time
+		if param.ApplicationStartAt > 0 {
+			startAt = time.UnixMilli(param.ApplicationStartAt)
+		}
+		if param.ApplicationEndAt > 0 {
+			endAt = time.UnixMilli(param.ApplicationEndAt)
+		} else {
+			endAt = time.Now()
+		}
+
+		if !startAt.IsZero() && !endAt.IsZero() {
+			db = db.Where("fr.created_at BETWEEN ? AND ?", startAt, endAt)
+		}
 	}
 
 	if param.MatchingStatus > 0 {
-		db = db.Where("fr.matching_status = ?", param.MatchingStatus)
-	}
-
-	var startAt time.Time
-	var endAt time.Time
-	if param.ApplicationStartAt > 0 {
-		startAt = time.UnixMilli(param.ApplicationStartAt)
-	}
-	if param.ApplicationEndAt > 0 {
-		endAt = time.UnixMilli(param.ApplicationEndAt)
-	} else {
-		endAt = time.Now()
-	}
-
-	if !startAt.IsZero() && !endAt.IsZero() {
-		db = db.Where("fr.created_at BETWEEN ? AND ?", startAt, endAt)
+		db = db.Where("hr.matching_status = ?", param.MatchingStatus)
 	}
 
 	err := db.Find(&list).Error
@@ -103,14 +103,14 @@ func (r *FriendRepo) Find(ctx context.Context, param *models.FriendSearchParam) 
 	return list, true, nil
 }
 
-func (r *FriendRepo) TotalFriend(ctx context.Context, param *models.FriendSearchParam) (int64, error) {
+func (r *HeartbeatRepo) TotalHeartbeat(ctx context.Context, param *models.HeartbeatSearchParam) (int64, error) {
 	var count int64
 
 	db := r.db.WithContext(ctx).
-		Select(friendDetailResult).
-		Table(new(models.FriendRequest).TableName() + " AS fr").
-		Joins("JOIN " + new(models.User).TableName() + " AS u1 ON fr.sender_user_id = u1.user_id").
-		Joins("JOIN " + new(models.User).TableName() + " AS u2 ON fr.receiver_user_id = u2.user_id")
+		Select(heartbeatDetailResult).
+		Table(new(models.HeartbeatRequest).TableName() + " AS hr").
+		Joins("JOIN " + new(models.User).TableName() + " AS u1 ON hr.sender_user_id = u1.user_id").
+		Joins("JOIN " + new(models.User).TableName() + " AS u2 ON hr.receiver_user_id = u2.user_id")
 
 	if utf8.RuneCountInString(param.Keywords) > 0 {
 		if param.MatchType == 0 {
@@ -133,25 +133,25 @@ func (r *FriendRepo) TotalFriend(ctx context.Context, param *models.FriendSearch
 				db = db.Where("u2.name LIKE ?", "%"+param.Keywords+"%")
 			}
 		}
+
+		var startAt time.Time
+		var endAt time.Time
+		if param.ApplicationStartAt > 0 {
+			startAt = time.UnixMilli(param.ApplicationStartAt)
+		}
+		if param.ApplicationEndAt > 0 {
+			endAt = time.UnixMilli(param.ApplicationEndAt)
+		} else {
+			endAt = time.Now()
+		}
+
+		if !startAt.IsZero() && !endAt.IsZero() {
+			db = db.Where("fr.created_at BETWEEN ? AND ?", startAt, endAt)
+		}
 	}
 
 	if param.MatchingStatus > 0 {
-		db = db.Where("fr.matching_status = ?", param.MatchingStatus)
-	}
-
-	var startAt time.Time
-	var endAt time.Time
-	if param.ApplicationStartAt > 0 {
-		startAt = time.UnixMilli(param.ApplicationStartAt)
-	}
-	if param.ApplicationEndAt > 0 {
-		endAt = time.UnixMilli(param.ApplicationEndAt)
-	} else {
-		endAt = time.Now()
-	}
-
-	if !startAt.IsZero() && !endAt.IsZero() {
-		db = db.Where("fr.created_at BETWEEN ? AND ?", startAt, endAt)
+		db = db.Where("hr.matching_status = ?", param.MatchingStatus)
 	}
 
 	err := db.Count(&count).Error
@@ -162,11 +162,11 @@ func (r *FriendRepo) TotalFriend(ctx context.Context, param *models.FriendSearch
 	return count, nil
 }
 
-func (r *FriendRepo) CountRequestByUserIds(ctx context.Context, userIds []int64) ([]*models.FriendRequestStat, error) {
-	var result []*models.FriendRequestStat
+func (r *HeartbeatRepo) CountRequestByUserIds(ctx context.Context, userIds []int64) ([]*models.HeartbeatRequestStat, error) {
+	var result []*models.HeartbeatRequestStat
 
 	err := r.db.WithContext(ctx).
-		Model(&models.FriendRequest{}).
+		Model(&models.HeartbeatRequest{}).
 		Select("sender_user_id AS user_id, count(*) AS request_count, SUM(CASE WHEN matching_status = 2 THEN 1 ELSE 0 END) AS request_success_count").
 		Where("sender_user_id IN ?", userIds).
 		Group("sender_user_id").
