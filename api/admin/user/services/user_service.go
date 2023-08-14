@@ -97,7 +97,6 @@ func (l *UserService) Find(ctx context.Context, param *models.UserSearchParam) (
 			IdentityTag:    user.IdentityTag,
 			IsVip:          user.IsVip,
 			VipTag:         user.VipTag,
-			Recommend:      user.Recommend,
 			Income:         user.Income,
 			RegisterPlace:  user.RegisterPlace,
 			RegisterSource: user.RegisterSource,

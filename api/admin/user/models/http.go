@@ -41,18 +41,18 @@ type UserDetail struct {
 
 type UserSearchParam struct {
 	Keywords        string `query:"keywords,optional"`          // 关键字，用户ID/昵称/用户名
-	Gender          int8   `query:"gender,optional"`            // 性别，取值为[0:全部, 1:男, 2:女]
-	IdentityTag     int8   `query:"identity_tag,optional"`      // 身份标签，取值为[0:全部, 1:母胎单身, 2:未婚单身, 3:离异无孩, 4:离异带孩, 5:离异不带孩, 6:丧偶]
-	IsVip           int8   `query:"is_vip,optional"`            // 是否vip，取值为[0:全部, 1:是, 2:否]
+	Gender          int8   `query:"gender,optional"`            // 性别，取值为[0:全部, 1:男, 2:女]，默认值为0。
+	IdentityTag     int8   `query:"identity_tag,optional"`      // 身份标签，取值为[0:全部, 1:母胎单身, 2:未婚单身, 3:离异无孩, 4:离异带孩, 5:离异不带孩, 6:丧偶]，默认值为0。
+	IsVip           int8   `query:"is_vip,optional"`            // 是否vip，取值为[0:全部, 1:是, 2:否]，默认值为0。
 	VipTag          int8   `query:"vip_tag,optional"`           // VIP标签
-	AuditStatus     int8   `query:"audit_status,optional"`      // 基础信息审核状态，取值为[0:未知, 1:待审（首次申请审核）, 2: 再审核（非首次申请审核）, 3:通过, 4:不通过]
-	Recommend       int8   `query:"recommend,optional"`         // 推荐，取值为[0:全部, 1:是, 2:否]
+	AuditStatus     int8   `query:"audit_status,optional"`      // 基础信息审核状态，取值为[0:全部, 1:待审（首次申请审核）, 2: 再审核（非首次申请审核）, 3:通过, 4:不通过]，默认值为0。
+	Recommend       int8   `query:"recommend,optional"`         // 推荐，取值为[0:全部, 1:是, 2:否]，默认值为0。
 	RegisterPlace   string `query:"register_place,optional"`    // 注册地
-	RegisterSource  int8   `query:"register_source,optional"`   // 注册来源，取值为[0:全部, 1:APP, 2:小程序, 3:群组, 4:二维码, 5:管理后台]
-	RegisterStartAt int64  `query:"register_start_at,optional"` // 开始时间
-	RegisterEndAt   int64  `query:"register_end_at,optional"`   // 结束时间
-	PageNum         int    `query:"page_num,optional"`          // 第几页
-	PageSize        int    `query:"page_size,optional"`         // 每页条数
+	RegisterSource  int8   `query:"register_source,optional"`   // 注册来源，取值为[0:全部, 1:APP, 2:小程序, 3:群组, 4:二维码, 5:管理后台]，默认值为0。
+	RegisterStartAt int64  `query:"register_start_at,optional"` // 开始时间，时间戳，单位毫秒
+	RegisterEndAt   int64  `query:"register_end_at,optional"`   // 结束时间，时间戳，单位毫秒
+	PageNum         int    `query:"page_num,optional"`          // 页码，默认值为1。
+	PageSize        int    `query:"page_size,optional"`         // 每页大小，默认值为20。
 }
 
 type UserListItem struct {
@@ -66,7 +66,6 @@ type UserListItem struct {
 	RechargeAmount               float32 `json:"recharge_amount,optional"`
 	RemainingCoins               int64   `json:"remaining_coins,optional"`
 	ConsumeCoins                 int64   `json:"consume_coins,optional"`
-	Recommend                    int8    `json:"recommend,optional"`
 	Income                       int8    `json:"income,optional"`
 	RegisterPlace                string  `json:"register_place,optional"`
 	RegisterSource               int8    `json:"register_source,optional"`
@@ -83,12 +82,12 @@ type UserListItem struct {
 
 type FriendSearchParam struct {
 	Keywords           string `query:"keywords,optional"`             // 关键字，用户ID/昵称/用户名
-	MatchType          int8   `query:"match_type,optional"`           // 匹配类型，取值为[0:全部, 1:发出的申请, 2:接收到的申请]
-	MatchingStatus     int8   `query:"status,optional"`               // 匹配状态，取值为[0:全部, 1:待确认, 2:已接受, 3:被拒绝, 4:主动中止申请]
+	MatchType          int8   `query:"match_type,optional"`           // 匹配类型，取值为[0:全部, 1:发出的申请, 2:接收到的申请]，默认值为0。
+	MatchingStatus     int8   `query:"status,optional"`               // 匹配状态，取值为[0:全部, 1:待确认, 2:已接受, 3:被拒绝, 4:主动中止申请]，默认值为0。
 	ApplicationStartAt int64  `query:"application_start_at,optional"` // 开始申请时间
 	ApplicationEndAt   int64  `query:"application_end_at,optional"`   // 结束申请时间
-	PageNum            int    `query:"page_num,optional"`             // 第几页
-	PageSize           int    `query:"page_size,optional"`            // 每页条数
+	PageNum            int    `query:"page_num,optional"`             // 页码，默认值为1。
+	PageSize           int    `query:"page_size,optional"`            // 每页大小，默认值为20。
 }
 
 type FriendListItem struct {
@@ -110,12 +109,12 @@ type FriendListItem struct {
 
 type HeartbeatSearchParam struct {
 	Keywords           string `query:"keywords,optional"`             // 关键字，用户ID/昵称/用户名
-	MatchType          int8   `query:"match_type,optional"`           // 匹配类型，取值为[0:全部, 1:发出的申请, 2:接收到的申请]
-	MatchingStatus     int8   `query:"status,optional"`               // 匹配状态，取值为[0:全部, 1:待确认, 2:已接受]
+	MatchType          int8   `query:"match_type,optional"`           // 匹配类型，取值为[0:全部, 1:发出的申请, 2:接收到的申请]，默认值为0。
+	MatchingStatus     int8   `query:"status,optional"`               // 匹配状态，取值为[0:全部, 1:待确认, 2:已接受]，默认值为0。
 	ApplicationStartAt int64  `query:"application_start_at,optional"` // 开始申请时间
 	ApplicationEndAt   int64  `query:"application_end_at,optional"`   // 结束申请时间
-	PageNum            int    `query:"page_num,optional"`             // 第几页
-	PageSize           int    `query:"page_size,optional"`            // 每页条数
+	PageNum            int    `query:"page_num,optional"`             // 页码，默认值为1。
+	PageSize           int    `query:"page_size,optional"`            // 每页大小，默认值为20。
 }
 
 type HeartbeatListItem struct {
