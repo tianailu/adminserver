@@ -83,9 +83,9 @@ type UserListItem struct {
 type FriendSearchParam struct {
 	Keywords           string `query:"keywords,optional"`             // 关键字，用户ID/昵称/用户名
 	MatchType          int8   `query:"match_type,optional"`           // 匹配类型，取值为[0:全部, 1:发出的申请, 2:接收到的申请]，默认值为0。
-	MatchingStatus     int8   `query:"status,optional"`               // 匹配状态，取值为[0:全部, 1:待确认, 2:已接受, 3:被拒绝, 4:主动中止申请]，默认值为0。
-	ApplicationStartAt int64  `query:"application_start_at,optional"` // 开始申请时间
-	ApplicationEndAt   int64  `query:"application_end_at,optional"`   // 结束申请时间
+	MatchingStatus     int8   `query:"matching_status,optional"`      // 匹配状态，取值为[0:全部, 1:待确认, 2:已接受, 3:被拒绝, 4:主动中止申请]，默认值为0。
+	ApplicationStartAt int64  `query:"application_start_at,optional"` // 开始申请时间，时间戳，单位毫秒
+	ApplicationEndAt   int64  `query:"application_end_at,optional"`   // 结束申请时间，时间戳，单位毫秒
 	PageNum            int    `query:"page_num,optional"`             // 页码，默认值为1。
 	PageSize           int    `query:"page_size,optional"`            // 每页大小，默认值为20。
 }

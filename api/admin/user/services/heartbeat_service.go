@@ -28,7 +28,7 @@ func (l *HeartbeatService) Find(ctx context.Context, param *models.HeartbeatSear
 	if err != nil {
 		l.Errorf("Failed to find friend ship list with param, param: %s, err: %s", json.ToJsonString(param), err)
 		return nil, 0, 0, 0, err
-	} else if found {
+	} else if !found {
 		return result, param.PageNum, param.PageSize, 0, nil
 	}
 
