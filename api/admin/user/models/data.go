@@ -209,6 +209,35 @@ type (
 		CreatedAt           time.Time    `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
 		UpdatedAt           time.Time    `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 	}
+
+	FindCompanionActivity struct {
+		Id           uint         `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
+		UserId       int64        `json:"user_id" gorm:"not null;comment:用户id;index:idx_user_id"`
+		ActivityType int          `json:"activity_type" gorm:"not null;comment:找搭子活动类型"`
+		ActivityName string       `json:"activity_name" gorm:"size:32;comment:活动名称"`
+		ActivityTime time.Time    `json:"activity_time" gorm:"type:datetime;not null;comment:活动时间"`
+		Location     string       `json:"location" gorm:"活动地点"`
+		Latitude     float32      `json:"latitude" gorm:"comment:地点维度"`
+		Longitude    float32      `json:"longitude" gorm:"comment:地点精度"`
+		CostType     int8         `json:"cost_type" gorm:"comment:活动费用类型，取值为[0:未选择, 1:发起人请客, 2:AA, 3:对方请客]"`
+		Desc         string       `json:"desc" gorm:"size:128;comment:描述"`
+		Status       int8         `json:"status" gorm:"comment:活动状态，取值为[1:进行中, 2:匹配成功, 3:已取消]"`
+		CancelTime   sql.NullTime `json:"cancel_time" gorm:"type:datetime;comment:取消活动的时间"`
+		CreatedAt    time.Time    `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
+		UpdatedAt    time.Time    `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
+	}
+
+	FindCompanionRequest struct {
+		Id              uint         `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
+		ActivityId      uint         `json:"activity_id" gorm:"not null;comment:活动ID,idx_activity_id"`
+		SenderUserId    int64        `json:"sender_user_id" gorm:"not null;comment:发起找搭子活动的用户id;index:idx_sender_id"`
+		ApplicantUserId int64        `json:"applicant_user_id" gorm:"not null;comment:申请参与活动的用户id;index:idx_applicant_id"`
+		ApplicationTime time.Time    `json:"application_time" gorm:"type:datetime;not null;comment:申请参与活动的时间"`
+		Status          int8         `json:"status" gorm:"not null;comment:申请状态，取值为[1:申请待处理中, 2:已通过申请, 3:已取消]"`
+		CancelTime      sql.NullTime `json:"cancel_time" gorm:"type:datetime;comment:申请人取消参与活动的时间"`
+		CreatedAt       time.Time    `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
+		UpdatedAt       time.Time    `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
+	}
 )
 
 func (m *User) TableName() string {
