@@ -213,7 +213,7 @@ type (
 	FindCompanionActivity struct {
 		Id               uint         `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
 		UserId           int64        `json:"user_id" gorm:"not null;comment:用户id;index:idx_user_id"`
-		CompanionType    int          `json:"companion_type" gorm:"not null;comment:搭子类型"`
+		CompanionTypeId  int          `json:"companion_type_id" gorm:"not null;comment:搭子类型id"`
 		ActivityName     string       `json:"activity_name" gorm:"size:800;comment:活动名称"`
 		ActivityTime     time.Time    `json:"activity_time" gorm:"type:datetime;not null;comment:活动时间"`
 		ActivityLocation string       `json:"activity_location" gorm:"comment:活动地点"`
@@ -240,12 +240,12 @@ type (
 	}
 
 	CompanionType struct {
-		Id           uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
-		CompanionTag int8      `json:"companion_tag" gorm:"not null;comment:搭子标签，取值为[1:美食搭子, 2:日常娱乐搭子, 3:户外/旅行搭子, 4:运动/健身搭子, 5:学习/进步搭子]"`
-		Name         string    `json:"name" gorm:"size:12;not null;comment:搭子名称"`
-		Status       int8      `json:"status" gorm:"not null;comment:状态，取值为[1:被选择，2:未选择]"`
-		CreatedAt    time.Time `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
-		UpdatedAt    time.Time `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
+		Id        uint      `json:"id" gorm:"primaryKey;autoIncrement;not null;comment:主键"`
+		Tag       int8      `json:"tag" gorm:"not null;comment:主标签，取值为[1:美食搭子, 2:日常娱乐搭子, 3:户外/旅行搭子, 4:运动/健身搭子, 5:学习/进步搭子]"`
+		Name      string    `json:"name" gorm:"size:12;not null;comment:搭子类型名称"`
+		Status    int8      `json:"status" gorm:"not null;comment:状态，取值为[1:被选择，2:未选择]"`
+		CreatedAt time.Time `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
+		UpdatedAt time.Time `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 	}
 )
 
@@ -311,6 +311,18 @@ func (m *HeartbeatMatching) TableName() string {
 
 func (m *HeartbeatRequest) TableName() string {
 	return "tb_heartbeat_request"
+}
+
+func (m *FindCompanionActivity) TableName() string {
+	return "tb_find_companion_activity"
+}
+
+func (m *FindCompanionRequest) TableName() string {
+	return "tb_find_companion_request"
+}
+
+func (m *CompanionType) TableName() string {
+	return "tb_companion_type"
 }
 
 func CreateTable() error {
