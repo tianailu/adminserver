@@ -110,7 +110,7 @@ type FriendListItem struct {
 type HeartbeatSearchParam struct {
 	Keywords           string `query:"keywords,optional"`             // 关键字，用户ID/昵称/用户名
 	MatchType          int8   `query:"match_type,optional"`           // 匹配类型，取值为[0:全部, 1:发出的申请, 2:接收到的申请]，默认值为0。
-	MatchingStatus     int8   `query:"status,optional"`               // 匹配状态，取值为[0:全部, 1:待确认, 2:已接受]，默认值为0。
+	MatchingStatus     int8   `query:"matching_status,optional"`      // 匹配状态，取值为[0:全/部, 1:待确认, 2:已接受]，默认值为0。
 	ApplicationStartAt int64  `query:"application_start_at,optional"` // 开始申请时间
 	ApplicationEndAt   int64  `query:"application_end_at,optional"`   // 结束申请时间
 	PageNum            int    `query:"page_num,optional"`             // 页码，默认值为1。
@@ -132,4 +132,48 @@ type HeartbeatListItem struct {
 	ReceiverIdentityTag int8   `json:"receiver_identity_tag"`
 	ReceiverConfirmTime int64  `json:"receiver_confirm_time"`
 	MatchingStatus      int8   `json:"matching_status"`
+}
+
+type FindCompanionSearchParam struct {
+	Keywords       string `query:"keywords,optional"`         // 关键字，用户ID/昵称/用户名
+	CompanionTag   int8   `query:"companion_tag"`             // 搭子主标签，取值为[1:美食搭子, 2:日常娱乐搭子, 3:户外/旅行搭子, 4:运动/健身搭子, 5:学习/进步搭子]
+	MatchType      int8   `query:"match_type,optional"`       // 匹配类型，取值为[0:全部, 1:发起搭子活动, 2:报名搭子活动]，默认值为0。
+	MatchingStatus int8   `query:"matching_status,optional"`  // 匹配状态，取值为[0:全部, 1:进行中, 2:匹配成功, 3:已取消]，默认值为0。
+	PublishStartAt int64  `query:"publish_start_at,optional"` // 活动发布时间-开始
+	PublishEndAt   int64  `query:"publish_end_at,optional"`   // 活动发布时间-结束
+	PageNum        int    `query:"page_num,optional"`         // 页码，默认值为1。
+	PageSize       int    `query:"page_size,optional"`        // 每页大小，默认值为20。
+}
+
+type FindCompanionListItem struct {
+	FindCompanionActivityId uint   `json:"find_companion_activity_id"`
+	SenderUserId            int64  `json:"sender_user_id"`
+	SenderName              string `json:"sender_name"`
+	SenderAvatar            string `json:"sender_avatar"`
+	SenderGender            int8   `json:"sender_gender"`
+	SenderIdentityTag       int8   `json:"sender_identity_tag"`
+	ReceiverUserId          int64  `json:"receiver_user_id"`
+	ReceiverName            string `json:"receiver_name"`
+	ReceiverAvatar          string `json:"receiver_avatar"`
+	ReceiverGender          int8   `json:"receiver_gender"`
+	ReceiverIdentityTag     int8   `json:"receiver_identity_tag"`
+	CompanionTypeId         int    `json:"companion_type_id"`
+	CompanionTypeName       string `json:"companion_type_name"`
+	MatchingStatus          int8   `json:"matching_status"`
+	PublishingActivityTime  int64  `json:"publishing_activity_time"`
+	RequestTime             int64  `json:"request_time"`
+	ActivityCancelTime      int64  `json:"activity_cancel_time"`
+	SenderConfirmTime       int64  `json:"sender_confirm_time"`
+}
+
+type CompanionTypeSearchParam struct {
+	Status int8 `query:"status,optional"` // 状态，取值为[0:全部, 1:被选择，2:未选择]
+}
+
+type CompanionTypeListItem struct {
+	CompanionTypeId   uint   `json:"companion_type_id"`
+	CompanionTag      int8   `json:"companion_tag"`
+	CompanionTypeName string `json:"companion_type_name"`
+	Status            int8   `json:"status"`
+	CreateAt          int64  `json:"create_at"`
 }

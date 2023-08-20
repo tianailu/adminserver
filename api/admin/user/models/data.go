@@ -235,6 +235,7 @@ type (
 		ApplicationTime time.Time    `json:"application_time" gorm:"type:datetime;not null;comment:申请参与活动的时间"`
 		Status          int8         `json:"status" gorm:"not null;comment:申请状态，取值为[1:申请待处理中, 2:已通过申请, 3:已取消申请]"`
 		CancelTime      sql.NullTime `json:"cancel_time" gorm:"type:datetime;comment:申请人取消参与活动的时间"`
+		ApprovedTime    sql.NullTime `json:"approved_time" gorm:"type:datetime;comment:申请被活动发起人同意的时间"`
 		CreatedAt       time.Time    `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
 		UpdatedAt       time.Time    `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 	}
