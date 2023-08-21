@@ -42,7 +42,7 @@ type (
 		IsWorkAuth     int8                  `json:"is_work_auth" gorm:"default:0;comment:是否完成工作认证，0:未认证，1:已通过认证"`
 		IsEduAuth      int8                  `json:"is_edu_auth" gorm:"default:0;comment:是否完成学历认证，0:未认证，1:已通过认证"`
 		AuditStatus    int8                  `json:"audit_status" gorm:"not null;default:1;comment:基础信息审核状态，取值为[0:未知, 1:待审（首次申请审核）, 2:通过, 3:不通过, 4: 再审核（非首次申请审核）]"`
-		UserStatus     int8                  `json:"user_status" gorm:"not null;default:0;comment:用户状态，取值为[0:正常状态, 1:封号状态, 2:禁言状态, 3:注销状态]"`
+		UserStatus     int8                  `json:"user_status" gorm:"not null;default:0;comment:用户状态，取值为[1:正常状态, 2:封号状态, 3:禁言状态, 4:注销状态]"`
 		CreatedAt      time.Time             `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:注册时间"`
 		UpdatedAt      time.Time             `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 		DeletedAt      sql.NullTime          `json:"deleted_at" gorm:"type:datetime;comment:注销时间"`

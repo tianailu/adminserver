@@ -319,3 +319,24 @@ func (l *UserService) FindUserByAuditType(ctx context.Context, auditType enum.Au
 
 	return result, pageNum, pageSize, total, nil
 }
+
+func (l *UserService) UpdateUserAuditStatus(ctx context.Context, auditType enum.AuditType, userId int64, status enum.AuditStatus) error {
+	user, found, err := l.userRepo.FindByUserId(ctx, userId)
+	if err != nil {
+		return err
+	} else if !found {
+		return pkgError.DatabaseRecordNotFound
+	}
+
+	userStatus := enum.GetUserStatusWithValue(user.UserStatus)
+	if !userStatus.IsNormalUser() {
+		return pkgError.AbnormalUserStatusError
+	}
+
+	err = l.userRepo.UpdateUserAuditStatus(ctx, auditType, userId, status.Value())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

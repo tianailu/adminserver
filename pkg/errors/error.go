@@ -19,3 +19,5 @@ var (
 	RedisTryLockFailed  = errors.New("redis try lock failed")
 	RedisTryLockTimeout = errors.New("redis try lock timeout")
 )
+
+var AbnormalUserStatusError = errors.New("abnormal user status")

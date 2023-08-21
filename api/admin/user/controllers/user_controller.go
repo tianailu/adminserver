@@ -175,3 +175,42 @@ func (h *UserController) CreateUid(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, resp)
 }
+
+func (h *UserController) UpdateUserAuditStatus(c echo.Context) error {
+	var (
+		req = &struct {
+			AuditType int32 `json:"audit_type"`
+			UserId    int64 `json:"user_id"`
+			Status    int8  `json:"status"`
+		}{}
+		resp = common.Response{
+			Status: 0,
+			Msg:    "OK",
+		}
+		ctx = c.Request().Context()
+	)
+
+	if err := c.Bind(req); err != nil {
+		c.Logger().Errorf("Bind req param error: %s", err.Error())
+		return err
+	}
+
+	auditType := enum.GetAuditTypeByValue(req.AuditType)
+	if !auditType.Verify() {
+		resp.Status, resp.Msg = -1, "audit_type is incorrect"
+		return c.JSON(http.StatusOK, resp)
+	}
+
+	status := enum.GetAuditStatusWithValue(req.Status)
+	if !status.Verify() {
+		resp.Status, resp.Msg = -1, "audit_status is incorrect"
+		return c.JSON(http.StatusOK, resp)
+	}
+
+	err := h.userService.UpdateUserAuditStatus(ctx, auditType, req.UserId, status)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, resp)
+}

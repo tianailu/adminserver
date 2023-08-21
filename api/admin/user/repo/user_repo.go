@@ -232,3 +232,24 @@ func (r *UserRepo) MaxUserId(ctx context.Context) (int64, error) {
 
 	return 0, nil
 }
+
+func (r *UserRepo) UpdateUserAuditStatus(ctx context.Context, auditType enum.AuditType, userId int64, status int8) error {
+	db := r.db.WithContext(ctx)
+
+	var err error
+	if auditType == enum.UserBaseInfoAudit {
+		err = db.Model(models.User{}).Where("user_id = ?", userId).Update("audit_status", status).Error
+	} else if auditType == enum.WorkAuth {
+		err = db.Model(models.WorkAuth{}).Where("user_id = ?", userId).Update("status", status).Error
+	} else if auditType == enum.EduAuth {
+		err = db.Model(models.EduAuth{}).Where("user_id = ?", userId).Update("status", status).Error
+	} else {
+		return nil
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
