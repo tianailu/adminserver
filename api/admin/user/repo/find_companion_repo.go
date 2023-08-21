@@ -96,6 +96,22 @@ func (r *FindCompanionRepo) FindAllCompanionType(ctx context.Context, status int
 	return result, true, nil
 }
 
+func (r *FindCompanionRepo) FindCompanionTypeByIds(ctx context.Context, ids []uint) ([]*models.CompanionType, bool, error) {
+	var result []*models.CompanionType
+
+	err := r.db.WithContext(ctx).Model(&models.CompanionType{}).Where("id IN ?", ids).Find(&result).Error
+
+	if err != nil {
+		return nil, false, err
+	}
+
+	if len(result) <= 0 {
+		return result, false, nil
+	}
+
+	return result, true, nil
+}
+
 func (r *FindCompanionRepo) Find(ctx context.Context, param *models.FindCompanionSearchParam) ([]*models.FindCompanionDetail, bool, error) {
 	var list []*models.FindCompanionDetail
 

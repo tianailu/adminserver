@@ -110,3 +110,28 @@ func (h *FindCompanionController) AddCompanionType(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, resp)
 }
+
+func (h *FindCompanionController) UpdateCompanionType(c echo.Context) error {
+	var (
+		req = &struct {
+			CompanionTypes []*models.CompanionTypeListItem `json:"companionTypes"`
+		}{}
+		resp = common.Response{
+			Status: 0,
+			Msg:    "OK",
+		}
+		ctx = c.Request().Context()
+	)
+
+	if err := c.Bind(req); err != nil {
+		c.Logger().Errorf("Bind req param error: %s", err.Error())
+		return err
+	}
+
+	err := h.findCompanionService.UpdateCompanionTypeList(ctx, req.CompanionTypes)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, resp)
+}

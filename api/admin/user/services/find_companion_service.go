@@ -7,6 +7,7 @@ import (
 	"github.com/tianailu/adminserver/api/admin/user/repo"
 	"github.com/tianailu/adminserver/pkg/db/mysql"
 	"github.com/tianailu/adminserver/pkg/utility/times"
+	"unicode/utf8"
 )
 
 type FindCompanionService struct {
@@ -97,6 +98,48 @@ func (l *FindCompanionService) AddCompanionType(ctx context.Context, companionTa
 		Name:   companionTypeName,
 		Status: status,
 	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (l *FindCompanionService) UpdateCompanionTypeList(ctx context.Context, companionTypes []*models.CompanionTypeListItem) error {
+	if len(companionTypes) == 0 {
+		return nil
+	}
+
+	ids := make([]uint, 0)
+	idToCT := make(map[uint]*models.CompanionTypeListItem)
+	for _, ct := range companionTypes {
+		ids = append(ids, ct.CompanionTypeId)
+		idToCT[ct.CompanionTypeId] = ct
+	}
+
+	sourceCompanionTypes, found, err := l.findCompanionRepo.FindCompanionTypeByIds(ctx, ids)
+	if err != nil {
+		return err
+	} else if !found {
+		return nil
+	}
+
+	for _, ct := range sourceCompanionTypes {
+		reqCT := idToCT[ct.Id]
+		if reqCT == nil {
+			continue
+		}
+
+		if reqCT.Status > 0 && reqCT.Status <= 2 {
+			ct.Status = reqCT.Status
+		}
+
+		if utf8.RuneCountInString(reqCT.CompanionTypeName) > 0 {
+			ct.Name = reqCT.CompanionTypeName
+		}
+	}
+
+	err = l.findCompanionRepo.BatchUpdateCompanionType(ctx, sourceCompanionTypes)
 	if err != nil {
 		return err
 	}
