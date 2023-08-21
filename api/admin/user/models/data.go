@@ -41,7 +41,7 @@ type (
 		IsRealNameAuth int8                  `json:"is_rn_auth" gorm:"default:0;comment:是否完成实名认证，0:未认证，1:已通过认证"`
 		IsWorkAuth     int8                  `json:"is_work_auth" gorm:"default:0;comment:是否完成工作认证，0:未认证，1:已通过认证"`
 		IsEduAuth      int8                  `json:"is_edu_auth" gorm:"default:0;comment:是否完成学历认证，0:未认证，1:已通过认证"`
-		AuditStatus    int8                  `json:"audit_status" gorm:"not null;default:1;comment:基础信息审核状态，取值为[0:未知, 1:待审（首次申请审核）, 2: 再审核（非首次申请审核）, 3:通过, 4:不通过]"`
+		AuditStatus    int8                  `json:"audit_status" gorm:"not null;default:1;comment:基础信息审核状态，取值为[0:未知, 1:待审（首次申请审核）, 2:通过, 3:不通过, 4: 再审核（非首次申请审核）]"`
 		UserStatus     int8                  `json:"user_status" gorm:"not null;default:0;comment:用户状态，取值为[0:正常状态, 1:封号状态, 2:禁言状态, 3:注销状态]"`
 		CreatedAt      time.Time             `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:注册时间"`
 		UpdatedAt      time.Time             `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
@@ -81,7 +81,7 @@ type (
 		UserId    int64     `json:"user_id" gorm:"not null;comment:用户唯一id;index:idx_user_id"`
 		IdCard    string    `json:"id_card" gorm:"size:18;not null;comment:身份证"`
 		RealName  string    `json:"real_name" gorm:"size:20;not null;comment:真实姓名"`
-		Status    int8      `json:"status" gorm:"not null;default:0;comment:认证状态，取值为[0:未认证, 1:已通过认证, 2:认证未通过, 3:更新认证]"`
+		Status    int8      `json:"status" gorm:"not null;default:0;comment:认证状态，取值为[1:未认证, 2:已通过认证, 3:认证未通过, 4:更新认证]"`
 		CreatedAt time.Time `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
 		UpdatedAt time.Time `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 	}
@@ -93,7 +93,7 @@ type (
 		Company           string    `json:"company" gorm:"size:20;not null;comment:公司名称"`
 		Img               string    `json:"img" gorm:"size:128;not null;comment:提供的认证图片"`
 		IsBlockColleagues int8      `json:"is_block_colleagues" gorm:"default=0;comment:是否屏蔽同事，取值为[0:不屏蔽, 1:屏蔽]"`
-		Status            int8      `json:"status" gorm:"not null;default:0;comment:认证状态，取值为[0:未认证, 1:已通过认证, 2:认证未通过, 3:更新认证]"`
+		Status            int8      `json:"status" gorm:"not null;default:0;comment:认证状态，取值为[1:未认证, 2:已通过认证, 3:认证未通过, 4:更新认证]"`
 		CreatedAt         time.Time `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
 		UpdatedAt         time.Time `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 	}
@@ -108,7 +108,7 @@ type (
 		CertificateNo    string    `json:"cert_no" gorm:"size:20;comment:证书号码"`
 		VerificationCode string    `json:"verification_code" gorm:"size:20;comment:学信网在线验证码"`
 		Img              string    `json:"img" gorm:"size:128;not null;comment:提供的认证图片"`
-		Status           int8      `json:"status" gorm:"not null;default:0;comment:认证状态，取值为[0:未认证, 1:已通过认证, 2:认证未通过, 3:更新认证]"`
+		Status           int8      `json:"status" gorm:"not null;default:0;comment:认证状态，取值为[1:未认证, 2:已通过认证, 3:认证未通过, 4:更新认证]"`
 		CreatedAt        time.Time `json:"created_at" gorm:"type:datetime;autoCreateTime;default:CURRENT_TIMESTAMP;not null;comment:创建时间"`
 		UpdatedAt        time.Time `json:"updated_at" gorm:"type:datetime;autoUpdateTime;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;not null;comment:修改时间"`
 	}

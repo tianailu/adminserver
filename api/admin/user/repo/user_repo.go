@@ -3,7 +3,9 @@ package repo
 import (
 	"context"
 	"database/sql"
+	"github.com/tianailu/adminserver/api/admin/user/common/enum"
 	"github.com/tianailu/adminserver/api/admin/user/models"
+	"github.com/tianailu/adminserver/pkg/common"
 	"github.com/tianailu/adminserver/pkg/utility/page"
 	"gorm.io/gorm"
 	"unicode/utf8"
@@ -97,6 +99,56 @@ func (r *UserRepo) FindByUserId(ctx context.Context, userId int64) (*models.User
 	return u, true, nil
 }
 
+func (r *UserRepo) FindUnAuditedUser(ctx context.Context, param common.SearchParam) ([]*models.User, bool, error) {
+	var list []*models.User
+
+	offset, size := page.CalPageOffset(param.PageNum, param.PageSize)
+
+	err := r.db.WithContext(ctx).Model(&models.User{}).Offset(offset).Limit(size).Order("user_id ASC").
+		Where("audit_status IN (1, 2)  AND is_del = 0").
+		Find(&list).Error
+	if err != nil {
+		return list, false, err
+	}
+
+	if len(list) <= 0 {
+		return list, false, nil
+	}
+
+	return list, true, nil
+}
+
+func (r *UserRepo) FindUserByAuditType(ctx context.Context, auditType enum.AuditType, pageNum, pageSize int) ([]*models.User, bool, error) {
+	var list []*models.User
+
+	offset, size := page.CalPageOffset(pageNum, pageSize)
+
+	db := r.db.WithContext(ctx).Table(new(models.User).TableName() + "AS u").Offset(offset).Limit(size).Order("u.user_id ASC")
+
+	var err error
+	if auditType == enum.UserBaseInfoAudit {
+		err = db.Where("u.audit_status IN (1, 4)  AND u.is_del = 0").Find(&list).Error
+	} else if auditType == enum.WorkAuth {
+		err = db.Joins("JOIN " + new(models.WorkAuth).TableName() + " AS wa ON u.user_id = wa.user_id").
+			Where("wa.status IN (1, 4) AND u.is_del = 0").Find(&list).Error
+	} else if auditType == enum.EduAuth {
+		err = db.Joins("JOIN " + new(models.EduAuth).TableName() + " AS ea ON u.user_id = ea.user_id").
+			Where("ea.status IN (1, 4) AND u.is_del = 0").Find(&list).Error
+	} else {
+		return list, false, nil
+	}
+
+	if err != nil {
+		return list, false, err
+	}
+
+	if len(list) <= 0 {
+		return list, false, nil
+	}
+
+	return list, true, nil
+}
+
 func (r *UserRepo) TotalUser(ctx context.Context, param *models.UserSearchParam) (int64, error) {
 	var count int64
 
@@ -129,6 +181,31 @@ func (r *UserRepo) TotalUser(ctx context.Context, param *models.UserSearchParam)
 	}
 	if param.RegisterSource > 0 {
 		db = db.Where("register_source = ?", param.RegisterSource)
+	}
+
+	err := db.Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (r *UserRepo) TotalUserByAuditType(ctx context.Context, auditType enum.AuditType) (int64, error) {
+	var count int64
+
+	db := r.db.WithContext(ctx).Table(new(models.User).TableName() + "AS u")
+
+	if auditType == enum.UserBaseInfoAudit {
+		db = db.Where("u.audit_status IN (1, 4)  AND u.is_del = 0")
+	} else if auditType == enum.WorkAuth {
+		db = db.Joins("JOIN " + new(models.WorkAuth).TableName() + " AS wa ON u.user_id = wa.user_id").
+			Where("wa.status IN (1, 4) AND u.is_del = 0")
+	} else if auditType == enum.EduAuth {
+		db = db.Joins("JOIN " + new(models.EduAuth).TableName() + " AS ea ON u.user_id = ea.user_id").
+			Where("ea.status IN (1, 4) AND u.is_del = 0")
+	} else {
+		return 0, nil
 	}
 
 	err := db.Count(&count).Error

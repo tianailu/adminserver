@@ -24,6 +24,7 @@ func InitAdminRouter(g *echo.Group) {
 	userController := controllers.NewUserController()
 
 	g.GET("/users/:user_id", userController.FindUserDetail)
+	g.GET("/users/audit", userController.FindUserSimpleListByAuditType)
 	g.GET("/users", userController.FindUserList)
 	g.POST("/users", userController.AddUser)
 

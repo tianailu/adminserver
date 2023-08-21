@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/tianailu/adminserver/api/admin/user/common/enum"
 	"github.com/tianailu/adminserver/api/admin/user/models"
 	"github.com/tianailu/adminserver/api/admin/user/services"
 	"github.com/tianailu/adminserver/pkg/common"
@@ -78,6 +79,54 @@ func (h *UserController) FindUserDetail(c echo.Context) error {
 	}
 
 	resp.Data = user
+
+	return c.JSON(http.StatusOK, resp)
+}
+
+func (h *UserController) FindUserSimpleListByAuditType(c echo.Context) error {
+	var (
+		req = &struct {
+			common.SearchParam
+			AuditType int32 `query:"audit_type,optional"`
+		}{}
+		resp = common.Response{
+			Status: 0,
+			Msg:    "OK",
+		}
+		ctx = c.Request().Context()
+	)
+
+	if err := c.Bind(req); err != nil {
+		c.Logger().Errorf("Bind req param error: %s", err.Error())
+		return err
+	}
+
+	auditType := enum.GetAuditTypeByValue(req.AuditType)
+	if !auditType.Verify() {
+		resp.Status, resp.Msg = -1, "audit_type is incorrect"
+		return c.JSON(http.StatusOK, resp)
+	}
+
+	users, pageNum, pageSize, total, err := h.userService.FindUserByAuditType(ctx, auditType, req.PageNum, req.PageSize)
+	if err != nil {
+		return err
+	}
+
+	userSimples := make([]*models.UserSimple, 0)
+	for _, u := range users {
+		userSimples = append(userSimples, &models.UserSimple{
+			UserId: u.UserId,
+			Name:   u.Name,
+			Gender: u.Gender,
+		})
+	}
+
+	resp.Data = common.PageData{
+		PageNum:  pageNum,
+		PageSize: pageSize,
+		Total:    total,
+		List:     common.ToAnySlice(userSimples),
+	}
 
 	return c.JSON(http.StatusOK, resp)
 }

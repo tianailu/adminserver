@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/labstack/echo/v4"
+	"github.com/tianailu/adminserver/api/admin/user/common/enum"
 	"github.com/tianailu/adminserver/api/admin/user/models"
 	"github.com/tianailu/adminserver/api/admin/user/repo"
 	"github.com/tianailu/adminserver/pkg/common"
@@ -299,4 +300,22 @@ func (l *UserService) CreateUserId(ctx context.Context) (int64, error) {
 	}
 
 	return newUserId, nil
+}
+
+func (l *UserService) FindUserByAuditType(ctx context.Context, auditType enum.AuditType, pageNum, pageSize int) ([]*models.User, int, int, int64, error) {
+	var result []*models.User
+
+	result, found, err := l.userRepo.FindUserByAuditType(ctx, auditType, pageNum, pageSize)
+	if err != nil {
+		return nil, 0, 0, 0, err
+	} else if !found {
+		return result, pageNum, pageSize, 0, nil
+	}
+
+	total, err := l.userRepo.TotalUserByAuditType(ctx, auditType)
+	if err != nil {
+		return nil, 0, 0, 0, err
+	}
+
+	return result, pageNum, pageSize, total, nil
 }

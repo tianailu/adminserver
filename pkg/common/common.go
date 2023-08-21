@@ -23,6 +23,11 @@ type ResponseNoData struct {
 	Msg    string `json:"msg"`
 }
 
+type SearchParam struct {
+	PageNum  int `query:"page_num,optional"`  // 页码，默认值为1。
+	PageSize int `query:"page_size,optional"` // 每页大小，默认值为20。
+}
+
 type PageData struct {
 	PageNum  int   `json:"page_num"`
 	PageSize int   `json:"page_size"`
