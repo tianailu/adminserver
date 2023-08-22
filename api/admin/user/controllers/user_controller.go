@@ -131,6 +131,47 @@ func (h *UserController) FindUserSimpleListByAuditType(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
+func (h *UserController) FindLogOutUserSimpleList(c echo.Context) error {
+	var (
+		req = &struct {
+			common.SearchParam
+		}{}
+		resp = common.Response{
+			Status: 0,
+			Msg:    "OK",
+		}
+		ctx = c.Request().Context()
+	)
+
+	if err := c.Bind(req); err != nil {
+		c.Logger().Errorf("Bind req param error: %s", err.Error())
+		return err
+	}
+
+	users, pageNum, pageSize, total, err := h.userService.FindUserByUserStatus(ctx, enum.LogoutStatus, req.PageNum, req.PageSize)
+	if err != nil {
+		return err
+	}
+
+	userSimples := make([]*models.UserSimple, 0)
+	for _, u := range users {
+		userSimples = append(userSimples, &models.UserSimple{
+			UserId: u.UserId,
+			Name:   u.Name,
+			Gender: u.Gender,
+		})
+	}
+
+	resp.Data = common.PageData{
+		PageNum:  pageNum,
+		PageSize: pageSize,
+		Total:    total,
+		List:     common.ToAnySlice(userSimples),
+	}
+
+	return c.JSON(http.StatusOK, resp)
+}
+
 func (h *UserController) AddUser(c echo.Context) error {
 	var (
 		req  = &models.UserDetail{}

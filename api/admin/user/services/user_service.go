@@ -320,6 +320,29 @@ func (l *UserService) FindUserByAuditType(ctx context.Context, auditType enum.Au
 	return result, pageNum, pageSize, total, nil
 }
 
+func (l *UserService) FindUserByUserStatus(ctx context.Context, userStatus enum.UserStatus, pageNum, pageSize int) ([]*models.User, int, int, int64, error) {
+	if pageNum <= 0 {
+		pageNum = 1
+	}
+	if pageSize <= 0 {
+		pageNum = 10
+	}
+
+	result, found, err := l.userRepo.FindUserByUserStatus(ctx, userStatus, pageSize, pageSize)
+	if err != nil {
+		return nil, 0, 0, 0, err
+	} else if !found {
+		return result, pageNum, pageSize, 0, nil
+	}
+
+	total, err := l.userRepo.TotalUserByUserStatus(ctx, userStatus)
+	if err != nil {
+		return nil, 0, 0, 0, err
+	}
+
+	return result, pageNum, pageSize, total, nil
+}
+
 func (l *UserService) UpdateUserAuditStatus(ctx context.Context, auditType enum.AuditType, userId int64, status enum.AuditStatus) error {
 	user, found, err := l.userRepo.FindByUserId(ctx, userId)
 	if err != nil {

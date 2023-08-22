@@ -149,6 +149,28 @@ func (r *UserRepo) FindUserByAuditType(ctx context.Context, auditType enum.Audit
 	return list, true, nil
 }
 
+func (r *UserRepo) FindUserByUserStatus(ctx context.Context, userStatus enum.UserStatus, pageNum, pageSize int) ([]*models.User, bool, error) {
+	var list []*models.User
+
+	offset, size := page.CalPageOffset(pageNum, pageSize)
+
+	err := r.db.WithContext(ctx).
+		Model(models.User{}).
+		Offset(offset).Limit(size).
+		Where("user_status = ?", userStatus.Value()).
+		Find(&list).Error
+
+	if err != nil {
+		return list, false, err
+	}
+
+	if len(list) <= 0 {
+		return list, false, nil
+	}
+
+	return list, true, nil
+}
+
 func (r *UserRepo) TotalUser(ctx context.Context, param *models.UserSearchParam) (int64, error) {
 	var count int64
 
@@ -209,6 +231,18 @@ func (r *UserRepo) TotalUserByAuditType(ctx context.Context, auditType enum.Audi
 	}
 
 	err := db.Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (r *UserRepo) TotalUserByUserStatus(ctx context.Context, userStatus enum.UserStatus) (int64, error) {
+	var count int64
+
+	err := r.db.WithContext(ctx).Model(models.User{}).Where("user_status = ?", userStatus.Value()).Count(&count).Error
+
 	if err != nil {
 		return 0, err
 	}
