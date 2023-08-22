@@ -6,6 +6,7 @@ import (
 	"github.com/tianailu/adminserver/api/admin/user/models"
 	"github.com/tianailu/adminserver/api/admin/user/services"
 	"github.com/tianailu/adminserver/pkg/common"
+	"github.com/tianailu/adminserver/pkg/utility/times"
 	"net/http"
 	"strconv"
 )
@@ -153,12 +154,13 @@ func (h *UserController) FindLogOutUserSimpleList(c echo.Context) error {
 		return err
 	}
 
-	userSimples := make([]*models.UserSimple, 0)
+	logoutUsers := make([]*models.LogoutUser, 0)
 	for _, u := range users {
-		userSimples = append(userSimples, &models.UserSimple{
-			UserId: u.UserId,
-			Name:   u.Name,
-			Gender: u.Gender,
+		logoutUsers = append(logoutUsers, &models.LogoutUser{
+			UserId:   u.UserId,
+			Name:     u.Name,
+			Gender:   u.Gender,
+			DeleteAt: times.ToMillisecond(u.DeletedAt),
 		})
 	}
 
@@ -166,7 +168,7 @@ func (h *UserController) FindLogOutUserSimpleList(c echo.Context) error {
 		PageNum:  pageNum,
 		PageSize: pageSize,
 		Total:    total,
-		List:     common.ToAnySlice(userSimples),
+		List:     common.ToAnySlice(logoutUsers),
 	}
 
 	return c.JSON(http.StatusOK, resp)

@@ -86,6 +86,13 @@ type UserSimple struct {
 	Gender int8   `json:"gender,optional"`
 }
 
+type LogoutUser struct {
+	UserId   int64  `json:"user_id,optional"`
+	Name     string `json:"name,optional"`
+	Gender   int8   `json:"gender,optional"`
+	DeleteAt int64  `json:"delete_at"`
+}
+
 type FriendSearchParam struct {
 	Keywords           string `query:"keywords,optional"`             // 关键字，用户ID/昵称/用户名
 	MatchType          int8   `query:"match_type,optional"`           // 匹配类型，取值为[0:全部, 1:发出的申请, 2:接收到的申请]，默认值为0。
