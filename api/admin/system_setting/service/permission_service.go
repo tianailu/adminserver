@@ -3,8 +3,8 @@ package service
 import (
 	"errors"
 
-	"github.com/tianailu/adminserver/api/admin/systemsetting/domain"
-	"github.com/tianailu/adminserver/api/admin/systemsetting/domain/resp"
+	"github.com/tianailu/adminserver/api/admin/system_setting/domain"
+	"github.com/tianailu/adminserver/api/admin/system_setting/domain/resp"
 	"github.com/tianailu/adminserver/pkg/db/mysql"
 	"gorm.io/gorm"
 )
@@ -15,7 +15,7 @@ type PermissionService struct {
 
 func NewPermissionService() PermissionService {
 	return PermissionService{
-		db: mysql.GetDb(),
+		db: mysql.GetDB(),
 	}
 }
 
@@ -63,7 +63,7 @@ func (ps *PermissionService) GetAllPermissionsTree() (permissions []*resp.Permis
 	return result, nil
 }
 
-func (ps *PermissionService) GetRolePermissionsTree(permissions []resp.RolePermissionDetail) (r []*resp.RolePermissionDetail,err error) {
+func (ps *PermissionService) GetRolePermissionsTree(permissions []resp.RolePermissionDetail) (r []*resp.RolePermissionDetail, err error) {
 
 	idPermisionnReferMap := make(map[int]*resp.RolePermissionDetail, len(permissions))
 	for idx, elem := range permissions {
@@ -82,5 +82,5 @@ func (ps *PermissionService) GetRolePermissionsTree(permissions []resp.RolePermi
 		}
 
 	}
-	return result,nil
+	return result, nil
 }

@@ -1,23 +1,22 @@
 package controller
 
 import (
+	"github.com/labstack/echo/v4"
+	"github.com/tianailu/adminserver/api/admin/utils"
 	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/labstack/echo"
-	"github.com/tianailu/adminserver/api/admin/systemsetting/domain"
-	"github.com/tianailu/adminserver/api/admin/systemsetting/domain/req"
-	"github.com/tianailu/adminserver/api/admin/systemsetting/service"
+	"github.com/tianailu/adminserver/api/admin/system_setting/domain"
+	"github.com/tianailu/adminserver/api/admin/system_setting/domain/req"
+	"github.com/tianailu/adminserver/api/admin/system_setting/service"
 	"github.com/tianailu/adminserver/pkg/common"
 )
-
 
 type RoleController struct {
 	roleSvc service.RoleService
 	permSvc service.PermissionService
 }
-
 
 func NewRoleController() *RoleController {
 	return &RoleController{
@@ -33,9 +32,10 @@ func (rc *RoleController) SaveRole(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, nil)
 	}
-	err = rc.roleSvc.SaveRole(role)
+	userId := utils.GetLoginUserAccountId(c)
+	err = rc.roleSvc.SaveRole(userId, role)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, common.ResponseBadRequest())
+		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg(err.Error()))
 	}
 
 	return c.JSON(http.StatusOK, common.ResponseSuccess())
@@ -46,7 +46,7 @@ type RoleList struct {
 	Name string
 }
 
-// 获取所有角色名称列表 /system-setting/roles
+// GetAllRoles 获取所有角色名称列表 /system-setting/roles
 func (rc *RoleController) GetAllRoles(c echo.Context) error {
 	var roles []domain.Role
 	roles, err := rc.roleSvc.GetAllRoles()
@@ -56,7 +56,7 @@ func (rc *RoleController) GetAllRoles(c echo.Context) error {
 	return c.JSON(http.StatusOK, common.ResponseSuccessWithData(roles))
 }
 
-// 分页获取角色列表 /system-setting/roles/page
+// GetRolesPage 分页获取角色列表 /system-setting/roles/page
 func (rc *RoleController) GetRolesPage(c echo.Context) error {
 	reqParam := new(req.RolePageRequest)
 	err := c.Bind(reqParam)
@@ -82,7 +82,7 @@ func (rc *RoleController) GetRolesPage(c echo.Context) error {
 	return c.JSON(http.StatusOK, dataResp)
 }
 
-// 删除角色 /system-setting/roles/:id
+// DeleteRole 删除角色 /system-setting/roles/:id
 func (rc *RoleController) DeleteRole(c echo.Context) error {
 	id := c.Param("id")
 	intId, err := strconv.Atoi(id)
@@ -98,7 +98,7 @@ func (rc *RoleController) DeleteRole(c echo.Context) error {
 	return c.JSON(http.StatusOK, common.ResponseSuccess())
 }
 
-// 批量删除角色 POST /system-setting/roles/delete
+// DeleteRoles 批量删除角色 POST /system-setting/roles/delete
 func (rc *RoleController) DeleteRoles(c echo.Context) error {
 	var roleIds []int
 	err := c.Bind(&roleIds)
@@ -112,7 +112,7 @@ func (rc *RoleController) DeleteRoles(c echo.Context) error {
 	return c.JSON(http.StatusOK, common.ResponseSuccess())
 }
 
-// 获取角色权限详情 /system-setting/roles/:roleId/permissions
+// GetRolePermissions 获取角色权限详情 /system-setting/roles/:roleId/permissions
 func (rc *RoleController) GetRolePermissions(c echo.Context) error {
 	roleId := c.Param("roleId")
 	intRoleId, err := strconv.Atoi(roleId)
@@ -121,7 +121,7 @@ func (rc *RoleController) GetRolePermissions(c echo.Context) error {
 	}
 	r, err := rc.roleSvc.GetUserRolePermissions(rc.permSvc, intRoleId)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg("获取角色权限详情失败"))
+		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg(err.Error()))
 	}
 	retVal := &common.Response{
 		Data: r,
@@ -129,7 +129,7 @@ func (rc *RoleController) GetRolePermissions(c echo.Context) error {
 	return c.JSON(http.StatusOK, retVal)
 }
 
-// 保存角色权限 POST /system-setting/role/:roleId/permissions
+// SaveRolePermissions 保存角色权限 POST /system-setting/role/:roleId/permissions
 func (rc *RoleController) SaveRolePermissions(c echo.Context) error {
 	var permissionIds []int
 	err := c.Bind(&permissionIds)
@@ -144,11 +144,22 @@ func (rc *RoleController) SaveRolePermissions(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, common.ResponseBadRequest())
 	}
-	err = rc.roleSvc.SaveRolePermissions(rId, permissionIds)
+	userId := utils.GetLoginUserAccountId(c)
+	err = rc.roleSvc.SaveRolePermissions(userId, rId, permissionIds)
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg(err.Error()))
 	}
 
 	return c.JSON(http.StatusOK, common.ResponseSuccess())
+}
+
+// GetLoginUserRolesWithPermissions 保存角色权限 GET /user/permissions
+func (rc *RoleController) GetLoginUserRolesWithPermissions(c echo.Context) error {
+	userId := utils.GetLoginUserAccountId(c)
+	result, e := rc.roleSvc.GetUserFullyRolesAndPermissions(userId, rc.permSvc)
+	if e != nil {
+		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg(e.Error()))
+	}
+	return c.JSON(http.StatusOK, common.ResponseSuccessWithData(result))
 }

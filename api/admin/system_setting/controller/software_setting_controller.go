@@ -1,12 +1,12 @@
 package controller
 
 import (
-	"fmt"
+	"github.com/labstack/echo/v4"
+	"github.com/tianailu/adminserver/api/admin/utils"
 	"net/http"
 
-	"github.com/labstack/echo"
-	"github.com/tianailu/adminserver/api/admin/systemsetting/domain"
-	"github.com/tianailu/adminserver/api/admin/systemsetting/service"
+	"github.com/tianailu/adminserver/api/admin/system_setting/domain"
+	"github.com/tianailu/adminserver/api/admin/system_setting/service"
 	"github.com/tianailu/adminserver/pkg/common"
 )
 
@@ -24,10 +24,8 @@ var setting_type = []string{"about-us", "user-agreement", "user-privacy-policy"}
 
 // 添加或更新系统设置 about-us、user-agreement，user-privacy-policy
 func (sfc *SoftwareSettingController) AddOrUpdateSoftwareSetting(c echo.Context) error {
-	// TODO 获取登录用户id
-	// user := c.Get("user").(*jwt.Token)
-	// claims := user.Claims.(*jwt.MapClaims)
 
+	loginUserId := utils.GetLoginUserAccountId(c)
 	settingType := c.Param("type")
 	var softwareSetting domain.SoftwareSetting
 
@@ -43,7 +41,7 @@ func (sfc *SoftwareSettingController) AddOrUpdateSoftwareSetting(c echo.Context)
 	softwareSetting.Content = content.Content
 	softwareSetting.Type = settingType
 
-	err := sfc.srv.AddOrUpdateSoftwareSetting(&softwareSetting)
+	err := sfc.srv.AddOrUpdateSoftwareSetting(loginUserId, &softwareSetting)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, common.ResponseBadRequest())
 	}
@@ -70,7 +68,6 @@ func (sfc *SoftwareSettingController) GetSoftwareSetting(c echo.Context) error {
 }
 
 func checkSettingType(settingType string) (exist bool) {
-	fmt.Printf("get type %s \n", settingType)
 	var found = false
 	for _, v := range setting_type {
 		if v == settingType {

@@ -11,6 +11,6 @@ type TagService struct {
 
 func NewTagService() TagService {
 	return TagService{
-		db: mysql.GetDb(),
+		db: mysql.GetDB(),
 	}
 }

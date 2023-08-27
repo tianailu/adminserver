@@ -3,10 +3,11 @@ package service
 import (
 	"errors"
 	"log"
+	"time"
 
-	"github.com/tianailu/adminserver/api/admin/systemsetting/domain"
-	"github.com/tianailu/adminserver/api/admin/systemsetting/domain/req"
-	"github.com/tianailu/adminserver/api/admin/systemsetting/domain/resp"
+	"github.com/tianailu/adminserver/api/admin/system_setting/domain"
+	"github.com/tianailu/adminserver/api/admin/system_setting/domain/req"
+	"github.com/tianailu/adminserver/api/admin/system_setting/domain/resp"
 	"github.com/tianailu/adminserver/pkg/db/mysql"
 	"gorm.io/gorm"
 )
@@ -17,11 +18,11 @@ type RoleService struct {
 
 func NewRoleService() RoleService {
 	return RoleService{
-		db: mysql.GetDb(),
+		db: mysql.GetDB(),
 	}
 }
 
-func (rs *RoleService) SaveRole(role *domain.Role) error {
+func (rs *RoleService) SaveRole(userId string, role *domain.Role) error {
 	var count int64
 	err := rs.db.
 		Model(&domain.Role{}).
@@ -31,7 +32,8 @@ func (rs *RoleService) SaveRole(role *domain.Role) error {
 	if err != nil || count > 0 {
 		return errors.New("角色名称已存在，请勿重复创建")
 	}
-	role.CreateAccountId = "1"
+	role.CreateAccountId = userId
+	role.CreateAt = time.Now().UnixMilli()
 	err = rs.db.Save(role).Error
 	return err
 }
@@ -40,7 +42,7 @@ func (rs *RoleService) GetAllRoles() ([]domain.Role, error) {
 	var roles []domain.Role
 	err := rs.db.
 		Model(&domain.Role{}).
-		Select("id", "name").
+		Select("id", "name", "create_at").
 		Order("create_at DESC").
 		Find(&roles).Error
 	return roles, err
@@ -79,7 +81,25 @@ func (rs *RoleService) GetRolesPage(reqParam *req.RolePageRequest) (cnt int64, r
 }
 
 func (rs *RoleService) DeleteRole(role domain.Role) error {
-	return rs.db.Delete(&role).Error
+	e := rs.db.Transaction(func(tx *gorm.DB) error {
+		// delete role
+		err := rs.db.Delete(&role).Error
+		if err != nil {
+			return err
+		}
+		// delete user role
+		err = rs.db.Where("role_id = ?", role.Id).Delete(&domain.UserRole{}).Error
+		if err != nil {
+			return err
+		}
+		// delete role permission
+		err = rs.db.Where("role_id = ?", role.Id).Delete(&domain.RolePermission{}).Error
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return e
 }
 
 func (rs *RoleService) DeleteRoles(roleIds []int) error {
@@ -98,7 +118,7 @@ func (rs *RoleService) DeleteRoles(roleIds []int) error {
 	return e
 }
 
-func (rs *RoleService) SaveRolePermissions(roleId int, pemIds []int) error {
+func (rs *RoleService) SaveRolePermissions(userId string, roleId int, pemIds []int) error {
 
 	e := rs.db.Transaction(func(tx *gorm.DB) error {
 		role := domain.Role{}
@@ -118,31 +138,25 @@ func (rs *RoleService) SaveRolePermissions(roleId int, pemIds []int) error {
 			if err != nil || int(permissionCount) != len(pemIds) {
 				return errors.New("权限列表异常，包含不存在的权限")
 			}
-			rolePerms := []domain.RolePermission{}
-			err = rs.db.Model(&domain.RolePermission{}).Where("role_Id = ?", roleId).Find(&rolePerms).Error
-			if err != nil {
-				log.Printf("获取角色%d权限异常", roleId)
-				return err
-			}
-			err = rs.db.Model(&domain.RolePermission{}).Delete(&rolePerms).Error
+			err = rs.db.Where("role_id = ? ", roleId).Delete(&domain.RolePermission{}).Error
 			if err != nil {
 				log.Printf("删除角色%d权限异常", roleId)
 				return err
 			}
-			var rolePermis []domain.RolePermission
+			var rolePermits []domain.RolePermission
 			for _, permissionId := range pemIds {
 				temp := domain.RolePermission{
 					RoleId:          roleId,
 					PermissionId:    permissionId,
-					CreateAccountId: "1", // fixme 登录后修复
-					UpdateAccountId: "1",
+					CreateAccountId: userId,
+					CreateAt:        time.Now().UnixMilli(),
 				}
-				rolePermis = append(rolePermis, temp)
+				rolePermits = append(rolePermits, temp)
 			}
 
 			err = rs.db.
 				Model(&domain.RolePermission{}).
-				Save(rolePermis).Error
+				Save(rolePermits).Error
 			return err
 		})
 		return err
@@ -153,6 +167,11 @@ func (rs *RoleService) SaveRolePermissions(roleId int, pemIds []int) error {
 
 func (rs *RoleService) GetUserRolePermissions(permSvc PermissionService, roleId int) ([]*resp.RolePermissionDetail, error) {
 
+	role := &domain.Role{}
+	e := rs.db.Where("id = ?", roleId).First(role).Error
+	if role.Id == 0 && e != nil {
+		return nil, errors.New("角色不存在")
+	}
 	// 查询所有权限信息
 	permAll, err := permSvc.GetAllPermissions()
 	if err != nil {
@@ -173,7 +192,7 @@ func (rs *RoleService) GetUserRolePermissions(permSvc PermissionService, roleId 
 		found := false
 		for _, v2 := range rolePerms {
 			if v1.Id == v2.PermissionId {
-				rolePermDeail := &resp.RolePermissionDetail{
+				rolePermDetail := &resp.RolePermissionDetail{
 					Id:       v1.Id,
 					Name:     v1.Name,
 					Route:    v1.Route,
@@ -182,14 +201,14 @@ func (rs *RoleService) GetUserRolePermissions(permSvc PermissionService, roleId 
 					Sequence: v1.Sequence,
 					Enable:   true,
 				}
-				result = append(result, *rolePermDeail)
+				result = append(result, *rolePermDetail)
 				found = true
 				break
 			}
 
 		}
 		if !found {
-			rolePermDeail := &resp.RolePermissionDetail{
+			rolePermDetail := &resp.RolePermissionDetail{
 				Id:       v1.Id,
 				Name:     v1.Name,
 				Route:    v1.Route,
@@ -199,11 +218,11 @@ func (rs *RoleService) GetUserRolePermissions(permSvc PermissionService, roleId 
 			}
 
 			if v1.ParentId == 0 {
-				rolePermDeail.Enable = true
+				rolePermDetail.Enable = true
 			} else {
-				rolePermDeail.Enable = false
+				rolePermDetail.Enable = false
 			}
-			result = append(result, *rolePermDeail)
+			result = append(result, *rolePermDetail)
 		}
 	}
 	retVal, err := permSvc.GetRolePermissionsTree(result)
@@ -211,4 +230,46 @@ func (rs *RoleService) GetUserRolePermissions(permSvc PermissionService, roleId 
 		return nil, err
 	}
 	return retVal, err
+}
+
+func (rs *RoleService) GetUserFullyRolesAndPermissions(accountId string, permissionSvc PermissionService) ([]*resp.UserRolePermissions, error) {
+	var roles []domain.Role
+	roles, err := rs.getUserRoles(accountId)
+	if err != nil {
+		return nil, err
+	}
+	var userRolePermits []*resp.UserRolePermissions
+	for _, v := range roles {
+		permissions, err := rs.GetUserRolePermissions(permissionSvc, v.Id)
+		if err != nil {
+			return nil, err
+		}
+		item := &resp.UserRolePermissions{
+			RoleId:       v.Id,
+			RoleName:     v.Name,
+			RoleCreateAt: v.CreateAt,
+			Permissions:  permissions,
+		}
+		userRolePermits = append(userRolePermits, item)
+	}
+	return userRolePermits, err
+
+}
+
+func (rs *RoleService) getUserRoles(accountId string) ([]domain.Role, error) {
+	var userRoles []domain.UserRole
+	err := rs.db.Model(&domain.UserRole{}).Where("account_id = ?", accountId).Find(&userRoles).Error
+	if err != nil {
+		return nil, err
+	}
+	var roleIds = make([]int, len(userRoles))
+	for _, role := range userRoles {
+		roleIds = append(roleIds, role.RoleId)
+	}
+	var roles []domain.Role
+	err = rs.db.Model(&domain.Role{}).Where("id in (?)", roleIds).Find(&roles).Error
+	if err != nil {
+		return nil, err
+	}
+	return roles, nil
 }

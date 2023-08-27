@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/tianailu/adminserver/api/admin/content/domain"
+	"github.com/tianailu/adminserver/api/admin/content_mgr/domain"
 	"github.com/tianailu/adminserver/pkg/db/mysql"
 	"gorm.io/gorm"
 )
@@ -12,7 +12,7 @@ type GreetService struct {
 
 func NewGreetService() *GreetService {
 	return &GreetService{
-		db: mysql.GetDb(),
+		db: mysql.GetDB(),
 	}
 }
 

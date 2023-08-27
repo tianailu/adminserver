@@ -1,13 +1,13 @@
 package controller
 
 import (
+	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
 
-	"github.com/labstack/echo"
-	"github.com/tianailu/adminserver/api/admin/content/domain"
-	"github.com/tianailu/adminserver/api/admin/content/domain/req"
-	"github.com/tianailu/adminserver/api/admin/content/service"
+	"github.com/tianailu/adminserver/api/admin/content_mgr/domain"
+	"github.com/tianailu/adminserver/api/admin/content_mgr/domain/req"
+	"github.com/tianailu/adminserver/api/admin/content_mgr/service"
 	"github.com/tianailu/adminserver/pkg/common"
 )
 
@@ -23,7 +23,7 @@ func NewGreetController() *GreetController {
 
 /*
 add greet
-POST /content-mgr/greets
+POST /content_mgr-mgr/greets
 */
 func (gctl *GreetController) SaveGreet(c echo.Context) error {
 	var reqParam req.SaveOrUpdateGreetDto
@@ -32,7 +32,7 @@ func (gctl *GreetController) SaveGreet(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, common.ResponseBadRequest())
 	}
 	if len(reqParam.Content) == 0 {
-		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg("greet content is required"))
+		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg("greet content_mgr is required"))
 	}
 	greet := domain.Greet{
 		Content: reqParam.Content,
@@ -46,7 +46,7 @@ func (gctl *GreetController) SaveGreet(c echo.Context) error {
 
 /*
 update greet
-PUT /content-mgr/greets/{id}
+PUT /content_mgr-mgr/greets/{id}
 */
 func (gctl *GreetController) UpdateGreet(c echo.Context) error {
 	var reqParam req.SaveOrUpdateGreetDto
@@ -60,7 +60,7 @@ func (gctl *GreetController) UpdateGreet(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, common.ResponseBadRequest())
 	}
 	if len(reqParam.Content) == 0 {
-		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg("greet content is required"))
+		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg("greet content_mgr is required"))
 	}
 	greet := domain.Greet{
 		Content: reqParam.Content,
@@ -75,7 +75,7 @@ func (gctl *GreetController) UpdateGreet(c echo.Context) error {
 
 /*
 delete greet by id
-DELETE /content-mgr/greets/{id}
+DELETE /content_mgr-mgr/greets/{id}
 */
 func (gctl *GreetController) DeleteGreetById(c echo.Context) error {
 	return nil
@@ -83,7 +83,7 @@ func (gctl *GreetController) DeleteGreetById(c echo.Context) error {
 
 /*
 batch delete greets
-POST /content-mgr/greets/delete
+POST /content_mgr-mgr/greets/delete
 */
 func (gctl *GreetController) BatchDeleteGreets(c echo.Context) error {
 	return nil
@@ -91,7 +91,7 @@ func (gctl *GreetController) BatchDeleteGreets(c echo.Context) error {
 
 /*
 enable greet
-PUT /content-mgr/greets/{id}/enable
+PUT /content_mgr-mgr/greets/{id}/enable
 */
 func (gctl *GreetController) EnableGreet(c echo.Context) error {
 	return nil
@@ -99,7 +99,7 @@ func (gctl *GreetController) EnableGreet(c echo.Context) error {
 
 /*
 disable greet
-PUT /content-mgr/greets/{id}/disable
+PUT /content_mgr-mgr/greets/{id}/disable
 */
 func (gctl *GreetController) DisableGreet(c echo.Context) error {
 	return nil
@@ -107,7 +107,7 @@ func (gctl *GreetController) DisableGreet(c echo.Context) error {
 
 /*
 pagination get greets list, search by keyword
-POST /content-mgr/greets
+POST /content_mgr-mgr/greets
 */
 func (gctl *GreetController) GetGreetsPage(c echo.Context) error {
 	return nil

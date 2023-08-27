@@ -18,3 +18,10 @@ type RolePermissionDetail struct {
 	Enable   bool                    `json:"enable" gorm:"-"` // 当parentId == 0 时，默认为true
 	Child    []*RolePermissionDetail `json:"child" gorm:"-"`
 }
+
+type UserRolePermissions struct {
+	RoleId       int                     `json:"roleId"`
+	RoleName     string                  `json:"roleName"`
+	RoleCreateAt int64                   `json:"roleCreateAt"`
+	Permissions  []*RolePermissionDetail `json:"permissions"`
+}

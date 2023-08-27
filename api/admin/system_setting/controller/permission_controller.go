@@ -7,7 +7,7 @@ package controller
 // 	"github.com/labstack/echo"
 // 	"github.com/tianailu/adminserver/api/admin/systemsetting/domain"
 // 	"github.com/tianailu/adminserver/api/admin/systemsetting/service"
-// 	"github.com/tianailu/adminserver/pkg/common"
+// 	"github.com/tianailu/adminserver/pkg/utils"
 // 	"github.com/tianailu/adminserver/pkg/db/mysql"
 // )
 
@@ -33,7 +33,7 @@ package controller
 // 		Order("`order` ASC").
 // 		Find(&permissions).Error
 // 	if err != nil {
-// 		return c.JSON(http.StatusBadRequest, common.ResponseBadRequest())
+// 		return c.JSON(http.StatusBadRequest, utils.ResponseBadRequest())
 // 	}
 // 	log.Println("permissions :", permissions)
 
@@ -56,6 +56,6 @@ package controller
 // 	}
 // 	// 获取角色权限
 
-// 	return c.JSON(http.StatusOK, common.ResponseSuccessWithData(result))
+// 	return c.JSON(http.StatusOK, utils.ResponseSuccessWithData(result))
 
 // }
