@@ -96,7 +96,7 @@ func (r *FindCompanionRepo) FindAllCompanionType(ctx context.Context, status int
 	return result, true, nil
 }
 
-func (r *FindCompanionRepo) FindCompanionTypeByIds(ctx context.Context, ids []uint) ([]*models.CompanionType, bool, error) {
+func (r *FindCompanionRepo) FindCompanionTypeByIds(ctx context.Context, ids []int64) ([]*models.CompanionType, bool, error) {
 	var result []*models.CompanionType
 
 	err := r.db.WithContext(ctx).Model(&models.CompanionType{}).Where("id IN ?", ids).Find(&result).Error

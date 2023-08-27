@@ -6,8 +6,10 @@ import (
 	"github.com/tianailu/adminserver/api/admin/user/common/enum"
 	"github.com/tianailu/adminserver/api/admin/user/models"
 	"github.com/tianailu/adminserver/pkg/common"
+	utilCommon "github.com/tianailu/adminserver/pkg/utility/common"
 	"github.com/tianailu/adminserver/pkg/utility/page"
 	"gorm.io/gorm"
+	"time"
 	"unicode/utf8"
 )
 
@@ -22,6 +24,12 @@ func NewUserRepo(db *gorm.DB) *UserRepo {
 }
 
 func (r *UserRepo) Create(ctx context.Context, user *models.User) error {
+	now := time.Time{}
+	user.CreatedAt = now.UnixMilli()
+	user.UpdatedAt = now.UnixMilli()
+	user.DeletedAt = sql.NullInt64{Valid: false}
+	user.IsDel = 0
+
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		return tx.Create(user).Error
 	})
@@ -42,8 +50,7 @@ func (r *UserRepo) Find(ctx context.Context, param *models.UserSearchParam) ([]*
 	db := r.db.WithContext(ctx).Model(&models.User{}).Offset(offset).Limit(size)
 
 	if utf8.RuneCountInString(param.Keywords) > 0 {
-		db = db.Where("user_id LIKE ?", "%"+param.Keywords+"%").
-			Or("name LIKE ?", "%"+param.Keywords+"%")
+		db = db.Where("user_id = ? OR name LIKE ?", utilCommon.ToInt(param.Keywords), "%"+param.Keywords+"%")
 	}
 	if param.Gender > 0 {
 		db = db.Where("gender = ?", param.Gender)
@@ -60,6 +67,9 @@ func (r *UserRepo) Find(ctx context.Context, param *models.UserSearchParam) ([]*
 	if param.AuditStatus > 0 {
 		db = db.Where("vip_tag = ?", param.AuditStatus)
 	}
+	if param.Income > 0 {
+		db = db.Where("income = ?", param.Income)
+	}
 	if param.Recommend > 0 {
 		db = db.Where("recommend = ?", param.Recommend)
 	}
@@ -69,6 +79,7 @@ func (r *UserRepo) Find(ctx context.Context, param *models.UserSearchParam) ([]*
 	if param.RegisterSource > 0 {
 		db = db.Where("register_source = ?", param.RegisterSource)
 	}
+	db = db.Where("created_at BETWEEN ? AND ?", param.RegisterStartAt, param.RegisterEndAt)
 
 	err := db.Find(&list).Error
 	if err != nil {
@@ -177,8 +188,7 @@ func (r *UserRepo) TotalUser(ctx context.Context, param *models.UserSearchParam)
 	db := r.db.WithContext(ctx).Model(&models.User{})
 
 	if utf8.RuneCountInString(param.Keywords) > 0 {
-		db = db.Where("user_id LIKE ?", "%"+param.Keywords+"%").
-			Or("name LIKE ?", "%"+param.Keywords+"%")
+		db = db.Where("user_id = ? OR name LIKE ?", utilCommon.ToInt(param.Keywords), "%"+param.Keywords+"%")
 	}
 	if param.Gender > 0 {
 		db = db.Where("gender = ?", param.Gender)
@@ -195,6 +205,9 @@ func (r *UserRepo) TotalUser(ctx context.Context, param *models.UserSearchParam)
 	if param.AuditStatus > 0 {
 		db = db.Where("vip_tag = ?", param.AuditStatus)
 	}
+	if param.Income > 0 {
+		db = db.Where("income = ?", param.Income)
+	}
 	if param.Recommend > 0 {
 		db = db.Where("recommend = ?", param.Recommend)
 	}
@@ -204,6 +217,7 @@ func (r *UserRepo) TotalUser(ctx context.Context, param *models.UserSearchParam)
 	if param.RegisterSource > 0 {
 		db = db.Where("register_source = ?", param.RegisterSource)
 	}
+	db = db.Where("created_at BETWEEN ? AND ?", param.RegisterStartAt, param.RegisterEndAt)
 
 	err := db.Count(&count).Error
 	if err != nil {

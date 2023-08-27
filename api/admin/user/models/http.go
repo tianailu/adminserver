@@ -1,7 +1,7 @@
 package models
 
 type UserDetail struct {
-	Id               uint    `json:"id,optional"`
+	Id               int64   `json:"id,optional"`
 	AccountId        string  `json:"account_id,optional"`
 	UserId           int64   `json:"user_id,optional"`
 	Name             string  `json:"name,optional"`
@@ -22,7 +22,7 @@ type UserDetail struct {
 	MobilePhone      string  `json:"mobile_phone,optional"`
 	IdentityTag      int8    `json:"identity_tag,optional"`
 	IsVip            int8    `json:"is_vip,optional"`
-	VipTag           int8    `json:"vip_tag,optional"`
+	VipTag           int32   `json:"vip_tag,optional"`
 	Recommend        int8    `json:"recommend,optional"`
 	RegisterPlace    string  `json:"register_place,optional"`
 	RegisterSource   int8    `json:"register_source,optional"`
@@ -42,10 +42,11 @@ type UserDetail struct {
 type UserSearchParam struct {
 	Keywords        string `query:"keywords,optional"`          // 关键字，用户ID/昵称/用户名
 	Gender          int8   `query:"gender,optional"`            // 性别，取值为[0:全部, 1:男, 2:女]，默认值为0。
-	IdentityTag     int8   `query:"identity_tag,optional"`      // 身份标签，取值为[0:全部, 1:母胎单身, 2:未婚单身, 3:离异无孩, 4:离异带孩, 5:离异不带孩, 6:丧偶]，默认值为0。
+	IdentityTag     int8   `query:"identity_tag,optional"`      // 身份标签，取值为[0:全部, 1:母胎单身, 2:未婚单身, 3:离异无孩, 4:离异带孩, 5:离异不带孩]，默认值为0。
 	IsVip           int8   `query:"is_vip,optional"`            // 是否vip，取值为[0:全部, 1:是, 2:否]，默认值为0。
-	VipTag          int8   `query:"vip_tag,optional"`           // VIP标签
+	VipTag          int32  `query:"vip_tag,optional"`           // VIP标签Id
 	AuditStatus     int8   `query:"audit_status,optional"`      // 基础信息审核状态，取值为[0:全部, 1:待审（首次申请审核）, 2: 再审核（非首次申请审核）, 3:通过, 4:不通过]，默认值为0。
+	Income          int8   `query:"income,optional"`            // 年收入，取值为[0:全部, 1:5-10万, 2:11-20万, 3:21-30万, 4:31-50万, 5:51-100万, 6:101-200万, 7:201-500, 8:501-1000万, 9:1000万+]，默认值为0。
 	Recommend       int8   `query:"recommend,optional"`         // 推荐，取值为[0:全部, 1:是, 2:否]，默认值为0。
 	RegisterPlace   string `query:"register_place,optional"`    // 注册地
 	RegisterSource  int8   `query:"register_source,optional"`   // 注册来源，取值为[0:全部, 1:APP, 2:小程序, 3:群组, 4:二维码, 5:管理后台]，默认值为0。
@@ -62,7 +63,7 @@ type UserListItem struct {
 	AuditStatus                  int8    `json:"audit_status,optional"`
 	IdentityTag                  int8    `json:"identity_tag,optional"`
 	IsVip                        int8    `json:"is_vip,optional"`
-	VipTag                       int8    `json:"vip_tag,optional"`
+	VipTag                       int32   `json:"vip_tag,optional"`
 	RechargeAmount               float32 `json:"recharge_amount,optional"`
 	RemainingCoins               int64   `json:"remaining_coins,optional"`
 	ConsumeCoins                 int64   `json:"consume_coins,optional"`
@@ -104,7 +105,7 @@ type FriendSearchParam struct {
 }
 
 type FriendListItem struct {
-	FriendRequestId     uint   `json:"friend_request_id"`
+	FriendRequestId     int64  `json:"friend_request_id"`
 	SenderUserId        int64  `json:"sender_user_id"`
 	SenderName          string `json:"sender_name"`
 	SenderAvatar        string `json:"sender_avatar"`
@@ -131,7 +132,7 @@ type HeartbeatSearchParam struct {
 }
 
 type HeartbeatListItem struct {
-	HeartbeatRequestId  uint   `json:"heartbeat_request_id"`
+	HeartbeatRequestId  int64  `json:"heartbeat_request_id"`
 	SenderUserId        int64  `json:"sender_user_id"`
 	SenderName          string `json:"sender_name"`
 	SenderAvatar        string `json:"sender_avatar"`
@@ -159,7 +160,7 @@ type FindCompanionSearchParam struct {
 }
 
 type FindCompanionListItem struct {
-	FindCompanionActivityId uint   `json:"find_companion_activity_id"`
+	FindCompanionActivityId int64  `json:"find_companion_activity_id"`
 	SenderUserId            int64  `json:"sender_user_id"`
 	SenderName              string `json:"sender_name"`
 	SenderAvatar            string `json:"sender_avatar"`
@@ -184,7 +185,7 @@ type CompanionTypeSearchParam struct {
 }
 
 type CompanionTypeListItem struct {
-	CompanionTypeId   uint   `json:"companion_type_id"`
+	CompanionTypeId   int64  `json:"companion_type_id"`
 	CompanionTag      int8   `json:"companion_tag"`
 	CompanionTypeName string `json:"companion_type_name"`
 	Status            int8   `json:"status"`

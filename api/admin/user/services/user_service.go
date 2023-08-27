@@ -12,7 +12,6 @@ import (
 	"github.com/tianailu/adminserver/pkg/db/redis"
 	pkgError "github.com/tianailu/adminserver/pkg/errors"
 	"github.com/tianailu/adminserver/pkg/utility/json"
-	"github.com/tianailu/adminserver/pkg/utility/times"
 	"math/rand"
 	"strconv"
 	"time"
@@ -101,7 +100,7 @@ func (l *UserService) Find(ctx context.Context, param *models.UserSearchParam) (
 			Income:         user.Income,
 			RegisterPlace:  user.RegisterPlace,
 			RegisterSource: user.RegisterSource,
-			RegisterTime:   user.CreatedAt.UnixMilli(),
+			RegisterTime:   user.CreatedAt,
 			DurationOfUse:  user.DurationOfUse,
 		}
 
@@ -151,7 +150,7 @@ func (l *UserService) FindUserDetail(ctx context.Context, userId int64) (*models
 		Name:             user.Name,
 		Avatar:           user.Avatar,
 		Gender:           user.Gender,
-		Birthday:         times.ToMillisecond(user.Birthday),
+		Birthday:         user.Birthday,
 		Constellation:    user.Constellation,
 		Height:           user.Height,
 		Weight:           user.Weight,
@@ -165,7 +164,7 @@ func (l *UserService) FindUserDetail(ctx context.Context, userId int64) (*models
 		VipTag:           user.VipTag,
 		RegisterPlace:    user.RegisterPlace,
 		RegisterSource:   user.RegisterSource,
-		RegisterTime:     times.ToMillisecond(user.CreatedAt),
+		RegisterTime:     user.CreatedAt,
 		AuditStatus:      user.AuditStatus,
 		UserStatus:       user.UserStatus,
 		TotalUsageTime:   0, // TODO 总使用时长
@@ -198,7 +197,7 @@ func (l *UserService) AddUser(ctx context.Context, userDetail *models.UserDetail
 		Name:           userDetail.Name,
 		Avatar:         userDetail.Avatar,
 		Gender:         userDetail.Gender,
-		Birthday:       times.ToSqlNullTime(userDetail.Birthday),
+		Birthday:       userDetail.Birthday,
 		Constellation:  userDetail.Constellation,
 		Height:         userDetail.Height,
 		Weight:         userDetail.Weight,

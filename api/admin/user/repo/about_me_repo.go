@@ -4,6 +4,7 @@ import (
 	"github.com/tianailu/adminserver/api/admin/user/models"
 	"golang.org/x/net/context"
 	"gorm.io/gorm"
+	"time"
 )
 
 type AboutMeRepo struct {
@@ -17,6 +18,10 @@ func NewAboutMeRepo(db *gorm.DB) *AboutMeRepo {
 }
 
 func (r *AboutMeRepo) Create(ctx context.Context, aboutMe *models.AboutMe) error {
+	now := time.Time{}
+	aboutMe.CreatedAt = now.UnixMilli()
+	aboutMe.UpdatedAt = now.UnixMilli()
+
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		return tx.Create(aboutMe).Error
 	})

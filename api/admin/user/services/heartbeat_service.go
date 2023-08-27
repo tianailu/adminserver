@@ -7,7 +7,6 @@ import (
 	"github.com/tianailu/adminserver/api/admin/user/repo"
 	"github.com/tianailu/adminserver/pkg/db/mysql"
 	"github.com/tianailu/adminserver/pkg/utility/json"
-	"github.com/tianailu/adminserver/pkg/utility/times"
 )
 
 type HeartbeatService struct {
@@ -45,13 +44,13 @@ func (l *HeartbeatService) Find(ctx context.Context, param *models.HeartbeatSear
 			SenderAvatar:        heartbeat.SenderAvatar,
 			SenderGender:        heartbeat.SenderGender,
 			SenderIdentityTag:   heartbeat.SenderIdentityTag,
-			RequestTime:         times.ToMillisecond(heartbeat.RequestTime),
+			RequestTime:         heartbeat.RequestTime,
 			ReceiverUserId:      heartbeat.ReceiverUserId,
 			ReceiverName:        heartbeat.ReceiverName,
 			ReceiverAvatar:      heartbeat.ReceiverAvatar,
 			ReceiverGender:      heartbeat.ReceiverGender,
 			ReceiverIdentityTag: heartbeat.ReceiverIdentityTag,
-			ReceiverConfirmTime: times.ToMillisecond(heartbeat.ReceiverConfirmTime),
+			ReceiverConfirmTime: heartbeat.ReceiverConfirmTime.Int64,
 			MatchingStatus:      heartbeat.MatchingStatus,
 		})
 	}

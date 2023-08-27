@@ -81,7 +81,7 @@ func (l *FindCompanionService) FindCompanionTypeList(ctx context.Context, param 
 			CompanionTag:      companionType.Tag,
 			CompanionTypeName: companionType.Name,
 			Status:            companionType.Status,
-			CreateAt:          times.ToMillisecond(companionType.CreatedAt),
+			CreateAt:          companionType.CreatedAt,
 		})
 	}
 
@@ -110,8 +110,8 @@ func (l *FindCompanionService) UpdateCompanionTypeList(ctx context.Context, comp
 		return nil
 	}
 
-	ids := make([]uint, 0)
-	idToCT := make(map[uint]*models.CompanionTypeListItem)
+	ids := make([]int64, 0)
+	idToCT := make(map[int64]*models.CompanionTypeListItem)
 	for _, ct := range companionTypes {
 		ids = append(ids, ct.CompanionTypeId)
 		idToCT[ct.CompanionTypeId] = ct
