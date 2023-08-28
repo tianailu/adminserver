@@ -11,6 +11,7 @@ import (
 	"github.com/tianailu/adminserver/pkg/db/mysql"
 	"github.com/tianailu/adminserver/pkg/db/redis"
 	pkgError "github.com/tianailu/adminserver/pkg/errors"
+	"github.com/tianailu/adminserver/pkg/utility/business"
 	"github.com/tianailu/adminserver/pkg/utility/json"
 	"math/rand"
 	"strconv"
@@ -58,6 +59,7 @@ func (l *UserService) Find(ctx context.Context, param *models.UserSearchParam) (
 
 	totalUser, err := l.userRepo.TotalUser(ctx, param)
 	if err != nil {
+		l.Errorf("Failed to calculate the total count of users, param: %s, err %s", json.ToJsonString(param), err)
 		return result, 0, 0, 0, err
 	}
 
@@ -101,7 +103,7 @@ func (l *UserService) Find(ctx context.Context, param *models.UserSearchParam) (
 			RegisterPlace:  user.RegisterPlace,
 			RegisterSource: user.RegisterSource,
 			RegisterTime:   user.CreatedAt,
-			DurationOfUse:  user.DurationOfUse,
+			TotalUsageTime: user.TotalUsageTime,
 		}
 
 		friendStat := userIdToFriendStat[user.UserId]
@@ -198,7 +200,7 @@ func (l *UserService) AddUser(ctx context.Context, userDetail *models.UserDetail
 		Avatar:         userDetail.Avatar,
 		Gender:         userDetail.Gender,
 		Birthday:       userDetail.Birthday,
-		Constellation:  userDetail.Constellation,
+		Constellation:  business.GetZodiacSign(time.UnixMilli(userDetail.Birthday)).Name,
 		Height:         userDetail.Height,
 		Weight:         userDetail.Weight,
 		Education:      userDetail.Education,
@@ -211,10 +213,16 @@ func (l *UserService) AddUser(ctx context.Context, userDetail *models.UserDetail
 		Hometown:       userDetail.Hometown,
 		MobilePhone:    userDetail.MobilePhone,
 		IdentityTag:    userDetail.IdentityTag,
+		IsVip:          userDetail.IsVip,
 		VipTag:         userDetail.VipTag,
 		RegisterPlace:  userDetail.RegisterPlace,
-		RegisterSource: userDetail.RegisterSource,
-		DurationOfUse:  0,
+		RegisterSource: 5, // 默认注册来源为管理后台
+		TotalUsageTime: 0, // 默认使用时长为0
+		IsRealNameAuth: 1, // 默认已通过实名认证
+		IsWorkAuth:     1, // 默认已通过工作认证
+		IsEduAuth:      1, // 默认已通过学历认证
+		AuditStatus:    2, // 默认已通过基础信息审核
+		UserStatus:     1, // 默认用户处于正常状态
 	}
 
 	if err := l.userRepo.Create(ctx, user); err != nil {

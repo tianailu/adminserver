@@ -35,7 +35,7 @@ type (
 		Recommend      int8          `json:"recommend" gorm:"not null;default:0;comment:推荐设置，取值为[0:未选择, 1:是, 2:否]"`
 		RegisterPlace  string        `json:"register_place" gorm:"size:12;comment:注册地（国家地理编码）"`
 		RegisterSource int8          `json:"register_source" gorm:"comment:注册来源，取值为[0:未知, 1:APP, 2:小程序, 3:群组, 4:二维码, 5:管理后台]"`
-		DurationOfUse  int64         `json:"duration_of_use" gorm:"comment:使用时长，单位秒"`
+		TotalUsageTime int64         `json:"total_usage_time" gorm:"comment:使用时长，单位秒"`
 		IsRealNameAuth int8          `json:"is_rn_auth" gorm:"default:0;comment:是否完成实名认证，0:未认证，1:已通过认证"`
 		IsWorkAuth     int8          `json:"is_work_auth" gorm:"default:0;comment:是否完成工作认证，0:未认证，1:已通过认证"`
 		IsEduAuth      int8          `json:"is_edu_auth" gorm:"default:0;comment:是否完成学历认证，0:未认证，1:已通过认证"`

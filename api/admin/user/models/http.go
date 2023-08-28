@@ -1,83 +1,47 @@
 package models
 
-type UserDetail struct {
-	Id               int64   `json:"id,optional"`
-	AccountId        string  `json:"account_id,optional"`
-	UserId           int64   `json:"user_id,optional"`
-	Name             string  `json:"name,optional"`
-	Avatar           string  `json:"avatar,optional"`
-	Gender           int8    `json:"gender,optional"`
-	Birthday         int64   `json:"birthday,optional"`
-	Constellation    string  `json:"constellation,optional"`
-	Height           float32 `json:"height,optional"`
-	Weight           float32 `json:"weight,optional"`
-	Education        int8    `json:"education,optional"`
-	EduStatus        int8    `json:"edu_status,optional"`
-	School           string  `json:"school,optional"`
-	Work             int     `json:"work,optional"`
-	Company          string  `json:"company,optional"`
-	Income           int8    `json:"income,optional"`
-	Residence        string  `json:"residence,optional"`
-	Hometown         string  `json:"hometown,optional"`
-	MobilePhone      string  `json:"mobile_phone,optional"`
-	IdentityTag      int8    `json:"identity_tag,optional"`
-	IsVip            int8    `json:"is_vip,optional"`
-	VipTag           int32   `json:"vip_tag,optional"`
-	Recommend        int8    `json:"recommend,optional"`
-	RegisterPlace    string  `json:"register_place,optional"`
-	RegisterSource   int8    `json:"register_source,optional"`
-	RegisterTime     int64   `json:"register_time,optional"`
-	AuditStatus      int8    `json:"audit_status,optional"`
-	UserStatus       int8    `json:"user_status,optional"`
-	TotalUsageTime   int64   `json:"total_usage_time,optional"`
-	Habit            string  `json:"habit,optional"`
-	ConsumptionView  string  `json:"consumption_view,optional"`
-	FamilyBackground string  `json:"family_background,optional"`
-	Interest         string  `json:"interest,optional"`
-	LoveView         string  `json:"love_view,optional"`
-	TargetAppearance string  `json:"target_appearance,optional"`
-	BeImpressed      string  `json:"be_impressed,optional"`
-}
-
 type UserSearchParam struct {
-	Keywords        string `query:"keywords,optional"`          // 关键字，用户ID/昵称/用户名
-	Gender          int8   `query:"gender,optional"`            // 性别，取值为[0:全部, 1:男, 2:女]，默认值为0。
-	IdentityTag     int8   `query:"identity_tag,optional"`      // 身份标签，取值为[0:全部, 1:母胎单身, 2:未婚单身, 3:离异无孩, 4:离异带孩, 5:离异不带孩]，默认值为0。
-	IsVip           int8   `query:"is_vip,optional"`            // 是否vip，取值为[0:全部, 1:是, 2:否]，默认值为0。
-	VipTag          int32  `query:"vip_tag,optional"`           // VIP标签Id
-	AuditStatus     int8   `query:"audit_status,optional"`      // 基础信息审核状态，取值为[0:全部, 1:待审（首次申请审核）, 2: 再审核（非首次申请审核）, 3:通过, 4:不通过]，默认值为0。
-	Income          int8   `query:"income,optional"`            // 年收入，取值为[0:全部, 1:5-10万, 2:11-20万, 3:21-30万, 4:31-50万, 5:51-100万, 6:101-200万, 7:201-500, 8:501-1000万, 9:1000万+]，默认值为0。
-	Recommend       int8   `query:"recommend,optional"`         // 推荐，取值为[0:全部, 1:是, 2:否]，默认值为0。
-	RegisterPlace   string `query:"register_place,optional"`    // 注册地
-	RegisterSource  int8   `query:"register_source,optional"`   // 注册来源，取值为[0:全部, 1:APP, 2:小程序, 3:群组, 4:二维码, 5:管理后台]，默认值为0。
-	RegisterStartAt int64  `query:"register_start_at,optional"` // 开始时间，时间戳，单位毫秒
-	RegisterEndAt   int64  `query:"register_end_at,optional"`   // 结束时间，时间戳，单位毫秒
-	PageNum         int    `query:"page_num,optional"`          // 页码，默认值为1。
-	PageSize        int    `query:"page_size,optional"`         // 每页大小，默认值为20。
+	Keywords        string `query:"keywords,optional"`                               // 关键字，用户ID/昵称/用户名
+	Gender          int8   `query:"gender,optional" validate:"lte=2,gte=0"`          // 性别，取值为[0:全部, 1:男, 2:女]，默认值为0。
+	IdentityTag     int8   `query:"identity_tag,optional" validate:"lte5,gte=0"`     // 身份标签，取值为[0:全部, 1:母胎单身, 2:未婚单身, 3:离异无孩, 4:离异带孩, 5:离异不带孩]，默认值为0。
+	IsVip           int8   `query:"is_vip,optional" validate:"lte=2,gte=0"`          // 是否vip，取值为[0:全部, 1:是, 2:否]，默认值为0。
+	VipTag          int32  `query:"vip_tag,optional" validate:"gte=0"`               // VIP标签Id
+	AuditStatus     int8   `query:"audit_status,optional" validate:"lte=4,gte=0"`    // 基础信息审核状态，取值为[0:全部, 1:待审（首次申请审核）, 2: 再审核（非首次申请审核）, 3:通过, 4:不通过]，默认值为0。
+	Income          int8   `query:"income,optional" validate:"lte=9,gte=0"`          // 年收入，取值为[0:全部, 1:5-10万, 2:11-20万, 3:21-30万, 4:31-50万, 5:51-100万, 6:101-200万, 7:201-500, 8:501-1000万, 9:1000万+]，默认值为0。
+	Recommend       int8   `query:"recommend,optional" validate:"lte=2,gte=0"`       // 推荐，取值为[0:全部, 1:是, 2:否]，默认值为0。
+	RegisterPlace   string `query:"register_place,optional"`                         // 注册地
+	RegisterSource  int8   `query:"register_source,optional" validate:"lte=5,gte=0"` // 注册来源，取值为[0:全部, 1:APP, 2:小程序, 3:群组, 4:二维码, 5:管理后台]，默认值为0。
+	RegisterStartAt int64  `query:"register_start_at,optional"`                      // 开始时间，时间戳，单位毫秒
+	RegisterEndAt   int64  `query:"register_end_at,optional"`                        // 结束时间，时间戳，单位毫秒
+	PageNum         int    `query:"page_num,optional" validate:"gte=0"`              // 页码，默认值为1。
+	PageSize        int    `query:"page_size,optional" validate:"gte=0"`             // 每页大小，默认值为20。
 }
 
 type UserListItem struct {
-	UserId                       int64   `json:"user_id,optional"`
-	Name                         string  `json:"name,optional"`
-	Gender                       int8    `json:"gender,optional"`
-	AuditStatus                  int8    `json:"audit_status,optional"`
-	IdentityTag                  int8    `json:"identity_tag,optional"`
-	IsVip                        int8    `json:"is_vip,optional"`
-	VipTag                       int32   `json:"vip_tag,optional"`
-	RechargeAmount               float32 `json:"recharge_amount,optional"`
-	RemainingCoins               int64   `json:"remaining_coins,optional"`
-	ConsumeCoins                 int64   `json:"consume_coins,optional"`
-	Income                       int8    `json:"income,optional"`
-	RegisterPlace                string  `json:"register_place,optional"`
-	RegisterSource               int8    `json:"register_source,optional"`
-	RegisterTime                 int64   `json:"register_time,optional"`
-	DurationOfUse                int64   `json:"duration_of_use,optional"`
-	FriendRequestCount           int64   `json:"friend_request_count,optional"`
-	FriendRequestSuccessCount    int64   `json:"friend_request_success_count,optional"`
-	HeartbeatRequestCount        int64   `json:"heartbeat_request_count,optional"`
-	HeartbeatRequestSuccessCount int64   `json:"heartbeat_request_success_count,optional"`
-	FollowCount                  int64   `json:"follow_count,optional"`
-	FansCount                    int64   `json:"fans_count,optional"`
+	UserId                         int64   `json:"user_id,optional"`                            // 用户ID
+	Name                           string  `json:"name,optional"`                               // 昵称
+	Gender                         int8    `json:"gender,optional"`                             // 性别
+	AuditStatus                    int8    `json:"audit_status,optional"`                       // 审核状态
+	IdentityTag                    int8    `json:"identity_tag,optional"`                       // 身份标签/情感状态
+	IsVip                          int8    `json:"is_vip,optional"`                             // 是否Vip
+	VipTag                         int32   `json:"vip_tag,optional"`                            // Vip标签
+	RechargeAmount                 float32 `json:"recharge_amount,optional"`                    // 充值金额
+	RemainingCoins                 int64   `json:"remaining_coins,optional"`                    // 剩余金币
+	ConsumeCoins                   int64   `json:"consume_coins,optional"`                      // 消耗金币
+	Income                         int8    `json:"income,optional"`                             // 年收入
+	RegisterPlace                  string  `json:"register_place,optional"`                     // 注册地
+	RegisterSource                 int8    `json:"register_source,optional"`                    // 注册来源
+	RegisterTime                   int64   `json:"register_time,optional"`                      // 注册时间
+	TotalUsageTime                 int64   `json:"total_usage_time,optional"`                   // 使用时长
+	FriendRequestCount             int64   `json:"friend_request_count,optional"`               // 申请认识数量/发起好友申请数量
+	FriendRequestSuccessCount      int64   `json:"friend_request_success_count,optional"`       // 申请认识成功数量/成为好友数量
+	HeartbeatRequestCount          int64   `json:"heartbeat_request_count,optional"`            // 发起心动匹配数量
+	HeartbeatRequestSuccessCount   int64   `json:"heartbeat_request_success_count,optional"`    // 心动匹配成功次数
+	FindCompanionRequestCount      int64   `json:"find_companion_request_count,optional"`       // 找搭子次数
+	FindCompanionSuccessMatchCount int64   `json:"find_companion_success_match_count,optional"` // 找搭子匹配成功次数
+	FollowCount                    int64   `json:"follow_count,optional"`                       // 关注用户数量
+	FansCount                      int64   `json:"fans_count,optional"`                         // 被关注数量/粉丝数量
+	ShareCount                     int64   `json:"share_count,optional"`                        // 发起分享次数
 	// TODO 交友相关数据
 }
 
