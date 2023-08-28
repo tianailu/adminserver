@@ -65,9 +65,9 @@ func (ps *PermissionService) GetAllPermissionsTree() (permissions []*resp.Permis
 
 func (ps *PermissionService) GetRolePermissionsTree(permissions []resp.RolePermissionDetail) (r []*resp.RolePermissionDetail, err error) {
 
-	idPermisionnReferMap := make(map[int]*resp.RolePermissionDetail, len(permissions))
+	idPermissionReferMap := make(map[int]*resp.RolePermissionDetail, len(permissions))
 	for idx, elem := range permissions {
-		idPermisionnReferMap[elem.Id] = &permissions[idx]
+		idPermissionReferMap[elem.Id] = &permissions[idx]
 
 	}
 	var result []*resp.RolePermissionDetail
@@ -75,10 +75,10 @@ func (ps *PermissionService) GetRolePermissionsTree(permissions []resp.RolePermi
 	for i := 0; i < len(permissions); i++ {
 		id := permissions[i].Id
 		pId := permissions[i].ParentId
-		if idPermisionnReferMap[id].ParentId == 0 {
-			result = append(result, idPermisionnReferMap[id])
+		if idPermissionReferMap[id].ParentId == 0 {
+			result = append(result, idPermissionReferMap[id])
 		} else {
-			idPermisionnReferMap[pId].Child = append(idPermisionnReferMap[pId].Child, &permissions[i])
+			idPermissionReferMap[pId].Child = append(idPermissionReferMap[pId].Child, &permissions[i])
 		}
 
 	}

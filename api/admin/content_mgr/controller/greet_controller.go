@@ -23,7 +23,7 @@ func NewGreetController() *GreetController {
 
 /*
 add greet
-POST /content_mgr-mgr/greets
+POST /content-mgr/greets
 */
 func (gctl *GreetController) SaveGreet(c echo.Context) error {
 	var reqParam req.SaveOrUpdateGreetDto
@@ -46,7 +46,7 @@ func (gctl *GreetController) SaveGreet(c echo.Context) error {
 
 /*
 update greet
-PUT /content_mgr-mgr/greets/{id}
+PUT /content-mgr/greets/{id}
 */
 func (gctl *GreetController) UpdateGreet(c echo.Context) error {
 	var reqParam req.SaveOrUpdateGreetDto
@@ -75,7 +75,7 @@ func (gctl *GreetController) UpdateGreet(c echo.Context) error {
 
 /*
 delete greet by id
-DELETE /content_mgr-mgr/greets/{id}
+DELETE /content-mgr/greets/{id}
 */
 func (gctl *GreetController) DeleteGreetById(c echo.Context) error {
 	return nil
@@ -83,7 +83,7 @@ func (gctl *GreetController) DeleteGreetById(c echo.Context) error {
 
 /*
 batch delete greets
-POST /content_mgr-mgr/greets/delete
+POST /content-mgr/greets/delete
 */
 func (gctl *GreetController) BatchDeleteGreets(c echo.Context) error {
 	return nil
@@ -91,7 +91,7 @@ func (gctl *GreetController) BatchDeleteGreets(c echo.Context) error {
 
 /*
 enable greet
-PUT /content_mgr-mgr/greets/{id}/enable
+PUT /content-mgr/greets/{id}/enable
 */
 func (gctl *GreetController) EnableGreet(c echo.Context) error {
 	return nil
@@ -99,7 +99,7 @@ func (gctl *GreetController) EnableGreet(c echo.Context) error {
 
 /*
 disable greet
-PUT /content_mgr-mgr/greets/{id}/disable
+PUT /content-mgr/greets/{id}/disable
 */
 func (gctl *GreetController) DisableGreet(c echo.Context) error {
 	return nil
@@ -107,7 +107,7 @@ func (gctl *GreetController) DisableGreet(c echo.Context) error {
 
 /*
 pagination get greets list, search by keyword
-POST /content_mgr-mgr/greets
+POST /content-mgr/greets
 */
 func (gctl *GreetController) GetGreetsPage(c echo.Context) error {
 	return nil

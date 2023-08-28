@@ -35,7 +35,7 @@ func (sfc *SoftwareSettingController) AddOrUpdateSoftwareSetting(c echo.Context)
 
 	content := new(domain.SoftwareSettingRequest)
 	if err := c.Bind(&content); err != nil {
-		return err
+		return c.JSON(http.StatusBadRequest, common.ResponseBadRequest())
 	}
 
 	softwareSetting.Content = content.Content
