@@ -54,7 +54,7 @@ func (tc *TagController) UpdateTag(c echo.Context) error {
 	accountId := utils.GetLoginUserAccountId(c)
 	err = tc.tagSvc.UpdateTag(accountId, tagId, tagName)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg("更新失败"))
+		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg(err.Error()))
 	}
 	return c.JSON(http.StatusOK, common.ResponseSuccess())
 }
@@ -78,7 +78,7 @@ func (tc *TagController) BatchDeleteTags(c echo.Context) error {
 	}
 	err = tc.tagSvc.BatchDeleteTags(tagIds)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg("删除失败"))
+		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg(err.Error()))
 	}
 	return c.JSON(http.StatusOK, common.ResponseSuccess())
 }
@@ -92,7 +92,7 @@ func (tc *TagController) EnableTag(c echo.Context) error {
 	}
 	err = tc.tagSvc.EnableTag(tagId)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg("通过失败"))
+		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg(err.Error()))
 	}
 	return c.JSON(http.StatusOK, common.ResponseSuccess())
 }
@@ -113,13 +113,24 @@ func (tc *TagController) DisableTag(c echo.Context) error {
 
 func (tc *TagController) GetTagsPage(c echo.Context) error {
 	tagReq := req.TagQueryReq{}
-	bindErr := c.Bind(tagReq)
+	bindErr := c.Bind(&tagReq)
 	if bindErr != nil {
 		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg("参数错误"))
 	}
-	data, err := tc.tagSvc.GetTagsPage(tagReq)
+	total, data, err := tc.tagSvc.GetTagsPage(tagReq)
+	var dataResp = common.ResponseData{}
+	iCount, err := strconv.Atoi(strconv.FormatInt(total, 10))
+	dataResp.Total = iCount
+	var pages = 0
+	if iCount%tagReq.PageSize == 0 {
+		pages = iCount / tagReq.PageSize
+	} else {
+		pages = (iCount / tagReq.PageNum) + 1
+	}
+	dataResp.Data = data
+	dataResp.Pages = pages
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, common.ResponseBadRequestWithMsg("关闭失败"))
 	}
-	return c.JSON(http.StatusOK, data)
+	return c.JSON(http.StatusOK, dataResp)
 }
