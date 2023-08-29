@@ -3,7 +3,9 @@ package api
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/tianailu/adminserver/api/admin/auth"
+	"github.com/tianailu/adminserver/api/admin/content_mgr"
 	"github.com/tianailu/adminserver/api/admin/gold"
+	"github.com/tianailu/adminserver/api/admin/system_setting"
 	"github.com/tianailu/adminserver/api/admin/user"
 )
 
@@ -19,6 +21,8 @@ func InitAdminRouter(g *echo.Group) {
 func InitGroupAdminRouter(g *echo.Group) {
 	auth.InitAdminRouter(g)
 	user.InitAdminRouter(g)
+	system_setting.InitGroupAdminRouter(g)
+	content_mgr.InitGroupAdminRouter(g)
 }
 
 // 所有HTTP方法的接口，主要用于简化类型转换

@@ -49,3 +49,49 @@ func ToAnySlice(v any) []any {
 
 	return anyArray
 }
+
+func ResponseSuccessWithMsgAndData(msg string, data interface{}) Response {
+	resp := Response{}
+	if len(msg) == 0 {
+		resp.Msg = "success"
+	}
+	resp.Msg = msg
+	resp.Data = data
+	return resp
+}
+
+func ResponseSuccessWithData(data interface{}) Response {
+	resp := Response{}
+	resp.Msg = "success"
+	resp.Data = data
+	return resp
+}
+
+func ResponseSuccess() ResponseNoData {
+	resp := ResponseNoData{}
+	resp.Msg = "success"
+	return resp
+}
+
+func ResponseBadRequestWithMsg(msg string) ResponseNoData {
+	resp := ResponseNoData{}
+	if len(msg) == 0 {
+		resp.Msg = "bad reuquest"
+	}
+	resp.Status = 1
+	resp.Msg = msg
+	return resp
+}
+func ResponseBadRequest() ResponseNoData {
+	resp := ResponseNoData{}
+	resp.Msg = "bad reuquest"
+	resp.Status = 1
+	return resp
+}
+
+func ResponseCommonFailed() ResponseNoData {
+	resp := ResponseNoData{}
+	resp.Msg = "failed"
+	resp.Status = 2
+	return resp
+}

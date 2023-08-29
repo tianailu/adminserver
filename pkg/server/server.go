@@ -85,6 +85,7 @@ func (ad *AdminServer) Initialize() {
 	mysql.InitMySQLDB(config.MysqlConf)
 	api.InitTable()
 
+	ad.registerRouter()
 	ad.Mode = settings.ConfigEr.String("mode")
 	ad.Scheme = settings.ConfigEr.String("scheme")
 	ad.Host = settings.ConfigEr.String("host")
@@ -109,6 +110,7 @@ func (ad *AdminServer) registerRouter() {
 	api.InitRouter(App)
 	api.InitAdminRouter(admin)
 	api.InitGroupAdminRouter(adminV1)
+	//api.InitSystemSettingRouter(App)
 }
 
 func (ad *AdminServer) Start() {
