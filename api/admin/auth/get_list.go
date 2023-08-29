@@ -24,7 +24,7 @@ func GetAdminList(c echo.Context) error {
 		List     []*AccountInfo `json:"list"`
 	}
 
-	if err := c.Bind(req); err != nil {
+	if err := c.Bind(&req); err != nil {
 		c.Logger().Errorf("Bind req param error: %s", err.Error())
 		return err
 	}

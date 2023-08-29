@@ -97,6 +97,10 @@ func (ad *AdminServer) Initialize() {
 }
 
 func (ad *AdminServer) registerRouter() {
+	App.GET("/", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, "ok")
+	})
+
 	admin := App.Group("/adm")
 	adminV1 := admin.Group("/v1")
 	adminV1.Use(echoJwt.WithConfig(echoJwt.Config{

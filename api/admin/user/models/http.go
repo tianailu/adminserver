@@ -1,20 +1,20 @@
 package models
 
 type UserSearchParam struct {
-	Keywords        string `query:"keywords,optional"`                               // 关键字，用户ID/昵称/用户名
-	Gender          int8   `query:"gender,optional" validate:"lte=2,gte=0"`          // 性别，取值为[0:全部, 1:男, 2:女]，默认值为0。
-	IdentityTag     int8   `query:"identity_tag,optional" validate:"lte5,gte=0"`     // 身份标签，取值为[0:全部, 1:母胎单身, 2:未婚单身, 3:离异无孩, 4:离异带孩, 5:离异不带孩]，默认值为0。
-	IsVip           int8   `query:"is_vip,optional" validate:"lte=2,gte=0"`          // 是否vip，取值为[0:全部, 1:是, 2:否]，默认值为0。
-	VipTag          int32  `query:"vip_tag,optional" validate:"gte=0"`               // VIP标签Id
-	AuditStatus     int8   `query:"audit_status,optional" validate:"lte=4,gte=0"`    // 基础信息审核状态，取值为[0:全部, 1:待审（首次申请审核）, 2: 再审核（非首次申请审核）, 3:通过, 4:不通过]，默认值为0。
-	Income          int8   `query:"income,optional" validate:"lte=9,gte=0"`          // 年收入，取值为[0:全部, 1:5-10万, 2:11-20万, 3:21-30万, 4:31-50万, 5:51-100万, 6:101-200万, 7:201-500, 8:501-1000万, 9:1000万+]，默认值为0。
-	Recommend       int8   `query:"recommend,optional" validate:"lte=2,gte=0"`       // 推荐，取值为[0:全部, 1:是, 2:否]，默认值为0。
-	RegisterPlace   string `query:"register_place,optional"`                         // 注册地
-	RegisterSource  int8   `query:"register_source,optional" validate:"lte=5,gte=0"` // 注册来源，取值为[0:全部, 1:APP, 2:小程序, 3:群组, 4:二维码, 5:管理后台]，默认值为0。
-	RegisterStartAt int64  `query:"register_start_at,optional"`                      // 开始时间，时间戳，单位毫秒
-	RegisterEndAt   int64  `query:"register_end_at,optional"`                        // 结束时间，时间戳，单位毫秒
-	PageNum         int    `query:"page_num,optional" validate:"gte=0"`              // 页码，默认值为1。
-	PageSize        int    `query:"page_size,optional" validate:"gte=0"`             // 每页大小，默认值为20。
+	Keywords        string `query:"keywords"`                               // 关键字，用户ID/昵称/用户名
+	Gender          int8   `query:"gender" validate:"lte=2,gte=0"`          // 性别，取值为[0:全部, 1:男, 2:女]，默认值为0。
+	IdentityTag     int8   `query:"identity_tag" validate:"lte=5,gte=0"`    // 身份标签，取值为[0:全部, 1:母胎单身, 2:未婚单身, 3:离异无孩, 4:离异带孩, 5:离异不带孩]，默认值为0。
+	IsVip           int8   `query:"is_vip" validate:"lte=2,gte=0"`          // 是否vip，取值为[0:全部, 1:是, 2:否]，默认值为0。
+	VipTag          int32  `query:"vip_tag" validate:"gte=0"`               // VIP标签Id
+	AuditStatus     int8   `query:"audit_status" validate:"lte=4,gte=0"`    // 基础信息审核状态，取值为[0:全部, 1:待审（首次申请审核）, 2: 再审核（非首次申请审核）, 3:通过, 4:不通过]，默认值为0。
+	Income          int8   `query:"income" validate:"lte=9,gte=0"`          // 年收入，取值为[0:全部, 1:5-10万, 2:11-20万, 3:21-30万, 4:31-50万, 5:51-100万, 6:101-200万, 7:201-500, 8:501-1000万, 9:1000万+]，默认值为0。
+	Recommend       int8   `query:"recommend" validate:"lte=2,gte=0"`       // 推荐，取值为[0:全部, 1:是, 2:否]，默认值为0。
+	RegisterPlace   string `query:"register_place"`                         // 注册地
+	RegisterSource  int8   `query:"register_source" validate:"lte=5,gte=0"` // 注册来源，取值为[0:全部, 1:APP, 2:小程序, 3:群组, 4:二维码, 5:管理后台]，默认值为0。
+	RegisterStartAt int64  `query:"register_start_at"`                      // 开始时间，时间戳，单位毫秒
+	RegisterEndAt   int64  `query:"register_end_at"`                        // 结束时间，时间戳，单位毫秒
+	PageNum         int    `query:"page_num" validate:"gte=0"`              // 页码，默认值为1。
+	PageSize        int    `query:"page_size" validate:"gte=0"`             // 每页大小，默认值为20。
 }
 
 type UserListItem struct {

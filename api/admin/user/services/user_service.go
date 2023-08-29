@@ -193,6 +193,12 @@ func (l *UserService) AddUser(ctx context.Context, userDetail *models.UserDetail
 		return err
 	}
 
+	if userDetail.VipTag > 1 {
+		userDetail.IsVip = 1
+	} else {
+		userDetail.IsVip = 2
+	}
+
 	user := &models.User{
 		AccountId:      userDetail.AccountId,
 		UserId:         newUserId,

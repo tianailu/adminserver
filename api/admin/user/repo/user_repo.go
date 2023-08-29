@@ -24,7 +24,7 @@ func NewUserRepo(db *gorm.DB) *UserRepo {
 }
 
 func (r *UserRepo) Create(ctx context.Context, user *models.User) error {
-	now := time.Time{}
+	now := time.Now()
 	user.CreatedAt = now.UnixMilli()
 	user.UpdatedAt = now.UnixMilli()
 	user.DeletedAt = sql.NullInt64{Valid: false}

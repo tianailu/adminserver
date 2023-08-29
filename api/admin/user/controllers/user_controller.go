@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/tianailu/adminserver/api/admin/user/common/enum"
 	"github.com/tianailu/adminserver/api/admin/user/models"
@@ -23,7 +24,7 @@ func NewUserController() *UserController {
 
 func (h *UserController) FindUserList(c echo.Context) error {
 	var (
-		req  = &models.UserSearchParam{}
+		req  = models.UserSearchParam{}
 		resp = common.Response{
 			Status: 0,
 			Msg:    "OK",
@@ -31,8 +32,14 @@ func (h *UserController) FindUserList(c echo.Context) error {
 		ctx = c.Request().Context()
 	)
 
-	if err := c.Bind(req); err != nil {
+	if err := c.Bind(&req); err != nil {
 		c.Logger().Errorf("Bind req param error: %s", err.Error())
+		return err
+	}
+
+	validate := validator.New()
+	err := validate.Struct(req)
+	if err != nil {
 		return err
 	}
 
@@ -43,7 +50,7 @@ func (h *UserController) FindUserList(c echo.Context) error {
 		req.PageSize = 20
 	}
 
-	users, pageNum, pageSize, total, err := h.userService.Find(ctx, req)
+	users, pageNum, pageSize, total, err := h.userService.Find(ctx, &req)
 	if err != nil {
 		return err
 	}
