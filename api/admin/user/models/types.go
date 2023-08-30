@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"github.com/shopspring/decimal"
 )
 
 type UserDetail struct {
@@ -41,6 +42,15 @@ type UserDetail struct {
 	LoveView         string  `json:"love_view,optional"`
 	TargetAppearance string  `json:"target_appearance,optional"`
 	BeImpressed      string  `json:"be_impressed,optional"`
+}
+
+type VipTagDetail struct {
+	Id                  int32           `json:"id,optional"`
+	Name                string          `json:"name,optional"`
+	TotalRechargeAmount decimal.Decimal `json:"total_recharge_amount,optional"`
+	VipCount            int64           `json:"vip_count,optional"`
+	CreateAt            int64           `json:"create_at,optional"`
+	UpdateAt            int64           `json:"update_at,optional"`
 }
 
 type FriendDetail struct {

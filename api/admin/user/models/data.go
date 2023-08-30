@@ -138,19 +138,11 @@ type (
 	}
 
 	VipTag struct {
-		Id                    int64           `json:"id" gorm:"type:bigint;primaryKey;autoIncrement;not null;comment:主键"`
-		Name                  string          `json:"name" gorm:"size:10;not null;comment:标签名称"`
-		GrossTransactionValue decimal.Decimal `json:"gross_transaction_value" gorm:"type:decimal(10,2);comment:累计交易金额 GTV"`
-		CreatedAt             int64           `json:"created_at" gorm:"type:bigint;not null;comment:创建时间"`
-		UpdatedAt             int64           `json:"updated_at" gorm:"type:bigint;not null;comment:修改时间"`
-	}
-
-	UserVipTag struct {
-		Id        int64 `json:"id" gorm:"type:bigint;primaryKey;autoIncrement;not null;comment:主键"`
-		UserId    int64 `json:"user_id" gorm:"not null;comment:用户唯一id;index:idx_user_id"`
-		VipTagId  uint  `json:"vip_tag_id" gorm:"not null;comment:会员标签id"`
-		CreatedAt int64 `json:"created_at" gorm:"type:bigint;not null;comment:创建时间"`
-		UpdatedAt int64 `json:"updated_at" gorm:"type:bigint;not null;comment:修改时间"`
+		Id                  int32           `json:"id" gorm:"type:int;primaryKey;autoIncrement;not null;comment:主键"`
+		Name                string          `json:"name" gorm:"size:10;not null;comment:标签名称"`
+		TotalRechargeAmount decimal.Decimal `json:"total_recharge_amount" gorm:"type:decimal(10,2);comment:玩家充值金额"`
+		CreatedAt           int64           `json:"created_at" gorm:"type:bigint;not null;comment:创建时间"`
+		UpdatedAt           int64           `json:"updated_at" gorm:"type:bigint;not null;comment:修改时间"`
 	}
 
 	Follow struct {
@@ -285,10 +277,6 @@ func (m *VipTag) TableName() string {
 	return "tb_vip_tag"
 }
 
-func (m *UserVipTag) TableName() string {
-	return "tb_user_vip_tag"
-}
-
 func (m *Follow) TableName() string {
 	return "tb_follow"
 }
@@ -328,8 +316,8 @@ func (m *CompanionType) TableName() string {
 func CreateTable() error {
 	err := mysql.GetDB().Set("gorm:table_options", "ENGINE=InnoDB").
 		AutoMigrate(&User{}, &AboutMe{}, &MatchSetting{}, &RealNameAuth{}, &WorkAuth{}, &EduAuth{}, &UserManagement{},
-			&Reports{}, &VipTag{}, &UserVipTag{}, &Follow{}, &Fans{}, &Friendship{}, &FriendRequest{},
-			&HeartbeatMatching{}, &HeartbeatRequest{})
+			&Reports{}, &VipTag{}, &Follow{}, &Fans{}, &Friendship{}, &FriendRequest{}, &HeartbeatMatching{},
+			&HeartbeatRequest{})
 	if err != nil {
 		log.Printf("创建 tb_user/tb_about_me/tb_match_setting/tb_real_name_auth/tb_work_auth/tb_edu_auth/tb_user_management/tb_reports/tb_vip_tag/tb_user_vip_tag 表失败, err: %s", err)
 		return err
@@ -385,11 +373,6 @@ func CreateTable() error {
 	err = mysql.GetDB().Exec(fmt.Sprintf("ALTER TABLE %s COMMENT = '%s'", new(VipTag).TableName(), "会员标签表")).Error
 	if err != nil {
 		log.Printf("添加表备注失败, table: %s, err: %s", new(VipTag).TableName(), err)
-		return err
-	}
-	err = mysql.GetDB().Exec(fmt.Sprintf("ALTER TABLE %s COMMENT = '%s'", new(UserVipTag).TableName(), "用户会员信息表")).Error
-	if err != nil {
-		log.Printf("添加表备注失败, table: %s, err: %s", new(UserVipTag).TableName(), err)
 		return err
 	}
 	err = mysql.GetDB().Exec(fmt.Sprintf("ALTER TABLE %s COMMENT = '%s'", new(Follow).TableName(), "用户关注记录表")).Error

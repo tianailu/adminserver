@@ -182,6 +182,22 @@ func (r *UserRepo) FindUserByUserStatus(ctx context.Context, userStatus enum.Use
 	return list, true, nil
 }
 
+func (r *UserRepo) FindUserByVipTag(ctx context.Context, vipTagIds []int32) ([]*models.User, bool, error) {
+	var list []*models.User
+
+	err := r.db.WithContext(ctx).Model(&models.User{}).Where("vip_tag in ?", vipTagIds).Find(&list).Error
+
+	if err != nil {
+		return list, false, err
+	}
+
+	if len(list) <= 0 {
+		return list, false, nil
+	}
+
+	return list, true, nil
+}
+
 func (r *UserRepo) TotalUser(ctx context.Context, param *models.UserSearchParam) (int64, error) {
 	var count int64
 
@@ -286,14 +302,30 @@ func (r *UserRepo) UpdateUserAuditStatus(ctx context.Context, auditType enum.Aud
 
 	var err error
 	if auditType == enum.UserBaseInfoAudit {
-		err = db.Model(models.User{}).Where("user_id = ?", userId).Update("audit_status", status).Error
+		err = db.Model(&models.User{}).Where("user_id = ?", userId).Update("audit_status", status).Error
 	} else if auditType == enum.WorkAuth {
-		err = db.Model(models.WorkAuth{}).Where("user_id = ?", userId).Update("status", status).Error
+		err = db.Model(&models.WorkAuth{}).Where("user_id = ?", userId).Update("status", status).Error
 	} else if auditType == enum.EduAuth {
-		err = db.Model(models.EduAuth{}).Where("user_id = ?", userId).Update("status", status).Error
+		err = db.Model(&models.EduAuth{}).Where("user_id = ?", userId).Update("status", status).Error
 	} else {
 		return nil
 	}
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *UserRepo) CleanUserVipTag(ctx context.Context, vipTagIds []int32) error {
+	if len(vipTagIds) <= 0 {
+		return nil
+	}
+
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		return tx.Model(&models.User{}).Where("vip_tag in ?", vipTagIds).Update("vip_tag", 0).Error
+	})
 
 	if err != nil {
 		return err
