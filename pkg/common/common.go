@@ -35,6 +35,13 @@ type PageData struct {
 	List     []any `json:"list"`
 }
 
+func NewOkResponse() *Response {
+	return &Response{
+		Status: 0,
+		Msg:    "OK",
+	}
+}
+
 func ToAnySlice(v any) []any {
 	sliceValue := reflect.ValueOf(v)
 	if sliceValue.Kind() != reflect.Slice && sliceValue.Kind() != reflect.Array {

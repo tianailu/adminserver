@@ -32,6 +32,12 @@ func InitAdminRouter(g *echo.Group) {
 
 	g.GET("/users/uid", userController.CreateUid)
 
+	vipController := controllers.NewVipController()
+	g.POST("/vips/tags", vipController.AddVipTag)
+	g.PUT("/vips/tags", vipController.UpdateVipTag)
+	g.DELETE("/vips/tags/batch", vipController.BatchDeleteVipTag)
+	g.GET("/vips/tags", vipController.FindVipTagList)
+
 	friendController := controllers.NewFriendController()
 	g.GET("/friends", friendController.FindFriendshipList)
 

@@ -14,14 +14,16 @@ import (
 
 type VipService struct {
 	echo.Logger
-	vipTagRepo *repo.VipTagRepo
-	userRepo   *repo.UserRepo
+	vipTagRepo       *repo.VipTagRepo
+	userRepo         *repo.UserRepo
+	vipTagUpdateChan chan struct{}
 }
 
 func NewVipService() *VipService {
 	return &VipService{
-		vipTagRepo: repo.NewVipTagRepo(mysql.GetDB()),
-		userRepo:   repo.NewUserRepo(mysql.GetDB()),
+		vipTagRepo:       repo.NewVipTagRepo(mysql.GetDB()),
+		userRepo:         repo.NewUserRepo(mysql.GetDB()),
+		vipTagUpdateChan: make(chan struct{}),
 	}
 }
 

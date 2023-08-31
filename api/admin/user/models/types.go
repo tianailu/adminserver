@@ -46,8 +46,8 @@ type UserDetail struct {
 
 type VipTagDetail struct {
 	Id                  int32           `json:"id,optional"`
-	Name                string          `json:"name,optional"`
-	TotalRechargeAmount decimal.Decimal `json:"total_recharge_amount,optional"`
+	Name                string          `json:"name,optional" validate:"min=1,max=10"`
+	TotalRechargeAmount decimal.Decimal `json:"total_recharge_amount,optional" validate:"gt=0"`
 	VipCount            int64           `json:"vip_count,optional"`
 	CreateAt            int64           `json:"create_at,optional"`
 	UpdateAt            int64           `json:"update_at,optional"`

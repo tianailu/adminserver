@@ -155,3 +155,7 @@ type CompanionTypeListItem struct {
 	Status            int8   `json:"status"`
 	CreateAt          int64  `json:"create_at"`
 }
+
+type VipTagCommonParam struct {
+	VipTagIds []int32 `json:"vip_tag_ids,optional"`
+}
