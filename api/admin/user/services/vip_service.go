@@ -7,6 +7,7 @@ import (
 	"github.com/tianailu/adminserver/api/admin/user/repo"
 	"github.com/tianailu/adminserver/pkg/common"
 	"github.com/tianailu/adminserver/pkg/db/mysql"
+	"github.com/tianailu/adminserver/pkg/errors"
 	"github.com/tianailu/adminserver/pkg/utility/json"
 	"unicode/utf8"
 )
@@ -22,6 +23,26 @@ func NewVipService() *VipService {
 		vipTagRepo: repo.NewVipTagRepo(mysql.GetDB()),
 		userRepo:   repo.NewUserRepo(mysql.GetDB()),
 	}
+}
+
+func (l *VipService) AddVipTag(ctx context.Context, vipTagDetail *models.VipTagDetail) (int32, error) {
+	if vipTagDetail == nil {
+		return 0, errors.ParamError
+	}
+
+	vipTag := &models.VipTag{
+		Name:                vipTagDetail.Name,
+		TotalRechargeAmount: vipTagDetail.TotalRechargeAmount,
+	}
+
+	err := l.vipTagRepo.Create(ctx, vipTag)
+	if err != nil {
+		return 0, err
+	}
+
+	// TODO 需要全量更新用户vip标签，可以使用异步处理
+
+	return vipTag.Id, nil
 }
 
 func (l *VipService) Find(ctx context.Context, param *common.SearchParam) ([]*models.VipTagDetail, int, int, int64, error) {

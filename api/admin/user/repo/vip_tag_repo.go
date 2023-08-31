@@ -19,6 +19,23 @@ func NewVipTagRepo(db *gorm.DB) *VipTagRepo {
 	}
 }
 
+func (r *VipTagRepo) Create(ctx context.Context, vipTag *models.VipTag) error {
+	now := time.Now()
+	vipTag.CreatedAt = now.UnixMilli()
+	vipTag.UpdatedAt = now.UnixMilli()
+
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		return tx.Create(vipTag).Error
+	})
+
+	if err != nil {
+		r.db.Logger.Error(ctx, "Create vip tag error: %s", err)
+		return err
+	}
+
+	return nil
+}
+
 func (r *VipTagRepo) Find(ctx context.Context, param *common.SearchParam) ([]*models.VipTag, bool, error) {
 	var list []*models.VipTag
 

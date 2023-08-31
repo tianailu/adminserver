@@ -4,6 +4,7 @@ import "errors"
 
 var (
 	InternalError = errors.New("internal error")
+	ParamError    = errors.New("param error")
 )
 
 // Database
